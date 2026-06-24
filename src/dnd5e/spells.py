@@ -17,6 +17,11 @@ from dnd5e.combat import (
     damage_roll,
     resolve_attack_action,
 )
+from dnd5e.effects import (
+    combine_advantage,
+    condition_auto_fails_save,
+    condition_saving_throw_modifier,
+)
 from dnd5e.hit_points import DamageApplicationResult, HealingResult
 from dnd5e.types import Ability
 from dnd5e.types import AdvantageState, ConditionName, DamageType, SpellComponent, SpellSchool
@@ -273,17 +278,19 @@ def saving_throw(
     dc: int,
     roll: int | None = None,
     advantage: AdvantageState = "normal",
+    conditions: tuple[ConditionName, ...] = (),
     rng: RandomSource = random,
 ) -> SavingThrowResult:
     """Resolve a saving throw against a fixed DC."""
 
     if dc < 1:
         raise ValueError("saving throw DC must be positive")
+    condition_modifier = condition_saving_throw_modifier(conditions, ability)
     check = d20_check(
         ability_score=10,
         bonus=save_bonus,
         roll=roll,
-        advantage=advantage,
+        advantage=combine_advantage(advantage, condition_modifier.advantage),
         rng=rng,
     )
     return SavingThrowResult(
@@ -292,7 +299,7 @@ def saving_throw(
         discarded_roll=check.discarded_roll,
         total=check.total,
         dc=dc,
-        success=check.total >= dc,
+        success=check.total >= dc and not condition_auto_fails_save(conditions, ability),
     )
 
 
@@ -351,6 +358,7 @@ def resolve_spell_save_damage(
         dc=save_dc,
         roll=roll,
         advantage=advantage,
+        conditions=target.conditions,
         rng=save_rng,
     )
 
@@ -364,7 +372,7 @@ def resolve_spell_save_damage(
 
     damage = damage_roll(dice=damage_dice, type=damage_type, rng=damage_rng)
     amount = damage.total // 2 if save.success else damage.total
-    application = apply_combat_damage(state, target_id=target_id, amount=amount)
+    application = apply_combat_damage(state, target_id=target_id, amount=amount, damage_type=damage_type)
     return SpellSaveDamageResult(
         state=application.state,
         target_before=target,
@@ -421,6 +429,7 @@ def apply_spell_condition(
             dc=save_dc,
             roll=roll,
             advantage=advantage,
+            conditions=target.conditions,
             rng=save_rng,
         )
         if save.success:

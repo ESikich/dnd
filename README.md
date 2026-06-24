@@ -31,6 +31,8 @@ from dnd5e import (
     SPELLS,
     SRD_CLASSES,
     ability_modifier,
+    apply_combat_damage,
+    apply_condition,
     apply_second_wind,
     apply_spell_condition,
     apply_spell_healing,
@@ -40,6 +42,7 @@ from dnd5e import (
     character_sheet_rules,
     character_sheet_weapon_profile,
     combatant_by_id,
+    condition_attack_modifier,
     create_combat,
     create_combatant,
     create_creature_instance,
@@ -150,9 +153,23 @@ recharge_feature_state = create_feature_state(FEATURES["recharge_5_6"], remainin
 recharged_feature, recharge_roll = recharge_feature(recharge_feature_state, roll=5)
 web_recharge_state = creature_action_recharge_state(giant_spider.actions[1], remaining=0)
 recharged_web, web_recharge_roll = recharge_feature(web_recharge_state, roll=5)
+poisoned_attack_modifier = condition_attack_modifier(attacker_conditions=("poisoned",))
 encounter = summarize_encounter(
     [encounter_monster("ogre"), encounter_monster("bandit", count=2)],
     party_levels=[3, 3, 3, 3],
+)
+restrained_combat = apply_condition(combat, target_id="goblin", condition="restrained")
+skeleton_combat = create_combat(
+    [
+        create_combatant(id="fighter", name="Fighter", initiative_bonus=2, roll=15),
+        creature_runtime_combatant(create_creature_instance("skeleton"), roll=12),
+    ]
+)
+bludgeoned_skeleton = apply_combat_damage(
+    skeleton_combat,
+    target_id="skeleton",
+    amount=4,
+    damage_type="bludgeoning",
 )
 
 result = resolve_attack_action(
@@ -232,6 +249,9 @@ print(second_wind_healing.healing.applied)  # 8
 print(sneak_attack_dice)  # "3d6"
 print(recharge_roll.recharged)  # True
 print(web_recharge_roll.recharged)  # True
+print(poisoned_attack_modifier.advantage)  # "disadvantage"
+print(combatant_by_id(restrained_combat, "goblin").conditions)  # ("restrained",)
+print(bludgeoned_skeleton.damage_adjustment.adjusted)  # 8
 print(spell_hit.damage.total)  # 1
 print(spell_save.save.success)  # False
 print(spell_healing.healing.applied)  # 0
@@ -271,10 +291,12 @@ Included now:
 - Generic limited-use resources for fixed charges, rests, proficiency-based uses, and recharge rolls
 - Feature definitions and runtime feature state, with examples such as Second Wind, Rage, Sneak Attack,
   Pack Tactics, Recharge 5-6, and creature action recharge state
+- Structured effect helpers for condition-based roll modifiers, condition immunity,
+  and damage vulnerability/resistance/immunity adjustment
 
 Good next modules:
 
-- Effect/modifier hooks for conditions, concentration, and damage resistance
+- Remaining effect hooks for AC, turn start/end, and concentration
 - Character advancement and multiclassing
 
 See [ROADMAP.md](./ROADMAP.md) for phased development guidance. Future coding

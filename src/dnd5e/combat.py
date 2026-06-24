@@ -1,13 +1,22 @@
 from __future__ import annotations
 
 import re
-from dataclasses import dataclass, field
+from dataclasses import dataclass, field, replace
 from random import random
 from typing import Any, SupportsInt
 
 from dnd5e.abilities import RandomSource, d20_check
 from dnd5e.character import CharacterRules, initiative_bonus
 from dnd5e.dice import DiceRoll, roll_dice
+from dnd5e.effects import (
+    DamageAdjustmentResult,
+    adjust_damage_for_target,
+    combine_advantage,
+    condition_attack_modifier,
+    condition_forces_nearby_critical,
+    condition_prevents_actions,
+    target_immune_to_condition,
+)
 from dnd5e.hit_points import (
     DamageApplicationResult,
     HealingResult,
@@ -148,6 +157,7 @@ class AttackActionResult:
     attack: AttackRollResult
     damage: DamageResult | None = None
     damage_application: DamageApplicationResult | None = None
+    damage_adjustment: DamageAdjustmentResult | None = None
 
     @property
     def hit(self) -> bool:
@@ -166,6 +176,7 @@ class CombatDamageResult:
     target_before: Combatant
     target_after: Combatant
     damage_application: DamageApplicationResult
+    damage_adjustment: DamageAdjustmentResult | None = None
 
 
 @dataclass(frozen=True)
@@ -335,21 +346,37 @@ def resolve_attack_action(
     damage_rng: RandomSource = random,
     attack_rng: RandomSource = random,
     bonus_dice: tuple[str, ...] = (),
+    attacker_within_5_feet: bool | None = None,
 ) -> AttackActionResult:
     """Resolve an attack event and apply damage to the target on a hit."""
 
     actor = combatant_by_id(state, actor_id)
     target = combatant_by_id(state, target_id)
+    if condition_prevents_actions(actor.conditions):
+        raise ValueError(f"{actor.name} cannot act while affected by current conditions")
+
+    condition_modifier = condition_attack_modifier(
+        attacker_conditions=actor.conditions,
+        target_conditions=target.conditions,
+        attacker_within_5_feet=attacker_within_5_feet,
+    )
     attack = attack_roll(
         attacker_bonus=attack_bonus,
         target_armor_class=target.armor_class,
         roll=roll,
-        advantage=advantage,
+        advantage=combine_advantage(advantage, condition_modifier.advantage),
         rng=attack_rng,
     )
+    if (
+        attacker_within_5_feet is True
+        and attack.outcome == "hit"
+        and condition_forces_nearby_critical(target.conditions)
+    ):
+        attack = replace(attack, outcome="critical-hit")
 
     damage = None
     damage_application = None
+    damage_adjustment = None
     target_after = target
     next_state = state
 
@@ -361,7 +388,12 @@ def resolve_attack_action(
             bonus_dice=bonus_dice,
             rng=damage_rng,
         )
-        damage_application = apply_damage(target.hit_points, damage.total)
+        damage_adjustment = adjust_damage_for_target(
+            amount=damage.total,
+            damage_type=damage.type,
+            target_source=target.source,
+        )
+        damage_application = apply_damage(target.hit_points, damage_adjustment.adjusted)
         target_after = _replace_combatant(target, hit_points=damage_application.hit_points)
         next_state = _replace_in_state(state, target_after)
 
@@ -373,6 +405,7 @@ def resolve_attack_action(
         attack=attack,
         damage=damage,
         damage_application=damage_application,
+        damage_adjustment=damage_adjustment,
     )
 
 
@@ -401,11 +434,21 @@ def apply_combat_damage(
     *,
     target_id: str,
     amount: int,
+    damage_type: DamageType | None = None,
 ) -> CombatDamageResult:
     """Apply direct damage to a combatant and return the updated combat state event."""
 
     target = combatant_by_id(state, target_id)
-    damage = apply_damage(target.hit_points, amount)
+    damage_adjustment = None
+    adjusted_amount = amount
+    if damage_type is not None:
+        damage_adjustment = adjust_damage_for_target(
+            amount=amount,
+            damage_type=damage_type,
+            target_source=target.source,
+        )
+        adjusted_amount = damage_adjustment.adjusted
+    damage = apply_damage(target.hit_points, adjusted_amount)
     target_after = _replace_combatant(target, hit_points=damage.hit_points)
 
     return CombatDamageResult(
@@ -413,6 +456,7 @@ def apply_combat_damage(
         target_before=target,
         target_after=target_after,
         damage_application=damage,
+        damage_adjustment=damage_adjustment,
     )
 
 
@@ -425,7 +469,7 @@ def apply_condition(
     """Add a condition to a combatant, leaving existing copies idempotent."""
 
     target = combatant_by_id(state, target_id)
-    if condition in target.conditions:
+    if condition in target.conditions or target_immune_to_condition(target.source, condition):
         return state
 
     return _replace_in_state(

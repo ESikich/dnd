@@ -28,6 +28,8 @@ from dnd5e import (
     Ability,
     ability_bonus,
     ability_modifier,
+    apply_combat_damage,
+    apply_condition,
     apply_healing,
     apply_second_wind,
     apply_spell_condition,
@@ -42,6 +44,7 @@ from dnd5e import (
     character_sheet_weapon_profile,
     combatant_by_id,
     combatant_defeated,
+    condition_attack_modifier,
     create_combat,
     create_combatant,
     create_creature_instance,
@@ -97,6 +100,7 @@ def main() -> None:
     show_sheet_validation()
     show_equipment(hero)
     show_class_and_condition_data()
+    show_effects_and_conditions()
     show_resource_features()
     show_spell_catalog()
     show_creature_catalog()
@@ -313,6 +317,41 @@ def show_class_and_condition_data() -> None:
     for name in condition_names:
         condition = CONDITIONS[name]
         print(f"Condition {name}: {', '.join(condition.tags)}")
+
+
+def show_effects_and_conditions() -> None:
+    print_section("Effects And Conditions")
+
+    combat = create_combat(
+        [
+            create_combatant(
+                id="hero",
+                name="Kara",
+                initiative_bonus=2,
+                roll=14,
+                armor_class=18,
+                hit_points=HitPointState(current=20, maximum=20),
+            ),
+            creature_runtime_combatant(create_creature_instance("skeleton"), roll=12),
+        ]
+    )
+    restrained = apply_condition(combat, target_id="skeleton", condition="restrained")
+    poison_modifier = condition_attack_modifier(attacker_conditions=("poisoned",))
+    bludgeoning = apply_combat_damage(
+        restrained,
+        target_id="skeleton",
+        amount=4,
+        damage_type="bludgeoning",
+    )
+
+    adjustment = bludgeoning.damage_adjustment
+    assert adjustment is not None
+    print(f"Poisoned attack modifier: {poison_modifier.advantage}")
+    print(f"Skeleton conditions: {combatant_by_id(restrained, 'skeleton').conditions}")
+    print(
+        f"Bludgeoning skeleton: {adjustment.original} -> {adjustment.adjusted} "
+        f"({', '.join(adjustment.modifiers)})"
+    )
 
 
 def show_resource_features() -> None:
