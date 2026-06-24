@@ -124,6 +124,8 @@ Progress:
   humanoid, undead, and higher-CR encounter coverage.
 - Done: add kobold, orc, axe beak, bugbear, and ghoul SRD-style creature
   entries to broaden low- and mid-CR encounter coverage.
+- Done: add black bear, giant spider, and gray ooze SRD-style creature entries
+  to broaden beast, ooze, trait, resistance, and condition-immunity coverage.
 
 Todo:
 

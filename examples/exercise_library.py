@@ -289,8 +289,11 @@ def show_creature_catalog() -> None:
     skeleton = CREATURES["skeleton"]
     zombie = CREATURES["zombie"]
     orc = CREATURES["orc"]
+    black_bear = CREATURES["black_bear"]
     bugbear = CREATURES["bugbear"]
     ghoul = CREATURES["ghoul"]
+    giant_spider = CREATURES["giant_spider"]
+    gray_ooze = CREATURES["gray_ooze"]
     ogre = CREATURES["ogre"]
 
     print(
@@ -308,10 +311,22 @@ def show_creature_catalog() -> None:
         f"{orc.name}: bonus actions {join_names(orc.bonus_actions)}, "
         f"attacks {', '.join(action.name for action in orc.actions)}"
     )
+    print(
+        f"{black_bear.name}: speed {black_bear.speed['walk']}, climb {black_bear.speed['climb']}, "
+        f"traits {join_names(black_bear.traits)}"
+    )
     print(f"{bugbear.name}: traits {join_names(bugbear.traits)}, stealth {bugbear.skills['stealth']:+d}")
     print(
         f"{ghoul.name}: immune {', '.join(ghoul.damage_immunities)}, "
         f"condition immune {', '.join(ghoul.condition_immunities)}"
+    )
+    print(
+        f"{giant_spider.name}: CR {giant_spider.challenge_rating}, "
+        f"traits {join_names(giant_spider.traits)}"
+    )
+    print(
+        f"{gray_ooze.name}: resists {', '.join(gray_ooze.damage_resistances)}, "
+        f"condition immune {', '.join(gray_ooze.condition_immunities)}"
     )
     print(
         f"{ogre.name}: CR {ogre.challenge_rating}, HP {ogre.hit_points}, "
