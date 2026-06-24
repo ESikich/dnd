@@ -130,6 +130,23 @@ def test_summarize_encounter_uses_expanded_creature_catalog() -> None:
     assert summary.difficulty == "hard"
 
 
+def test_summarize_encounter_uses_new_low_and_mid_cr_creatures() -> None:
+    summary = summarize_encounter(
+        [
+            encounter_monster("bugbear"),
+            encounter_monster("orc"),
+            encounter_monster("kobold", count=2),
+        ],
+        party_levels=[2, 2, 2, 2],
+    )
+
+    assert summary.monster_count == 4
+    assert summary.total_xp == 350
+    assert summary.xp_multiplier == 2
+    assert summary.adjusted_xp == 700
+    assert summary.difficulty == "hard"
+
+
 def test_summarize_encounter_rejects_empty_monsters() -> None:
     with pytest.raises(ValueError, match="encounter requires at least one monster"):
         summarize_encounter([], party_levels=[1])

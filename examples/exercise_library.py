@@ -288,6 +288,9 @@ def show_creature_catalog() -> None:
     wolf = CREATURES["wolf"]
     skeleton = CREATURES["skeleton"]
     zombie = CREATURES["zombie"]
+    orc = CREATURES["orc"]
+    bugbear = CREATURES["bugbear"]
+    ghoul = CREATURES["ghoul"]
     ogre = CREATURES["ogre"]
 
     print(
@@ -300,6 +303,15 @@ def show_creature_catalog() -> None:
         f"{skeleton.name}: vulnerable {', '.join(skeleton.damage_vulnerabilities)}, "
         f"immune {', '.join(skeleton.damage_immunities)}, "
         f"condition immune {', '.join(skeleton.condition_immunities)}"
+    )
+    print(
+        f"{orc.name}: bonus actions {join_names(orc.bonus_actions)}, "
+        f"attacks {', '.join(action.name for action in orc.actions)}"
+    )
+    print(f"{bugbear.name}: traits {join_names(bugbear.traits)}, stealth {bugbear.skills['stealth']:+d}")
+    print(
+        f"{ghoul.name}: immune {', '.join(ghoul.damage_immunities)}, "
+        f"condition immune {', '.join(ghoul.condition_immunities)}"
     )
     print(
         f"{ogre.name}: CR {ogre.challenge_rating}, HP {ogre.hit_points}, "

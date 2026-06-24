@@ -85,12 +85,29 @@ def test_creature_catalog_includes_feature_and_immunity_metadata() -> None:
 
 def test_creature_catalog_includes_more_srd_style_combatants() -> None:
     bandit = CREATURES["bandit"]
+    kobold = CREATURES["kobold"]
+    orc = CREATURES["orc"]
+    axe_beak = CREATURES["axe_beak"]
+    bugbear = CREATURES["bugbear"]
+    ghoul = CREATURES["ghoul"]
     ogre = CREATURES["ogre"]
 
     assert bandit.challenge_rating == "1/8"
     assert bandit.xp == 25
     assert bandit.actions[1].name == "Light Crossbow"
     assert bandit.actions[1].normal_range == 80
+    assert kobold.traits[0].name == "Pack Tactics"
+    assert kobold.actions[1].long_range == 120
+    assert orc.challenge_rating == "1/2"
+    assert orc.bonus_actions[0].name == "Aggressive"
+    assert axe_beak.type == "beast"
+    assert axe_beak.speed["walk"] == 50
+    assert bugbear.challenge_rating == "1"
+    assert bugbear.skills["stealth"] == 6
+    assert [trait.name for trait in bugbear.traits] == ["Brute", "Surprise Attack"]
+    assert ghoul.type == "undead"
+    assert ghoul.damage_immunities == ("poison",)
+    assert ghoul.condition_immunities == ("charmed", "poisoned")
     assert ogre.challenge_rating == "2"
     assert ogre.xp == 450
     assert ogre.size == "large"

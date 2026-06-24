@@ -96,6 +96,9 @@ goblin = create_creature_instance(CREATURES["goblin"])
 goblin_combatant = creature_runtime_combatant(goblin, roll=12)
 skeleton = CREATURES["skeleton"]
 zombie = CREATURES["zombie"]
+orc = CREATURES["orc"]
+bugbear = CREATURES["bugbear"]
+ghoul = CREATURES["ghoul"]
 ogre = CREATURES["ogre"]
 encounter = summarize_encounter(
     [encounter_monster("ogre"), encounter_monster("bandit", count=2)],
@@ -124,6 +127,9 @@ print(kara_combatant.hit_points.maximum)  # 44
 print(goblin_combatant.armor_class)  # 15
 print(skeleton.damage_immunities)  # ("poison",)
 print(zombie.traits[0].name)  # "Undead Fortitude"
+print(orc.bonus_actions[0].name)  # "Aggressive"
+print(bugbear.traits[0].name)  # "Brute"
+print(ghoul.condition_immunities)  # ("charmed", "poisoned")
 print(ogre.actions[0].damage_dice)  # "2d8+4"
 print(CREATURES["wolf"].traits[0].name)  # "Keen Hearing and Smell"
 print(encounter.adjusted_xp)  # 1000

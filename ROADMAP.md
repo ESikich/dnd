@@ -16,7 +16,7 @@ Implemented:
 - Equipment, armor, shields, weapons, AC, weapon attack profiles
 - Equipment definition validation for impossible AC, costs, weights, damage, ranges, and metadata
 - HP, healing, temporary HP, hit dice, rests, death saves
-- Basic creature/stat block definitions for a small SRD-style catalog
+- Basic creature/stat block definitions for a growing SRD-style catalog
 - Creature stat block validation for impossible HP, AC, ability scores, dice, movement, senses, and XP
 - Creature metadata for traits, bonus actions, reactions, damage
   vulnerabilities/resistances/immunities, and condition immunities
@@ -122,6 +122,8 @@ Progress:
   objects.
 - Done: add bandit, zombie, and ogre SRD-style creature entries to broaden
   humanoid, undead, and higher-CR encounter coverage.
+- Done: add kobold, orc, axe beak, bugbear, and ghoul SRD-style creature
+  entries to broaden low- and mid-CR encounter coverage.
 
 Todo:
 
