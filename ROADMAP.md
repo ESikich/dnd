@@ -146,10 +146,11 @@ Progress:
 - Done: add spell definitions for level, school, casting time, range, duration,
   components, concentration, and ritual metadata.
 - Done: add a small SRD-style spell catalog.
+- Done: add spell attack bonus and spell save DC helpers for character rules
+  and character sheets.
 
 Todo:
 
-- Add spell attack bonus and spell save DC helpers.
 - Add spell slot and pact magic state.
 - Add basic spell effects for attack, save, damage, healing, and conditions.
 

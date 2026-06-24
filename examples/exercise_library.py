@@ -53,6 +53,8 @@ from dnd5e import (
     saving_throw_bonus,
     short_rest,
     skill_bonus,
+    spell_attack_bonus,
+    spell_save_dc,
     summarize_encounter,
     weapon_attack_profile,
 )
@@ -286,6 +288,18 @@ def show_class_and_condition_data() -> None:
 def show_spell_catalog() -> None:
     print_section("Spells")
 
+    wizard = CharacterRules(
+        level=5,
+        abilities={
+            "str": 8,
+            "dex": 14,
+            "con": 12,
+            "int": 16,
+            "wis": 10,
+            "cha": 13,
+        },
+    )
+
     for spell_id in ["fire_bolt", "cure_wounds", "detect_magic", "mage_armor"]:
         spell = SPELLS[spell_id]
         flags = []
@@ -298,6 +312,10 @@ def show_spell_catalog() -> None:
             f"{spell.name}: level {spell.level} {spell.school}, "
             f"{spell.casting_time}, range {spell.range}, duration {spell.duration}{suffix}"
         )
+    print(
+        f"Level {wizard.level} wizard spell attack {spell_attack_bonus(wizard, 'int'):+d}, "
+        f"spell save DC {spell_save_dc(wizard, 'int')}"
+    )
 
 
 def show_creature_catalog() -> None:

@@ -118,10 +118,19 @@ from dnd5e.sheets import (
     character_sheet_rules,
     character_sheet_saving_throw_bonus,
     character_sheet_skill_bonus,
+    character_sheet_spell_attack_bonus,
+    character_sheet_spell_save_dc,
     character_sheet_weapon_profile,
     character_sheet_weapon_profiles,
 )
-from dnd5e.spells import SPELLS, SPELL_COMPONENTS, SPELL_SCHOOLS, SpellDefinition
+from dnd5e.spells import (
+    SPELLS,
+    SPELL_COMPONENTS,
+    SPELL_SCHOOLS,
+    SpellDefinition,
+    spell_attack_bonus,
+    spell_save_dc,
+)
 from dnd5e.types import (
     Ability,
     AdvantageState,
@@ -231,6 +240,8 @@ __all__ = [
     "character_sheet_rules",
     "character_sheet_saving_throw_bonus",
     "character_sheet_skill_bonus",
+    "character_sheet_spell_attack_bonus",
+    "character_sheet_spell_save_dc",
     "character_sheet_weapon_profile",
     "character_sheet_weapon_profiles",
     "combatant_by_id",
@@ -272,6 +283,8 @@ __all__ = [
     "saving_throw_bonus",
     "short_rest",
     "skill_bonus",
+    "spell_attack_bonus",
+    "spell_save_dc",
     "spend_hit_die",
     "summarize_encounter",
     "weapon_attack_bonus",

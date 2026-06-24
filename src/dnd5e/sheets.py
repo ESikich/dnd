@@ -23,6 +23,7 @@ from dnd5e.equipment import (
 )
 from dnd5e.hit_points import HitPointState
 from dnd5e.skills import SKILL_ABILITIES
+from dnd5e.spells import spell_attack_bonus, spell_save_dc
 from dnd5e.types import Ability, CharacterClassName, ConditionName, ProficiencyLevel, Skill
 
 if TYPE_CHECKING:
@@ -217,6 +218,18 @@ def character_sheet_saving_throw_bonus(sheet: CharacterSheet, ability: Ability) 
     """Return a saving throw bonus derived from the sheet."""
 
     return saving_throw_bonus(character_sheet_rules(sheet), ability)
+
+
+def character_sheet_spell_attack_bonus(sheet: CharacterSheet, ability: Ability, bonus: int = 0) -> int:
+    """Return spell attack bonus derived from the sheet."""
+
+    return spell_attack_bonus(character_sheet_rules(sheet), ability, bonus)
+
+
+def character_sheet_spell_save_dc(sheet: CharacterSheet, ability: Ability, bonus: int = 0) -> int:
+    """Return spell save DC derived from the sheet."""
+
+    return spell_save_dc(character_sheet_rules(sheet), ability, bonus)
 
 
 def character_sheet_initiative_bonus(sheet: CharacterSheet) -> int:

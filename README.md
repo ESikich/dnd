@@ -27,6 +27,7 @@ from dnd5e import (
     attack_roll,
     character_sheet_armor_class,
     character_sheet_combatant,
+    character_sheet_rules,
     character_sheet_weapon_profile,
     combatant_by_id,
     create_combat,
@@ -38,6 +39,8 @@ from dnd5e import (
     encounter_monster,
     summarize_encounter,
     roll_dice,
+    spell_attack_bonus,
+    spell_save_dc,
 )
 
 athletics = d20_check(
@@ -106,6 +109,8 @@ gray_ooze = CREATURES["gray_ooze"]
 ogre = CREATURES["ogre"]
 fire_bolt = SPELLS["fire_bolt"]
 detect_magic = SPELLS["detect_magic"]
+spell_attack = spell_attack_bonus(character_sheet_rules(kara), "int")
+spell_dc = spell_save_dc(character_sheet_rules(kara), "int")
 encounter = summarize_encounter(
     [encounter_monster("ogre"), encounter_monster("bandit", count=2)],
     party_levels=[3, 3, 3, 3],
@@ -142,6 +147,8 @@ print(gray_ooze.damage_resistances)  # ("acid", "cold", "fire")
 print(ogre.actions[0].damage_dice)  # "2d8+4"
 print(fire_bolt.range)  # "120 feet"
 print(detect_magic.ritual)  # True
+print(spell_attack)  # 3
+print(spell_dc)  # 11
 print(CREATURES["wolf"].traits[0].name)  # "Keen Hearing and Smell"
 print(encounter.adjusted_xp)  # 1000
 print(encounter.difficulty)  # "hard"
@@ -170,10 +177,11 @@ Included now:
 - SRD-style base class metadata with validation for impossible hit dice, proficiencies, and skill choices
 - Condition metadata as validated mechanical tags
 - Spell definitions with level, school, casting time, range, duration, components, concentration, and ritual metadata
+- Spell attack bonus and spell save DC helpers
 
 Good next modules:
 
-- Spellcasting attack/DC helpers, slots, and simple spell effects
+- Spell slots, pact magic, and simple spell effects
 - Resources and feature recharge
 - Character advancement and multiclassing
 

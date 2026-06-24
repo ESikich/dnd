@@ -2,6 +2,9 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 
+from dnd5e.abilities import proficiency_bonus
+from dnd5e.character import CharacterRules, ability_bonus
+from dnd5e.types import Ability
 from dnd5e.types import SpellComponent, SpellSchool
 
 SPELL_SCHOOLS: tuple[SpellSchool, ...] = (
@@ -59,6 +62,22 @@ class SpellDefinition:
 def _validate_non_empty(name: str, value: str) -> None:
     if not value:
         raise ValueError(f"{name} is required")
+
+
+def spell_attack_bonus(character: CharacterRules, ability: Ability, bonus: int = 0) -> int:
+    """Return spell attack bonus from ability modifier, proficiency, and flat bonuses."""
+
+    return _spellcasting_bonus(character, ability, bonus)
+
+
+def spell_save_dc(character: CharacterRules, ability: Ability, bonus: int = 0) -> int:
+    """Return spell save DC from the standard base DC, ability, proficiency, and bonuses."""
+
+    return 8 + _spellcasting_bonus(character, ability, bonus)
+
+
+def _spellcasting_bonus(character: CharacterRules, ability: Ability, bonus: int) -> int:
+    return ability_bonus(character, ability) + proficiency_bonus(character.level) + bonus
 
 
 SPELLS: dict[str, SpellDefinition] = {

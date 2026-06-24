@@ -1,6 +1,14 @@
 import pytest
 
-from dnd5e import SPELLS, SPELL_COMPONENTS, SPELL_SCHOOLS, SpellDefinition
+from dnd5e import (
+    SPELLS,
+    SPELL_COMPONENTS,
+    SPELL_SCHOOLS,
+    CharacterRules,
+    SpellDefinition,
+    spell_attack_bonus,
+    spell_save_dc,
+)
 
 
 def test_public_spell_imports_and_docstrings() -> None:
@@ -57,3 +65,37 @@ def test_spell_definition_rejects_invalid_components() -> None:
             ("verbal",),
             material="a tiny bell",
         )
+
+
+def test_spellcasting_helpers_use_ability_and_proficiency() -> None:
+    caster = CharacterRules(
+        level=5,
+        abilities={
+            "str": 8,
+            "dex": 14,
+            "con": 12,
+            "int": 16,
+            "wis": 10,
+            "cha": 13,
+        },
+    )
+
+    assert spell_attack_bonus(caster, "int") == 6
+    assert spell_save_dc(caster, "int") == 14
+
+
+def test_spellcasting_helpers_accept_flat_bonuses() -> None:
+    caster = CharacterRules(
+        level=1,
+        abilities={
+            "str": 8,
+            "dex": 10,
+            "con": 12,
+            "int": 14,
+            "wis": 16,
+            "cha": 10,
+        },
+    )
+
+    assert spell_attack_bonus(caster, "wis", bonus=1) == 6
+    assert spell_save_dc(caster, "wis", bonus=1) == 14

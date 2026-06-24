@@ -18,6 +18,8 @@ from dnd5e import (
     character_sheet_passive_skill,
     character_sheet_saving_throw_bonus,
     character_sheet_skill_bonus,
+    character_sheet_spell_attack_bonus,
+    character_sheet_spell_save_dc,
     character_sheet_weapon_profile,
     character_sheet_weapon_profiles,
 )
@@ -31,6 +33,8 @@ def test_character_sheet_derives_core_stats_from_rules_and_loadout() -> None:
     assert character_sheet_skill_bonus(sheet, "athletics") == 9
     assert character_sheet_passive_skill(sheet, "perception") == 15
     assert character_sheet_saving_throw_bonus(sheet, "con") == 5
+    assert character_sheet_spell_attack_bonus(sheet, "int") == 3
+    assert character_sheet_spell_save_dc(sheet, "int") == 11
     assert character_sheet_armor_class(sheet).total == 18
 
     hp = character_sheet_hit_points(sheet)
