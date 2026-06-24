@@ -263,15 +263,21 @@ Done when:
 
 Goal: make the library useful for external tools and save files.
 
+Progress:
+
+- Done: add JSON-compatible character sheet serialization, file load/dump
+  helpers, and validation result objects with path-specific errors.
+
 Todo:
 
-- Add JSON serialization for characters, creatures, encounters, combat state, and resources.
-- Add validation result objects with clear errors.
-- Add import/export examples.
+- Add JSON serialization for creatures, encounters, combat state, and resources.
+- Add validation result objects with clear errors for remaining serialized domains.
+- Add import/export examples for remaining serialized domains.
 
 Done when:
 
-- A character or encounter can round-trip through JSON with validation.
+- Done: a character can round-trip through JSON with validation.
+- An encounter can round-trip through JSON with validation.
 
 ## Phase 10: Demo Tools
 

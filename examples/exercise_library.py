@@ -44,6 +44,8 @@ from dnd5e import (
     character_sheet_combatant,
     character_sheet_hit_points,
     character_sheet_initiative_bonus,
+    character_sheet_from_data,
+    character_sheet_to_data,
     character_sheet_weapon_profile,
     combatant_by_id,
     combatant_defeated,
@@ -111,6 +113,7 @@ def main() -> None:
     hero = build_hero()
     show_character(hero)
     show_character_sheet(build_hero_sheet())
+    show_serialization(build_hero_sheet())
     show_sheet_validation()
     show_equipment(hero)
     show_class_and_condition_data()
@@ -259,6 +262,18 @@ def show_character_sheet(sheet: CharacterSheet) -> None:
     print(
         f"{weapon.weapon.name}: attack {weapon.attack_bonus:+d}, "
         f"damage {weapon.damage_dice}{weapon.damage_bonus:+d} {weapon.damage_type}"
+    )
+
+
+def show_serialization(sheet: CharacterSheet) -> None:
+    print_section("Serialization")
+
+    data = character_sheet_to_data(sheet)
+    restored = character_sheet_from_data(data)
+
+    print(
+        f"Character sheet JSON data: type {data['type']}, "
+        f"version {data['version']}, restored {restored.name}"
     )
 
 

@@ -42,7 +42,9 @@ from dnd5e import (
     attack_roll,
     character_sheet_armor_class,
     character_sheet_combatant,
+    character_sheet_from_data,
     character_sheet_rules,
+    character_sheet_to_data,
     character_sheet_weapon_profile,
     combatant_by_id,
     concentration_check,
@@ -137,6 +139,8 @@ kara = CharacterSheet(
 kara_ac = character_sheet_armor_class(kara)
 kara_weapon = character_sheet_weapon_profile(kara, "longsword")
 kara_combatant = character_sheet_combatant(kara, roll=14)
+kara_data = character_sheet_to_data(kara)
+restored_kara = character_sheet_from_data(kara_data)
 goblin = create_creature_instance(CREATURES["goblin"])
 goblin_combatant = creature_runtime_combatant(goblin, roll=12)
 skeleton = CREATURES["skeleton"]
