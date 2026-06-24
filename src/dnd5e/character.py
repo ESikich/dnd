@@ -43,10 +43,14 @@ class CharacterRules:
 
 
 def ability_bonus(character: CharacterRules, ability: Ability) -> int:
+    """Return the ability modifier for one ability on a character rules object."""
+
     return ability_modifier(character.abilities[ability])
 
 
 def skill_bonus(character: CharacterRules, skill: Skill) -> int:
+    """Return a skill bonus including ability, proficiency, and flat bonuses."""
+
     ability = SKILL_ABILITIES[skill]
     proficiency = character.skill_proficiencies.get(skill, "none")
 
@@ -58,6 +62,8 @@ def skill_bonus(character: CharacterRules, skill: Skill) -> int:
 
 
 def passive_skill(character: CharacterRules, skill: Skill) -> int:
+    """Return the passive score for a skill using the character's bonus stack."""
+
     ability = SKILL_ABILITIES[skill]
     proficiency = character.skill_proficiencies.get(skill, "none")
 
@@ -69,6 +75,8 @@ def passive_skill(character: CharacterRules, skill: Skill) -> int:
 
 
 def saving_throw_bonus(character: CharacterRules, ability: Ability) -> int:
+    """Return a saving throw bonus including ability, proficiency, and flat bonuses."""
+
     proficiency = character.saving_throw_proficiencies.get(ability, "none")
 
     return (
@@ -79,6 +87,8 @@ def saving_throw_bonus(character: CharacterRules, ability: Ability) -> int:
 
 
 def initiative_bonus(character: CharacterRules) -> int:
+    """Return initiative as Dexterity modifier plus any flat initiative bonus."""
+
     return ability_bonus(character, "dex") + character.initiative_bonus_value
 
 

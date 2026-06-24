@@ -4,6 +4,7 @@ from dataclasses import dataclass
 
 from dnd5e.character import CharacterRules, ability_bonus
 from dnd5e.abilities import proficiency_bonus
+from dnd5e.dice import parse_dice_notation
 from dnd5e.types import (
     Ability,
     ArmorCategory,
@@ -13,9 +14,43 @@ from dnd5e.types import (
     WeaponRangeType,
 )
 
+ARMOR_CATEGORIES: tuple[ArmorCategory, ...] = ("light", "medium", "heavy")
+DAMAGE_TYPES: tuple[DamageType, ...] = (
+    "acid",
+    "bludgeoning",
+    "cold",
+    "fire",
+    "force",
+    "lightning",
+    "necrotic",
+    "piercing",
+    "poison",
+    "psychic",
+    "radiant",
+    "slashing",
+    "thunder",
+)
+WEAPON_CATEGORIES: tuple[WeaponCategory, ...] = ("simple", "martial")
+WEAPON_RANGE_TYPES: tuple[WeaponRangeType, ...] = ("melee", "ranged")
+WEAPON_PROPERTIES: tuple[WeaponProperty, ...] = (
+    "ammunition",
+    "finesse",
+    "heavy",
+    "light",
+    "loading",
+    "range",
+    "reach",
+    "special",
+    "thrown",
+    "two_handed",
+    "versatile",
+)
+
 
 @dataclass(frozen=True)
 class ArmorDefinition:
+    """Armor catalog entry used to calculate AC from category, base AC, and limits."""
+
     id: str
     name: str
     category: ArmorCategory
@@ -26,18 +61,44 @@ class ArmorDefinition:
     strength_requirement: int | None = None
     stealth_disadvantage: bool = False
 
+    def __post_init__(self) -> None:
+        _validate_id(self.id, "armor id")
+        _validate_name(self.name, "armor name")
+        if self.category not in ARMOR_CATEGORIES:
+            raise ValueError(f"unknown armor category: {self.category}")
+        if self.base_ac < 1:
+            raise ValueError("armor base AC must be positive")
+        _validate_non_negative(self.cost_cp, "armor cost")
+        _validate_non_negative(self.weight_lb, "armor weight")
+        if self.max_dex_bonus is not None and self.max_dex_bonus < 0:
+            raise ValueError("armor max dexterity bonus cannot be negative")
+        if self.strength_requirement is not None and not 1 <= self.strength_requirement <= 30:
+            raise ValueError("armor strength requirement must be from 1 to 30")
+
 
 @dataclass(frozen=True)
 class ShieldDefinition:
+    """Shield catalog entry that contributes a fixed AC bonus."""
+
     id: str
     name: str
     ac_bonus: int
     cost_cp: int
     weight_lb: float
 
+    def __post_init__(self) -> None:
+        _validate_id(self.id, "shield id")
+        _validate_name(self.name, "shield name")
+        if self.ac_bonus < 1:
+            raise ValueError("shield AC bonus must be positive")
+        _validate_non_negative(self.cost_cp, "shield cost")
+        _validate_non_negative(self.weight_lb, "shield weight")
+
 
 @dataclass(frozen=True)
 class WeaponDefinition:
+    """Weapon catalog entry used for attack bonus, damage dice, and range metadata."""
+
     id: str
     name: str
     category: WeaponCategory
@@ -51,9 +112,32 @@ class WeaponDefinition:
     normal_range: int | None = None
     long_range: int | None = None
 
+    def __post_init__(self) -> None:
+        _validate_id(self.id, "weapon id")
+        _validate_name(self.name, "weapon name")
+        if self.category not in WEAPON_CATEGORIES:
+            raise ValueError(f"unknown weapon category: {self.category}")
+        if self.range_type not in WEAPON_RANGE_TYPES:
+            raise ValueError(f"unknown weapon range type: {self.range_type}")
+        _validate_damage_expression(self.damage_dice, "weapon damage dice")
+        if self.damage_type not in DAMAGE_TYPES:
+            raise ValueError(f"unknown weapon damage type: {self.damage_type}")
+        _validate_non_negative(self.cost_cp, "weapon cost")
+        _validate_non_negative(self.weight_lb, "weapon weight")
+        for prop in self.properties:
+            if prop not in WEAPON_PROPERTIES:
+                raise ValueError(f"unknown weapon property: {prop}")
+        if self.versatile_damage_dice is not None:
+            if "versatile" not in self.properties:
+                raise ValueError("versatile damage dice require the versatile property")
+            _validate_damage_expression(self.versatile_damage_dice, "versatile damage dice")
+        _validate_weapon_ranges(self.normal_range, self.long_range)
+
 
 @dataclass(frozen=True)
 class ArmorClassResult:
+    """Computed armor class breakdown including armor, Dexterity, shield, and bonuses."""
+
     total: int
     base: int
     dexterity_bonus: int
@@ -65,6 +149,8 @@ class ArmorClassResult:
 
 @dataclass(frozen=True)
 class WeaponAttackProfile:
+    """Resolved attack and damage values for one weapon in a character's hands."""
+
     weapon: WeaponDefinition
     ability: Ability
     attack_bonus: int
@@ -73,6 +159,43 @@ class WeaponAttackProfile:
     damage_type: DamageType
     proficient: bool
     two_handed: bool = False
+
+
+def _validate_id(value: str, context: str) -> None:
+    if not value:
+        raise ValueError(f"{context} is required")
+
+
+def _validate_name(value: str, context: str) -> None:
+    if not value:
+        raise ValueError(f"{context} is required")
+
+
+def _validate_non_negative(value: float, context: str) -> None:
+    if value < 0:
+        raise ValueError(f"{context} cannot be negative")
+
+
+def _validate_damage_expression(value: str, context: str) -> None:
+    try:
+        flat_damage = int(value)
+    except ValueError:
+        parse_dice_notation(value)
+        return
+
+    if flat_damage < 0:
+        raise ValueError(f"{context} cannot be negative")
+
+
+def _validate_weapon_ranges(normal_range: int | None, long_range: int | None) -> None:
+    if (normal_range is None) != (long_range is None):
+        raise ValueError("weapon ranges must include both normal and long range")
+    if normal_range is None or long_range is None:
+        return
+    if normal_range < 1:
+        raise ValueError("weapon normal range must be positive")
+    if long_range < normal_range:
+        raise ValueError("weapon long range must be at least normal range")
 
 
 ARMOR: dict[str, ArmorDefinition] = {
@@ -418,6 +541,8 @@ def armor_class(
     shield: str | ShieldDefinition | None = None,
     bonuses: int = 0,
 ) -> ArmorClassResult:
+    """Calculate armor class from character Dexterity, armor, shield, and bonuses."""
+
     armor_definition = _resolve_armor(armor)
     shield_definition = _resolve_shield(shield)
     dexterity = ability_bonus(character, "dex")
@@ -454,6 +579,8 @@ def weapon_attack_bonus(
     ability: Ability | None = None,
     bonuses: int = 0,
 ) -> int:
+    """Return a weapon attack bonus from ability, proficiency, and flat bonuses."""
+
     weapon_definition = _resolve_weapon(weapon)
     selected_ability = ability or weapon_ability(character, weapon_definition)
     proficiency = proficiency_bonus(character.level) if proficient else 0
@@ -462,6 +589,8 @@ def weapon_attack_bonus(
 
 
 def weapon_damage_dice(weapon: str | WeaponDefinition, two_handed: bool = False) -> str:
+    """Return the weapon damage dice, using versatile dice when two-handed."""
+
     weapon_definition = _resolve_weapon(weapon)
     if two_handed and weapon_definition.versatile_damage_dice is not None:
         return weapon_definition.versatile_damage_dice
@@ -474,6 +603,8 @@ def weapon_damage_bonus(
     ability: Ability | None = None,
     bonuses: int = 0,
 ) -> int:
+    """Return a weapon damage bonus from ability and flat bonuses."""
+
     weapon_definition = _resolve_weapon(weapon)
     selected_ability = ability or weapon_ability(character, weapon_definition)
     return ability_bonus(character, selected_ability) + bonuses
@@ -487,6 +618,8 @@ def weapon_attack_profile(
     two_handed: bool = False,
     bonuses: int = 0,
 ) -> WeaponAttackProfile:
+    """Return the resolved attack and damage profile for one weapon."""
+
     weapon_definition = _resolve_weapon(weapon)
     selected_ability = ability or weapon_ability(character, weapon_definition)
 
@@ -503,6 +636,8 @@ def weapon_attack_profile(
 
 
 def weapon_ability(character: CharacterRules, weapon: str | WeaponDefinition) -> Ability:
+    """Choose the default attack ability for a weapon and character."""
+
     weapon_definition = _resolve_weapon(weapon)
 
     if "finesse" in weapon_definition.properties:

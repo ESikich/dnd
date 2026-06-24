@@ -14,41 +14,58 @@ Implemented:
 - Initiative ordering and turn advancement
 - Attack rolls and damage rolls
 - Equipment, armor, shields, weapons, AC, weapon attack profiles
+- Equipment definition validation for impossible AC, costs, weights, damage, ranges, and metadata
 - HP, healing, temporary HP, hit dice, rests, death saves
-- Basic creature/stat block definitions for a small SRD-style catalog
-- SRD-style class metadata
-- Condition metadata as tags
+- Basic creature/stat block definitions for a growing SRD-style catalog
+- Creature stat block validation for impossible HP, AC, ability scores, dice, movement, senses, and XP
+- Creature metadata for traits, bonus actions, reactions, damage
+  vulnerabilities/resistances/immunities, and condition immunities
+- SRD-style class metadata with validation for impossible hit dice, proficiencies, and skill choices
+- Condition metadata as validated tags
 - Character sheets with class levels, loadouts, validation, derived HP, AC, skills, saves, attacks, and combatants
 - HP state, hit dice pool, and death save state validation for impossible values
 - Core character rules validation for impossible levels, missing or invalid ability scores, invalid proficiency choices, and invalid skill/save bonus keys
 - A deterministic example program with a tiny battle
-- Combat runtime state with HP, AC, conditions, healing, and attack action resolution
+- Combat runtime state with validated HP, AC, conditions, healing, and attack action resolution
+- Basic spell definitions with validated metadata and a small SRD-style catalog
+- Basic spell-effect helpers for spell attacks, saving throw damage, healing, and conditions
 
 ## Phase 1: Rules Foundation Polish
 
 Goal: make the existing foundation consistent and dependable before adding
 larger systems.
 
-Todo:
-
-- Review naming consistency across modules.
-- Add validation for impossible HP, ability scores, dice pools, and equipment IDs.
-- Add richer docstrings for public dataclasses and functions.
-- Refresh `README.md` examples so they show current features.
-- Consider adding `ruff` and `mypy` commands once the public shapes settle.
+Status: Complete.
 
 Progress:
 
+- Done: naming consistency was reviewed across public modules; current public names are consistent enough to preserve without breaking changes before Phase 4.
 - Done: character sheets validate loadout equipment IDs before derived AC or attack helpers run.
 - Done: HP state, hit dice pool, and death save state objects validate impossible values at construction.
 - Done: public HP dataclasses have docstrings describing their mechanics role.
 - Done: `CharacterRules` validates level, ability score maps, proficiency choices, and skill/save bonus keys at construction.
+- Done: creature actions and definitions validate impossible dice, HP, AC, ability scores, ranges, movement, senses, and XP at construction.
+- Done: public creature dataclasses have docstrings describing their mechanics role.
+- Done: public dice and d20 helper dataclasses/functions have docstrings describing their mechanics role.
+- Done: equipment definitions validate impossible IDs, AC values, costs, weights, damage expressions, ranges, categories, damage types, and properties at construction.
+- Done: public equipment dataclasses have docstrings describing their mechanics role.
+- Done: class metadata validates impossible class names, hit dice, abilities, proficiencies, and skill choice counts at construction.
+- Done: condition metadata validates condition names and mechanical tags at construction.
+- Done: public class and condition dataclasses have docstrings describing their mechanics role.
+- Done: combat runtime dataclasses validate impossible combatants, combat state order, attack outcomes, and damage results at construction.
+- Done: public combat runtime dataclasses have docstrings describing their mechanics role.
+- Done: public character rules and sheet dataclasses/functions have docstrings describing their mechanics role.
+- Done: public combat, creature, equipment, and HP helper functions have docstrings describing their mechanics role.
+- Done: README examples show current character-sheet and creature combatant helpers.
+- Done: README documents test, demo, and `ruff` quality commands.
+- Done: `mypy` is deferred until public typing shapes settle further.
+- Done: dice notation and d20 input validation paths are covered by focused tests.
 
-Done when:
+Done criteria:
 
-- Existing modules are documented and tested.
-- The README accurately reflects the current API.
-- `python3 -m pytest` passes.
+- Done: existing modules are documented and tested.
+- Done: the README accurately reflects the current API.
+- Done: `python3 -m pytest` passes.
 
 ## Phase 2: Combat Runtime With HP
 
@@ -97,33 +114,57 @@ Done when:
 
 Goal: make creature data and encounter math useful for DM-facing tools.
 
-Todo:
+Status: Complete.
 
-- Expand creature definitions with traits, bonus actions, reactions, resistances, vulnerabilities, immunities, and condition immunities.
-- Add more SRD-style creatures.
-- Add CR/XP helpers and party encounter difficulty calculations.
-- Add encounter summary objects.
+Progress:
+
+- Done: expand creature definitions with named trait, bonus action, and reaction metadata.
+- Done: add creature damage vulnerability, resistance, immunity, and condition
+  immunity metadata with validation.
+- Done: add another SRD-style creature entry to exercise creature metadata.
+- Done: add CR/XP helpers, party encounter thresholds, adjusted XP, and summary
+  objects.
+- Done: add bandit, zombie, and ogre SRD-style creature entries to broaden
+  humanoid, undead, and higher-CR encounter coverage.
+- Done: add kobold, orc, axe beak, bugbear, and ghoul SRD-style creature
+  entries to broaden low- and mid-CR encounter coverage.
+- Done: add black bear, giant spider, and gray ooze SRD-style creature entries
+  to broaden beast, ooze, trait, resistance, and condition-immunity coverage.
+- Done: the representative SRD-style creature catalog is broad enough for this
+  phase; further catalog growth is ongoing content work rather than a blocker.
 
 Done when:
 
-- An encounter can summarize monsters, XP, adjusted difficulty, and basic combat-ready stats.
+- Done: an encounter can summarize monsters, XP, adjusted difficulty, and basic combat-ready stats.
 
 ## Phase 5: Spells And Spellcasting
 
 Goal: add spell definitions and spellcasting math without building the full
 effect engine yet.
 
-Todo:
+Status: Complete.
 
-- Add spell definitions: level, school, casting time, range, duration, components, concentration, ritual.
-- Add spell attack bonus and spell save DC helpers.
-- Add spell slot and pact magic state.
-- Add basic spell effects for attack, save, damage, healing, and conditions.
-- Add a small SRD-style spell catalog.
+Progress:
+
+- Done: add spell definitions for level, school, casting time, range, duration,
+  components, concentration, and ritual metadata.
+- Done: add a small SRD-style spell catalog.
+- Done: add spell attack bonus and spell save DC helpers for character rules
+  and character sheets.
+- Done: add spell slot and pact magic runtime state with spend and restore
+  helpers.
+- Done: add basic spell-effect helpers for spell attacks, saving throw damage,
+  rolled healing, and condition application.
+
+Deferred:
+
+- Rich spell area targeting, concentration, scaling, ongoing effects, and
+  resistance/immunity integration wait for the effects runtime phases.
 
 Done when:
 
-- A spellcaster can make a spell attack, force a save, spend a slot, and apply simple damage/healing.
+- Done: a spellcaster can make a spell attack, force a save, spend a slot, and
+  apply simple damage/healing.
 
 ## Phase 6: Resources And Features
 

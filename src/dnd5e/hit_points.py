@@ -99,6 +99,8 @@ def max_hit_points(
     constitution_modifier: int,
     first_level_max: bool = True,
 ) -> int:
+    """Calculate max HP from level, hit die, Constitution, and first-level rules."""
+
     _require_positive(level, "level")
     _require_positive(hit_die, "hit_die")
 
@@ -110,12 +112,16 @@ def max_hit_points(
 
 
 def create_hit_dice_pool(level: int, hit_die: int) -> HitDicePool:
+    """Create a full hit dice pool for a class level and hit die size."""
+
     _require_positive(level, "level")
     _require_positive(hit_die, "hit_die")
     return HitDicePool(hit_die=hit_die, total=level, remaining=level)
 
 
 def apply_damage(state: HitPointState, amount: int) -> DamageApplicationResult:
+    """Apply damage to temporary HP first, then current HP."""
+
     _require_non_negative(amount, "amount")
     absorbed = min(state.temporary, amount)
     remaining_damage = amount - absorbed
@@ -134,6 +140,8 @@ def apply_damage(state: HitPointState, amount: int) -> DamageApplicationResult:
 
 
 def apply_healing(state: HitPointState, amount: int) -> HealingResult:
+    """Apply healing up to maximum HP, with no effect on dead HP states."""
+
     _require_non_negative(amount, "amount")
     if is_dead(state):
         return HealingResult(hit_points=state, amount=amount, applied=0)
@@ -151,6 +159,8 @@ def apply_healing(state: HitPointState, amount: int) -> HealingResult:
 
 
 def apply_temporary_hit_points(state: HitPointState, amount: int) -> HitPointState:
+    """Set temporary HP when the new amount exceeds the current temporary HP."""
+
     _require_non_negative(amount, "amount")
     if amount <= state.temporary:
         return state
@@ -165,6 +175,8 @@ def spend_hit_die(
     roll: int | None = None,
     rng: RandomSource = random,
 ) -> RestResult:
+    """Spend one hit die, heal by roll plus Constitution, and return rest state."""
+
     if pool.remaining <= 0:
         raise ValueError("no hit dice remaining")
 
@@ -193,6 +205,8 @@ def short_rest(
     rolls: tuple[int, ...] = (),
     rng: RandomSource = random,
 ) -> RestResult:
+    """Spend the provided hit die rolls during a short rest."""
+
     current_pool = pool
     current_hp = hit_points
     total_healing = 0
@@ -214,6 +228,8 @@ def short_rest(
 
 
 def long_rest(hit_points: HitPointState, pools: tuple[HitDicePool, ...]) -> RestResult:
+    """Restore HP to maximum and recover hit dice according to long-rest rules."""
+
     restored_hp = HitPointState(current=hit_points.maximum, maximum=hit_points.maximum, temporary=0)
     recovered_pools = tuple(_recover_hit_dice(pool) for pool in pools)
 
@@ -225,6 +241,8 @@ def roll_death_save(
     roll: int | None = None,
     rng: RandomSource = random,
 ) -> DeathSaveRollResult:
+    """Roll and apply one death save, including natural 1 and natural 20 effects."""
+
     if state.stable or state.failures >= 3:
         die_roll = _roll_death_save(roll, rng)
         return DeathSaveRollResult(state=state, roll=die_roll, successes_added=0, failures_added=0)
@@ -272,14 +290,20 @@ def roll_death_save(
 
 
 def is_conscious(state: HitPointState) -> bool:
+    """Return whether current HP is above zero."""
+
     return state.current > 0
 
 
 def is_downed(state: HitPointState) -> bool:
+    """Return whether current HP is exactly zero."""
+
     return state.current == 0
 
 
 def is_dead(state: HitPointState) -> bool:
+    """Return whether the HP state represents a dead creature."""
+
     return state.maximum <= 0
 
 

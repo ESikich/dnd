@@ -11,6 +11,8 @@ _DICE_PATTERN = re.compile(r"^(\d*)d(\d+)([+-]\d+)?$", re.IGNORECASE)
 
 @dataclass(frozen=True)
 class DiceNotation:
+    """Parsed ``XdY+Z`` dice expression used by roll and average helpers."""
+
     count: int
     sides: int
     modifier: int
@@ -18,6 +20,8 @@ class DiceNotation:
 
 @dataclass(frozen=True)
 class DiceRoll:
+    """Concrete result of rolling one dice expression."""
+
     notation: str
     rolls: tuple[int, ...]
     modifier: int
@@ -25,6 +29,8 @@ class DiceRoll:
 
 
 def parse_dice_notation(notation: str) -> DiceNotation:
+    """Parse basic dice notation such as ``d20``, ``2d6+3``, or ``4d8-1``."""
+
     match = _DICE_PATTERN.match(notation.strip())
     if not match:
         raise ValueError(f"invalid dice notation: {notation}")
@@ -43,6 +49,8 @@ def parse_dice_notation(notation: str) -> DiceNotation:
 
 
 def roll_dice(notation: str, *, rng: RandomSource = random) -> DiceRoll:
+    """Roll a dice expression and return each die plus the final total."""
+
     parsed = parse_dice_notation(notation)
     rolls = tuple(random_die(parsed.sides, rng) for _ in range(parsed.count))
 
@@ -55,5 +63,7 @@ def roll_dice(notation: str, *, rng: RandomSource = random) -> DiceRoll:
 
 
 def average_dice(notation: str) -> float:
+    """Return the statistical average for a dice expression."""
+
     parsed = parse_dice_notation(notation)
     return parsed.count * ((parsed.sides + 1) / 2) + parsed.modifier

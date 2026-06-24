@@ -4,11 +4,50 @@ from dataclasses import dataclass
 
 from dnd5e.types import ConditionName, ConditionTag
 
+CONDITION_NAMES: tuple[ConditionName, ...] = (
+    "blinded",
+    "charmed",
+    "deafened",
+    "frightened",
+    "grappled",
+    "incapacitated",
+    "invisible",
+    "paralyzed",
+    "petrified",
+    "poisoned",
+    "prone",
+    "restrained",
+    "stunned",
+    "unconscious",
+)
+CONDITION_TAGS: tuple[ConditionTag, ...] = (
+    "cannot_move",
+    "cannot_act",
+    "cannot_see",
+    "cannot_hear",
+    "attack_rolls_affected",
+    "ability_checks_affected",
+    "saving_throws_affected",
+    "speed_zero",
+    "melee_attackers_affected",
+    "auto_fail_strength_dexterity_saves",
+    "critical_hits_from_nearby_attackers",
+)
+
 
 @dataclass(frozen=True)
 class ConditionDefinition:
+    """Condition metadata as compact mechanical tags for later effect hooks."""
+
     name: ConditionName
     tags: tuple[ConditionTag, ...]
+
+    def __post_init__(self) -> None:
+        if self.name not in CONDITION_NAMES:
+            raise ValueError(f"unknown condition: {self.name}")
+        for tag in self.tags:
+            if tag not in CONDITION_TAGS:
+                raise ValueError(f"unknown condition tag: {tag}")
 
 
 CONDITIONS: dict[ConditionName, ConditionDefinition] = {

@@ -2,25 +2,34 @@ from __future__ import annotations
 
 from random import Random
 from collections.abc import Callable
-from typing import NamedTuple
+from typing import NamedTuple, cast
 
 from dnd5e import (
     ARMOR,
     CONDITIONS,
     CREATURES,
     SKILL_ABILITIES,
+    SPELLS,
     SRD_CLASSES,
     SHIELDS,
     CharacterClassLevel,
     CharacterLoadout,
     CharacterRules,
     CharacterSheet,
+    ConditionName,
+    CreatureFeature,
+    DamageType,
     DiceRoll,
     HitPointState,
+    ProficiencyLevel,
+    Skill,
     WEAPONS,
+    Ability,
     ability_bonus,
     ability_modifier,
     apply_healing,
+    apply_spell_condition,
+    apply_spell_healing,
     armor_class,
     attack_roll,
     average_dice,
@@ -31,15 +40,16 @@ from dnd5e import (
     character_sheet_weapon_profile,
     combatant_by_id,
     combatant_defeated,
-    create_hit_dice_pool,
     create_combat,
+    create_combatant,
     create_creature_instance,
-    creature_action_attack,
-    creature_action_damage,
-    creature_combatant,
+    create_hit_dice_pool,
+    create_pact_magic,
+    create_spell_slots,
     creature_runtime_combatant,
     d20_check,
     damage_roll,
+    encounter_monster,
     initiative_bonus,
     long_rest,
     next_turn,
@@ -49,10 +59,19 @@ from dnd5e import (
     proficiency_bonus,
     proficiency_value,
     resolve_attack_action,
+    resolve_spell_attack,
+    resolve_spell_save_damage,
+    restore_pact_magic,
     roll_dice,
     saving_throw_bonus,
     short_rest,
     skill_bonus,
+    spell_attack_bonus,
+    spell_save_dc,
+    spell_slots_remaining,
+    spend_pact_slot,
+    spend_spell_slot,
+    summarize_encounter,
     weapon_attack_profile,
 )
 
@@ -69,6 +88,9 @@ def main() -> None:
     show_sheet_validation()
     show_equipment(hero)
     show_class_and_condition_data()
+    show_spell_catalog()
+    show_creature_catalog()
+    show_encounter_summary()
     show_combat(rng, hero)
 
 
@@ -174,18 +196,21 @@ def show_character(hero: CharacterRules) -> None:
 
     print(f"Level: {hero.level}, proficiency bonus: +{proficiency_bonus(hero.level)}")
     print("Ability bonuses:")
-    for ability in ["str", "dex", "con", "int", "wis", "cha"]:
+    abilities: tuple[Ability, ...] = ("str", "dex", "con", "int", "wis", "cha")
+    for ability in abilities:
         print(f"  {ability.upper()}: {ability_bonus(hero, ability):+d}")
 
     print("\nSkill map sample:")
-    for skill in ["athletics", "perception", "stealth", "survival"]:
+    skills: tuple[Skill, ...] = ("athletics", "perception", "stealth", "survival")
+    for skill in skills:
         print(
             f"  {skill:<10} uses {SKILL_ABILITIES[skill].upper()} "
             f"-> bonus {skill_bonus(hero, skill):+d}, passive {passive_skill(hero, skill)}"
         )
 
     print("\nSaving throws:")
-    for ability in ["str", "dex", "con", "wis"]:
+    saving_throws: tuple[Ability, ...] = ("str", "dex", "con", "wis")
+    for ability in saving_throws:
         print(f"  {ability.upper()}: {saving_throw_bonus(hero, ability):+d}")
 
     print(f"\nInitiative bonus: {initiative_bonus(hero):+d}")
@@ -224,7 +249,7 @@ def show_sheet_validation() -> None:
                 "wis": 10,
                 "cha": 10,
             },
-            skill_proficiencies={"tactics": "proficient"},
+            skill_proficiencies=cast(dict[Skill, ProficiencyLevel], {"tactics": "proficient"}),
             loadout=CharacterLoadout(armor="chain_mail", weapons=("spoon",)),
         )
     except ValueError as error:
@@ -274,9 +299,193 @@ def show_class_and_condition_data() -> None:
         f"skill picks {wizard.skill_choice_count}"
     )
 
-    for name in ["blinded", "grappled", "poisoned", "unconscious"]:
+    condition_names: tuple[ConditionName, ...] = ("blinded", "grappled", "poisoned", "unconscious")
+    for name in condition_names:
         condition = CONDITIONS[name]
         print(f"Condition {name}: {', '.join(condition.tags)}")
+
+
+def show_spell_catalog() -> None:
+    print_section("Spells")
+
+    wizard = CharacterRules(
+        level=5,
+        abilities={
+            "str": 8,
+            "dex": 14,
+            "con": 12,
+            "int": 16,
+            "wis": 10,
+            "cha": 13,
+        },
+    )
+
+    for spell_id in ["fire_bolt", "cure_wounds", "detect_magic", "mage_armor"]:
+        spell = SPELLS[spell_id]
+        flags = []
+        if spell.concentration:
+            flags.append("concentration")
+        if spell.ritual:
+            flags.append("ritual")
+        suffix = f" ({', '.join(flags)})" if flags else ""
+        print(
+            f"{spell.name}: level {spell.level} {spell.school}, "
+            f"{spell.casting_time}, range {spell.range}, duration {spell.duration}{suffix}"
+        )
+    print(
+        f"Level {wizard.level} wizard spell attack {spell_attack_bonus(wizard, 'int'):+d}, "
+        f"spell save DC {spell_save_dc(wizard, 'int')}"
+    )
+
+    slots = create_spell_slots({1: 4, 2: 3, 3: 2})
+    slots = spend_spell_slot(slots, 3)
+    pact_magic = spend_pact_slot(create_pact_magic(slot_level=2, maximum=2))
+    pact_magic = restore_pact_magic(pact_magic)
+    print(
+        f"After casting a 3rd-level spell: {spell_slots_remaining(slots, 3)} level-3 slots remain; "
+        f"rested pact slots at level {pact_magic.slot_level}: {pact_magic.remaining}/{pact_magic.maximum}"
+    )
+
+    spell_combat = create_combat(
+        [
+            create_combatant(
+                id="wizard",
+                name="Apprentice Wizard",
+                initiative_bonus=2,
+                roll=12,
+                armor_class=12,
+                hit_points=HitPointState(current=8, maximum=12),
+            ),
+            create_combatant(
+                id="goblin",
+                name="Goblin",
+                initiative_bonus=2,
+                roll=10,
+                armor_class=15,
+                hit_points=HitPointState(current=7, maximum=7),
+            ),
+        ]
+    )
+    fire_bolt = resolve_spell_attack(
+        spell_combat,
+        actor_id="wizard",
+        target_id="goblin",
+        attack_bonus=spell_attack_bonus(wizard, "int"),
+        damage_dice="1d10",
+        damage_type="fire",
+        roll=12,
+        damage_rng=lambda: 0,
+    )
+    sacred_flame = resolve_spell_save_damage(
+        spell_combat,
+        target_id="goblin",
+        save_ability="dex",
+        save_bonus=2,
+        save_dc=spell_save_dc(wizard, "int"),
+        damage_dice="1d8",
+        damage_type="radiant",
+        roll=8,
+        damage_rng=lambda: 0,
+    )
+    healed = apply_spell_healing(
+        spell_combat,
+        target_id="wizard",
+        healing_dice="1d8+3",
+        healing_rng=lambda: 0,
+    )
+    blinded = apply_spell_condition(
+        spell_combat,
+        target_id="goblin",
+        condition="blinded",
+        save_ability="con",
+        save_bonus=0,
+        save_dc=spell_save_dc(wizard, "int"),
+        roll=5,
+    )
+    print(
+        f"Fire Bolt hit: {fire_bolt.hit}; "
+        f"Sacred Flame save {sacred_flame.save.total} vs DC {sacred_flame.save.dc}, "
+        f"Goblin HP {sacred_flame.target_after.hit_points.current}"
+    )
+    print(
+        f"Cure Wounds style healing restores {healed.healing.applied}; "
+        f"condition applied: {blinded.condition}={blinded.applied}"
+    )
+
+
+def show_creature_catalog() -> None:
+    print_section("Creature Catalog")
+
+    goblin = CREATURES["goblin"]
+    wolf = CREATURES["wolf"]
+    skeleton = CREATURES["skeleton"]
+    zombie = CREATURES["zombie"]
+    orc = CREATURES["orc"]
+    black_bear = CREATURES["black_bear"]
+    bugbear = CREATURES["bugbear"]
+    ghoul = CREATURES["ghoul"]
+    giant_spider = CREATURES["giant_spider"]
+    gray_ooze = CREATURES["gray_ooze"]
+    ogre = CREATURES["ogre"]
+
+    print(
+        f"{goblin.name}: CR {goblin.challenge_rating}, XP {goblin.xp}, "
+        f"bonus actions {join_names(goblin.bonus_actions)}"
+    )
+    print(f"{wolf.name}: traits {join_names(wolf.traits)}")
+    print(f"{zombie.name}: traits {join_names(zombie.traits)}, speed {zombie.speed['walk']}")
+    print(
+        f"{skeleton.name}: vulnerable {', '.join(skeleton.damage_vulnerabilities)}, "
+        f"immune {', '.join(skeleton.damage_immunities)}, "
+        f"condition immune {', '.join(skeleton.condition_immunities)}"
+    )
+    print(
+        f"{orc.name}: bonus actions {join_names(orc.bonus_actions)}, "
+        f"attacks {', '.join(action.name for action in orc.actions)}"
+    )
+    print(
+        f"{black_bear.name}: speed {black_bear.speed['walk']}, climb {black_bear.speed['climb']}, "
+        f"traits {join_names(black_bear.traits)}"
+    )
+    print(f"{bugbear.name}: traits {join_names(bugbear.traits)}, stealth {bugbear.skills['stealth']:+d}")
+    print(
+        f"{ghoul.name}: immune {', '.join(ghoul.damage_immunities)}, "
+        f"condition immune {', '.join(ghoul.condition_immunities)}"
+    )
+    print(
+        f"{giant_spider.name}: CR {giant_spider.challenge_rating}, "
+        f"traits {join_names(giant_spider.traits)}"
+    )
+    print(
+        f"{gray_ooze.name}: resists {', '.join(gray_ooze.damage_resistances)}, "
+        f"condition immune {', '.join(gray_ooze.condition_immunities)}"
+    )
+    print(
+        f"{ogre.name}: CR {ogre.challenge_rating}, HP {ogre.hit_points}, "
+        f"attacks {', '.join(action.name for action in ogre.actions)}"
+    )
+
+
+def show_encounter_summary() -> None:
+    print_section("Encounter Summary")
+
+    encounter = summarize_encounter(
+        [
+            encounter_monster("ogre"),
+            encounter_monster("bandit", count=2),
+        ],
+        party_levels=[3, 3, 3, 3],
+    )
+
+    print(
+        f"Monsters {encounter.monster_count}, raw XP {encounter.total_xp}, "
+        f"adjusted XP {encounter.adjusted_xp:g} (x{encounter.xp_multiplier:g})"
+    )
+    print(
+        f"Party thresholds: easy {encounter.thresholds.easy}, medium {encounter.thresholds.medium}, "
+        f"hard {encounter.thresholds.hard}, deadly {encounter.thresholds.deadly}"
+    )
+    print(f"Difficulty: {encounter.difficulty}")
 
 
 def show_combat(rng: Random, hero: CharacterRules) -> None:
@@ -338,7 +547,7 @@ class BattleAction(NamedTuple):
     attack_bonus: int
     roll: int
     damage_dice: str
-    damage_type: str
+    damage_type: DamageType
     damage_rng: Callable[[], float]
 
 
@@ -475,6 +684,10 @@ def format_damage_rolls(rolls: tuple[DiceRoll, ...]) -> str:
 
 def join_upper(values: tuple[str, ...]) -> str:
     return ", ".join(value.upper() for value in values)
+
+
+def join_names(values: tuple[CreatureFeature, ...]) -> str:
+    return ", ".join(value.name for value in values) or "none"
 
 
 def fixed_rolls(*values: float) -> Callable[[], float]:

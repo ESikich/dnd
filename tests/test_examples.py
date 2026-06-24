@@ -14,6 +14,7 @@ def test_exercise_library_example_runs(capsys) -> None:
     assert "Core Math" in output
     assert "Sheet Validation" in output
     assert "Invalid sheet rejected: unknown skill proficiency: tactics" in output
+    assert "Encounter Summary" in output
     assert "Combat" in output
     assert "A Tiny Battle" in output
     assert "Result: Kara wins." in output
