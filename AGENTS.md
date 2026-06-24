@@ -20,6 +20,8 @@ Current modules cover:
 - HP, healing, temporary HP, hit dice, rests, death saves
 - Basic creature/stat block definitions
 - Class metadata and condition metadata
+- Combat runtime state with HP, AC, conditions, healing, and attack resolution
+- Character sheets with class levels, loadouts, derived stats, HP, and combatants
 
 ## Development Rules
 
@@ -69,7 +71,7 @@ For a new rules area:
 
 ## Preferred Next Work
 
-Use `ROADMAP.md` as the source of truth for phases. The next recommended phase
-is **Combat Runtime With HP**, which should connect the existing creature,
-equipment, attack, damage, HP, and initiative helpers into a reusable battle
-state API.
+Use `ROADMAP.md` as the source of truth for phase order, progress, and remaining
+work. Do not treat a phase as complete while it still has any `Remaining` or
+`Todo` items. Start with the first unfinished roadmap item, keep changes small,
+and update `ROADMAP.md` whenever progress changes.

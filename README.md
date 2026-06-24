@@ -16,9 +16,16 @@ python -m pip install -e .
 
 ```py
 from dnd5e import (
+    CharacterClassLevel,
+    CharacterLoadout,
+    CharacterSheet,
     HitPointState,
     SRD_CLASSES,
     ability_modifier,
+    attack_roll,
+    character_sheet_armor_class,
+    character_sheet_combatant,
+    character_sheet_weapon_profile,
     combatant_by_id,
     create_combat,
     create_combatant,
@@ -57,6 +64,29 @@ combat = create_combat(
     ]
 )
 
+kara = CharacterSheet(
+    id="kara",
+    name="Kara",
+    classes=(CharacterClassLevel("fighter", 5),),
+    abilities={
+        "str": 16,
+        "dex": 14,
+        "con": 14,
+        "int": 10,
+        "wis": 12,
+        "cha": 8,
+    },
+    saving_throw_proficiencies={"str": "proficient", "con": "proficient"},
+    loadout=CharacterLoadout(
+        armor="chain_mail",
+        shield="shield",
+        weapons=("longsword",),
+    ),
+)
+kara_ac = character_sheet_armor_class(kara)
+kara_weapon = character_sheet_weapon_profile(kara, "longsword")
+kara_combatant = character_sheet_combatant(kara, roll=14)
+
 result = resolve_attack_action(
     combat,
     actor_id="fighter",
@@ -73,6 +103,9 @@ print(athletics.total)  # 17
 print(combat.current.name)  # "Fighter"
 print(result.attack.outcome)  # "hit"
 print(combatant_by_id(result.state, "goblin").hit_points.current)  # 3
+print(kara_ac.total)  # 18
+print(kara_weapon.attack_bonus)  # 6
+print(kara_combatant.hit_points.maximum)  # 44
 print(roll_dice("2d6+3").total)
 print(SRD_CLASSES["fighter"].hit_die)  # 10
 ```
@@ -87,6 +120,7 @@ Included now:
 - Initiative ordering and turn advancement
 - Attack rolls, critical hit/miss handling, and damage rolling
 - Combat runtime state with AC, HP, conditions, attack resolution, and healing
+- Character sheets with class levels, loadouts, derived stats, HP, and combatants
 - Equipment, armor, shields, weapons, AC, and weapon attack profiles
 - HP, healing, temporary HP, hit dice, rests, and death saves
 - Basic creature/stat block definitions
@@ -95,7 +129,7 @@ Included now:
 
 Good next modules:
 
-- Character sheet model
+- Character sheet validation polish
 - Spell definitions and spellcasting rules
 - Encounter difficulty
 - Resources and feature recharge

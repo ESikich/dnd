@@ -11,7 +11,10 @@ from dnd5e import (
     SKILL_ABILITIES,
     SRD_CLASSES,
     SHIELDS,
+    CharacterClassLevel,
+    CharacterLoadout,
     CharacterRules,
+    CharacterSheet,
     DiceRoll,
     HitPointState,
     WEAPONS,
@@ -21,7 +24,11 @@ from dnd5e import (
     armor_class,
     attack_roll,
     average_dice,
-    character_runtime_combatant,
+    character_sheet_armor_class,
+    character_sheet_combatant,
+    character_sheet_hit_points,
+    character_sheet_initiative_bonus,
+    character_sheet_weapon_profile,
     combatant_by_id,
     combatant_defeated,
     create_hit_dice_pool,
@@ -58,6 +65,7 @@ def main() -> None:
     show_dice(rng)
     hero = build_hero()
     show_character(hero)
+    show_character_sheet(build_hero_sheet())
     show_equipment(hero)
     show_class_and_condition_data()
     show_combat(rng, hero)
@@ -128,6 +136,38 @@ def build_hero() -> CharacterRules:
     )
 
 
+def build_hero_sheet() -> CharacterSheet:
+    return CharacterSheet(
+        id="hero",
+        name="Kara",
+        classes=(CharacterClassLevel("fighter", 5),),
+        abilities={
+            "str": 16,
+            "dex": 14,
+            "con": 14,
+            "int": 10,
+            "wis": 12,
+            "cha": 8,
+        },
+        skill_proficiencies={
+            "athletics": "expertise",
+            "perception": "proficient",
+            "survival": "proficient",
+        },
+        saving_throw_proficiencies={
+            "str": "proficient",
+            "con": "proficient",
+        },
+        skill_bonuses={"perception": 1},
+        initiative_bonus_value=1,
+        loadout=CharacterLoadout(
+            armor="chain_mail",
+            shield="shield",
+            weapons=("longsword", "shortbow"),
+        ),
+    )
+
+
 def show_character(hero: CharacterRules) -> None:
     print_section("Character Helpers")
 
@@ -148,6 +188,23 @@ def show_character(hero: CharacterRules) -> None:
         print(f"  {ability.upper()}: {saving_throw_bonus(hero, ability):+d}")
 
     print(f"\nInitiative bonus: {initiative_bonus(hero):+d}")
+
+
+def show_character_sheet(sheet: CharacterSheet) -> None:
+    print_section("Character Sheet")
+
+    ac = character_sheet_armor_class(sheet)
+    hp = character_sheet_hit_points(sheet)
+    weapon = character_sheet_weapon_profile(sheet, "longsword")
+
+    print(
+        f"{sheet.name}: level {sheet.classes[0].level} {sheet.classes[0].name}, "
+        f"AC {ac.total}, HP {hp.maximum}, initiative {character_sheet_initiative_bonus(sheet):+d}"
+    )
+    print(
+        f"{weapon.weapon.name}: attack {weapon.attack_bonus:+d}, "
+        f"damage {weapon.damage_dice}{weapon.damage_bonus:+d} {weapon.damage_type}"
+    )
 
 
 def show_equipment(hero: CharacterRules) -> None:
@@ -264,9 +321,8 @@ class BattleAction(NamedTuple):
 def show_battle() -> None:
     print_section("A Tiny Battle")
 
-    kara = build_hero()
-    kara_ac = armor_class(kara, armor="chain_mail", shield="shield").total
-    kara_weapon = weapon_attack_profile(kara, "longsword")
+    kara = build_hero_sheet()
+    kara_weapon = character_sheet_weapon_profile(kara, "longsword")
     goblin = create_creature_instance(CREATURES["goblin"])
     goblin_action = goblin.definition.actions[0]
 
@@ -276,13 +332,9 @@ def show_battle() -> None:
     }
     combat = create_combat(
         [
-            character_runtime_combatant(
+            character_sheet_combatant(
                 kara,
-                id="hero",
-                name="Kara",
                 roll=14,
-                armor_class=kara_ac,
-                hit_points=HitPointState(current=32, maximum=32),
             ),
             creature_runtime_combatant(goblin, roll=16),
         ]

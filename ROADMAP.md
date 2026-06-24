@@ -18,6 +18,7 @@ Implemented:
 - Basic creature/stat block definitions for a small SRD-style catalog
 - SRD-style class metadata
 - Condition metadata as tags
+- Character sheets with class levels, loadouts, derived HP, AC, skills, saves, attacks, and combatants
 - A deterministic example program with a tiny battle
 - Combat runtime state with HP, AC, conditions, healing, and attack action resolution
 
@@ -53,10 +54,10 @@ Progress:
 - Done: add defeated/downed detection.
 - Done: keep turn advancement compatible with the existing initiative model.
 - Done: update the tiny battle demo to use the combat runtime instead of local HP dictionaries.
+- Done: add a character-sheet combatant constructor backed by derived loadout AC and HP.
 
-Remaining:
+Deferred:
 
-- Add a richer character-sheet combatant constructor after Phase 3 defines character loadouts and HP.
 - Add more action event shapes as reactions, saves, resources, and effects come online.
 
 Done when:
@@ -68,13 +69,18 @@ Done when:
 
 Goal: turn loose character helpers into a fuller character representation.
 
-Todo:
+Progress:
 
-- Add character sheet dataclasses for level, classes, abilities, proficiencies, equipment, HP, and notes.
-- Add derived stat helpers for AC, initiative, skills, saves, passive perception, attack profiles, and max HP.
-- Add class-level structures and multiclass placeholders.
-- Add equipment loadout support.
-- Add validation for missing abilities and invalid proficiency choices.
+- Done: add character sheet dataclasses for class levels, abilities, proficiencies, equipment loadout, HP, and notes.
+- Done: add derived stat helpers for AC, initiative, skills, saves, passive skills, attack profiles, and max HP.
+- Done: add class-level structures and multiclass placeholders.
+- Done: add equipment loadout support.
+- Done: add validation for missing abilities, invalid ability scores, invalid total level, and impossible HP.
+
+Remaining:
+
+- Add validation for invalid proficiency choices.
+- Add broader tests for common invalid sheets.
 
 Done when:
 
