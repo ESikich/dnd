@@ -24,18 +24,21 @@ python -m pip install -e ".[dev]"
 from dnd5e import (
     CREATURES,
     FEATURES,
+    ArmorClassModifier,
     CharacterClassLevel,
     CharacterLoadout,
     CharacterSheet,
     HitPointState,
     SPELLS,
     SRD_CLASSES,
+    TurnEffect,
     ability_modifier,
     apply_combat_damage,
     apply_condition,
     apply_second_wind,
     apply_spell_condition,
     apply_spell_healing,
+    apply_turn_effects,
     attack_roll,
     character_sheet_armor_class,
     character_sheet_combatant,
@@ -58,6 +61,7 @@ from dnd5e import (
     resolve_spell_save_damage,
     restore_pact_magic,
     encounter_monster,
+    modified_armor_class,
     summarize_encounter,
     roll_dice,
     short_rest_feature,
@@ -154,6 +158,8 @@ recharged_feature, recharge_roll = recharge_feature(recharge_feature_state, roll
 web_recharge_state = creature_action_recharge_state(giant_spider.actions[1], remaining=0)
 recharged_web, web_recharge_roll = recharge_feature(web_recharge_state, roll=5)
 poisoned_attack_modifier = condition_attack_modifier(attacker_conditions=("poisoned",))
+shield_modifier = ArmorClassModifier(bonus=5, reason="shield")
+shielded_ac = modified_armor_class(15, (shield_modifier,))
 encounter = summarize_encounter(
     [encounter_monster("ogre"), encounter_monster("bandit", count=2)],
     party_levels=[3, 3, 3, 3],
@@ -170,6 +176,16 @@ bludgeoned_skeleton = apply_combat_damage(
     target_id="skeleton",
     amount=4,
     damage_type="bludgeoning",
+)
+turn_effects = (
+    TurnEffect(name="ongoing fire", timing="start", damage=3, damage_type="fire"),
+    TurnEffect(name="poison ends", timing="end", remove_conditions=("poisoned",)),
+)
+turn_hook_result = apply_turn_effects(
+    restrained_combat,
+    target_id="goblin",
+    timing="end",
+    effects=turn_effects,
 )
 
 result = resolve_attack_action(
@@ -250,8 +266,10 @@ print(sneak_attack_dice)  # "3d6"
 print(recharge_roll.recharged)  # True
 print(web_recharge_roll.recharged)  # True
 print(poisoned_attack_modifier.advantage)  # "disadvantage"
+print(shielded_ac.total)  # 20
 print(combatant_by_id(restrained_combat, "goblin").conditions)  # ("restrained",)
 print(bludgeoned_skeleton.damage_adjustment.adjusted)  # 8
+print(turn_hook_result.changed)  # False
 print(spell_hit.damage.total)  # 1
 print(spell_save.save.success)  # False
 print(spell_healing.healing.applied)  # 0

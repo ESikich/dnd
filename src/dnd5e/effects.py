@@ -1,9 +1,11 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
-from typing import Any
+from typing import Any, Literal
 
 from dnd5e.types import Ability, AdvantageState, ConditionName, DamageType
+
+TurnTiming = Literal["start", "end"]
 
 
 @dataclass(frozen=True)
@@ -30,6 +32,78 @@ class DamageAdjustmentResult:
             raise ValueError("adjusted damage cannot be negative")
 
 
+@dataclass(frozen=True)
+class ArmorClassModifier:
+    """Flat AC adjustment contributed by a reusable effect hook."""
+
+    bonus: int
+    reason: str
+
+    def __post_init__(self) -> None:
+        if not self.reason:
+            raise ValueError("armor class modifier reason is required")
+
+
+@dataclass(frozen=True)
+class ArmorClassEffectResult:
+    """Final AC after applying reusable AC effect hooks."""
+
+    base: int
+    total: int
+    modifiers: tuple[ArmorClassModifier, ...] = ()
+
+    def __post_init__(self) -> None:
+        if self.base < 1:
+            raise ValueError("base armor class must be positive")
+        if self.total < 1:
+            raise ValueError("total armor class must be positive")
+
+
+@dataclass(frozen=True)
+class TurnEffect:
+    """Declarative effect hook applied at the start or end of a combatant's turn."""
+
+    name: str
+    timing: TurnTiming
+    damage: int = 0
+    damage_type: DamageType | None = None
+    healing: int = 0
+    add_conditions: tuple[ConditionName, ...] = ()
+    remove_conditions: tuple[ConditionName, ...] = ()
+
+    def __post_init__(self) -> None:
+        if not self.name:
+            raise ValueError("turn effect name is required")
+        if self.timing not in ("start", "end"):
+            raise ValueError(f"unknown turn effect timing: {self.timing}")
+        if self.damage < 0:
+            raise ValueError("turn effect damage cannot be negative")
+        if self.healing < 0:
+            raise ValueError("turn effect healing cannot be negative")
+        if self.damage and self.damage_type is None:
+            raise ValueError("turn effect damage type is required when damage is positive")
+
+
+@dataclass(frozen=True)
+class TurnEffectApplication:
+    """Summary of one turn effect hook after it has been applied."""
+
+    effect: TurnEffect
+    damage_applied: int = 0
+    healing_applied: int = 0
+    conditions_added: tuple[ConditionName, ...] = ()
+    conditions_removed: tuple[ConditionName, ...] = ()
+
+    @property
+    def changed(self) -> bool:
+        return (
+            self.damage_applied > 0
+            or self.healing_applied > 0
+            or bool(self.conditions_added)
+            or bool(self.conditions_removed)
+        )
+
+
 def combine_advantage(left: AdvantageState, right: AdvantageState) -> AdvantageState:
     """Combine two advantage states using normal cancellation rules."""
 
@@ -38,6 +112,16 @@ def combine_advantage(left: AdvantageState, right: AdvantageState) -> AdvantageS
     if right == "normal" or left == right:
         return left
     return "normal"
+
+
+def modified_armor_class(
+    base: int,
+    modifiers: tuple[ArmorClassModifier, ...] = (),
+) -> ArmorClassEffectResult:
+    """Return final AC after applying flat effect modifiers."""
+
+    total = base + sum(modifier.bonus for modifier in modifiers)
+    return ArmorClassEffectResult(base=base, total=total, modifiers=modifiers)
 
 
 def condition_attack_modifier(

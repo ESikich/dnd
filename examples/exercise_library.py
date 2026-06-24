@@ -13,6 +13,7 @@ from dnd5e import (
     SPELLS,
     SRD_CLASSES,
     SHIELDS,
+    ArmorClassModifier,
     CharacterClassLevel,
     CharacterLoadout,
     CharacterRules,
@@ -24,6 +25,7 @@ from dnd5e import (
     HitPointState,
     ProficiencyLevel,
     Skill,
+    TurnEffect,
     WEAPONS,
     Ability,
     ability_bonus,
@@ -34,6 +36,7 @@ from dnd5e import (
     apply_second_wind,
     apply_spell_condition,
     apply_spell_healing,
+    apply_turn_effects,
     armor_class,
     attack_roll,
     average_dice,
@@ -59,6 +62,7 @@ from dnd5e import (
     encounter_monster,
     initiative_bonus,
     long_rest,
+    modified_armor_class,
     recharge_feature,
     next_turn,
     parse_dice_notation,
@@ -337,20 +341,34 @@ def show_effects_and_conditions() -> None:
     )
     restrained = apply_condition(combat, target_id="skeleton", condition="restrained")
     poison_modifier = condition_attack_modifier(attacker_conditions=("poisoned",))
+    shield_spell = ArmorClassModifier(bonus=5, reason="shield")
+    shielded_ac = modified_armor_class(15, (shield_spell,))
     bludgeoning = apply_combat_damage(
         restrained,
         target_id="skeleton",
         amount=4,
         damage_type="bludgeoning",
     )
+    poisoned = apply_condition(combat, target_id="hero", condition="poisoned")
+    turn_effects = (
+        TurnEffect(name="ongoing fire", timing="start", damage=3, damage_type="fire"),
+        TurnEffect(name="poison ends", timing="end", remove_conditions=("poisoned",)),
+    )
+    scorched = apply_turn_effects(poisoned, target_id="hero", timing="start", effects=turn_effects)
+    recovered = apply_turn_effects(scorched.state, target_id="hero", timing="end", effects=turn_effects)
 
     adjustment = bludgeoning.damage_adjustment
     assert adjustment is not None
     print(f"Poisoned attack modifier: {poison_modifier.advantage}")
+    print(f"Shield-style AC hook: {shielded_ac.base} -> {shielded_ac.total}")
     print(f"Skeleton conditions: {combatant_by_id(restrained, 'skeleton').conditions}")
     print(
         f"Bludgeoning skeleton: {adjustment.original} -> {adjustment.adjusted} "
         f"({', '.join(adjustment.modifiers)})"
+    )
+    print(
+        f"Turn hooks: start damage {scorched.applications[0].damage_applied}, "
+        f"end conditions {combatant_by_id(recovered.state, 'hero').conditions}"
     )
 
 

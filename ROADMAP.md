@@ -29,6 +29,8 @@ Implemented:
 - Combat runtime state with validated HP, AC, conditions, healing, and attack action resolution
 - Basic spell definitions with validated metadata and a small SRD-style catalog
 - Basic spell-effect helpers for spell attacks, saving throw damage, healing, and conditions
+- Effects runtime hooks for roll modifiers, AC modifiers, damage adjustment,
+  and start/end turn effects
 
 ## Phase 1: Rules Foundation Polish
 
@@ -203,12 +205,14 @@ Todo:
   unconscious conditions in focused runtime helpers.
 - Done: add resistance, vulnerability, and immunity damage pipeline using
   creature source metadata.
-- Remaining: add AC, turn start, and turn end effect hooks.
+- Done: add AC, turn start, and turn end effect hooks.
 - Add concentration hooks.
 
 Done when:
 
 - Done: poisoned, restrained, prone, and unconscious have mechanical consequences in tests.
+- Done: AC modifiers and start/end turn effects have mechanical consequences
+  in tests.
 
 ## Phase 8: Data Files And Content Pipeline
 

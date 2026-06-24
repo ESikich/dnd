@@ -1,8 +1,12 @@
 import pytest
 
 from dnd5e import (
+    ArmorClassModifier,
     DamageAdjustmentResult,
+    HitPointState,
     RollModifier,
+    TurnEffect,
+    apply_turn_effects,
     adjust_damage_for_target,
     apply_combat_damage,
     apply_condition,
@@ -13,6 +17,7 @@ from dnd5e import (
     create_combatant,
     create_creature_instance,
     creature_runtime_combatant,
+    modified_armor_class,
     resolve_attack_action,
     resolve_spell_save_damage,
     saving_throw,
@@ -22,6 +27,8 @@ from dnd5e import (
 def test_public_effect_imports_and_condition_modifiers() -> None:
     assert RollModifier.__doc__
     assert DamageAdjustmentResult.__doc__
+    assert ArmorClassModifier.__doc__
+    assert TurnEffect.__doc__
     assert condition_ability_check_modifier(("poisoned",)).advantage == "disadvantage"
     assert condition_attack_modifier(attacker_conditions=("restrained",)).advantage == "disadvantage"
     assert condition_attack_modifier(target_conditions=("restrained",)).advantage == "advantage"
@@ -194,9 +201,76 @@ def test_condition_immunity_prevents_condition_application() -> None:
     assert combatant_by_id(next_state, "ghoul").conditions == ()
 
 
+def test_armor_class_effect_modifiers_change_attack_target_ac() -> None:
+    combat = simple_effect_combat()
+    shield = ArmorClassModifier(bonus=5, reason="shield")
+
+    armor_class = modified_armor_class(15, (shield,))
+    attack = resolve_attack_action(
+        combat,
+        actor_id="hero",
+        target_id="goblin",
+        attack_bonus=5,
+        damage_dice="1d8",
+        damage_type="slashing",
+        roll=10,
+        target_armor_class_modifiers=(shield,),
+    )
+
+    assert armor_class.total == 20
+    assert attack.attack.target_armor_class == 20
+    assert attack.attack.outcome == "miss"
+
+
+def test_turn_start_and_end_effect_hooks_apply_state_changes() -> None:
+    combat = apply_condition(
+        create_combat(
+            [
+                create_combatant(
+                    id="hero",
+                    name="Hero",
+                    initiative_bonus=2,
+                    roll=12,
+                    armor_class=16,
+                    hit_points=HitPointState(current=20, maximum=20),
+                ),
+                create_combatant(id="goblin", name="Goblin", initiative_bonus=2, roll=10),
+            ]
+        ),
+        target_id="hero",
+        condition="poisoned",
+    )
+    effects = (
+        TurnEffect(name="ongoing fire", timing="start", damage=4, damage_type="fire"),
+        TurnEffect(name="regeneration", timing="start", healing=2),
+        TurnEffect(name="poison ends", timing="end", remove_conditions=("poisoned",)),
+    )
+
+    start = apply_turn_effects(combat, target_id="hero", timing="start", effects=effects)
+    end = apply_turn_effects(start.state, target_id="hero", timing="end", effects=effects)
+
+    assert start.applications[0].damage_applied == 4
+    assert start.applications[1].healing_applied == 2
+    assert combatant_by_id(start.state, "hero").hit_points.current == 18
+    assert start.changed
+    assert end.applications[0].conditions_removed == ("poisoned",)
+    assert combatant_by_id(end.state, "hero").conditions == ()
+
+
 def test_damage_adjustment_rejects_negative_amounts() -> None:
     with pytest.raises(ValueError, match="damage amount cannot be negative"):
         adjust_damage_for_target(amount=-1, damage_type="fire")
+
+
+def test_turn_effects_validate_impossible_values() -> None:
+    with pytest.raises(ValueError, match="armor class modifier reason is required"):
+        ArmorClassModifier(bonus=1, reason="")
+
+    with pytest.raises(ValueError, match="turn effect damage type is required"):
+        TurnEffect(name="ongoing fire", timing="start", damage=1)
+
+    with pytest.raises(ValueError, match="unknown turn effect timing"):
+        apply_turn_effects(simple_effect_combat(), target_id="hero", timing="middle", effects=())
 
 
 def simple_effect_combat():

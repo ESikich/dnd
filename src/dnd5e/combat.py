@@ -9,12 +9,16 @@ from dnd5e.abilities import RandomSource, d20_check
 from dnd5e.character import CharacterRules, initiative_bonus
 from dnd5e.dice import DiceRoll, roll_dice
 from dnd5e.effects import (
+    ArmorClassModifier,
     DamageAdjustmentResult,
+    TurnEffect,
+    TurnEffectApplication,
     adjust_damage_for_target,
     combine_advantage,
     condition_attack_modifier,
     condition_forces_nearby_critical,
     condition_prevents_actions,
+    modified_armor_class,
     target_immune_to_condition,
 )
 from dnd5e.hit_points import (
@@ -189,6 +193,21 @@ class CombatHealingResult:
     healing: HealingResult
 
 
+@dataclass(frozen=True)
+class CombatTurnEffectResult:
+    """Combat event returned after applying start- or end-of-turn effect hooks."""
+
+    state: CombatState
+    target_before: Combatant
+    target_after: Combatant
+    timing: str
+    applications: tuple[TurnEffectApplication, ...]
+
+    @property
+    def changed(self) -> bool:
+        return any(application.changed for application in self.applications)
+
+
 def create_combatant(
     *,
     id: str,
@@ -347,6 +366,7 @@ def resolve_attack_action(
     attack_rng: RandomSource = random,
     bonus_dice: tuple[str, ...] = (),
     attacker_within_5_feet: bool | None = None,
+    target_armor_class_modifiers: tuple[ArmorClassModifier, ...] = (),
 ) -> AttackActionResult:
     """Resolve an attack event and apply damage to the target on a hit."""
 
@@ -360,9 +380,13 @@ def resolve_attack_action(
         target_conditions=target.conditions,
         attacker_within_5_feet=attacker_within_5_feet,
     )
+    target_armor_class = modified_armor_class(
+        target.armor_class,
+        target_armor_class_modifiers,
+    )
     attack = attack_roll(
         attacker_bonus=attack_bonus,
-        target_armor_class=target.armor_class,
+        target_armor_class=target_armor_class.total,
         roll=roll,
         advantage=combine_advantage(advantage, condition_modifier.advantage),
         rng=attack_rng,
@@ -457,6 +481,85 @@ def apply_combat_damage(
         target_after=target_after,
         damage_application=damage,
         damage_adjustment=damage_adjustment,
+    )
+
+
+def apply_turn_effects(
+    state: CombatState,
+    *,
+    target_id: str,
+    timing: str,
+    effects: tuple[TurnEffect, ...],
+) -> CombatTurnEffectResult:
+    """Apply matching start- or end-of-turn hooks to one combatant."""
+
+    if timing not in ("start", "end"):
+        raise ValueError(f"unknown turn effect timing: {timing}")
+
+    target_before = combatant_by_id(state, target_id)
+    current_state = state
+    applications: list[TurnEffectApplication] = []
+
+    for effect in effects:
+        if effect.timing != timing:
+            continue
+
+        damage_applied = 0
+        healing_applied = 0
+        conditions_added: list[ConditionName] = []
+        conditions_removed: list[ConditionName] = []
+        next_state = current_state
+
+        if effect.damage:
+            damage_result = apply_combat_damage(
+                next_state,
+                target_id=target_id,
+                amount=effect.damage,
+                damage_type=effect.damage_type,
+            )
+            next_state = damage_result.state
+            damage_applied = damage_result.damage_application.applied_to_current
+
+        if effect.healing:
+            healing_result = apply_combat_healing(
+                next_state,
+                target_id=target_id,
+                amount=effect.healing,
+            )
+            next_state = healing_result.state
+            healing_applied = healing_result.healing.applied
+
+        for condition in effect.add_conditions:
+            before = combatant_by_id(next_state, target_id)
+            next_state = apply_condition(next_state, target_id=target_id, condition=condition)
+            after = combatant_by_id(next_state, target_id)
+            if condition not in before.conditions and condition in after.conditions:
+                conditions_added.append(condition)
+
+        for condition in effect.remove_conditions:
+            before = combatant_by_id(next_state, target_id)
+            next_state = remove_condition(next_state, target_id=target_id, condition=condition)
+            after = combatant_by_id(next_state, target_id)
+            if condition in before.conditions and condition not in after.conditions:
+                conditions_removed.append(condition)
+
+        current_state = next_state
+        applications.append(
+            TurnEffectApplication(
+                effect=effect,
+                damage_applied=damage_applied,
+                healing_applied=healing_applied,
+                conditions_added=tuple(conditions_added),
+                conditions_removed=tuple(conditions_removed),
+            )
+        )
+
+    return CombatTurnEffectResult(
+        state=current_state,
+        target_before=target_before,
+        target_after=combatant_by_id(current_state, target_id),
+        timing=timing,
+        applications=tuple(applications),
     )
 
 
