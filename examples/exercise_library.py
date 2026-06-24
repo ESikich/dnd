@@ -64,6 +64,7 @@ from dnd5e import (
     initiative_bonus,
     load_builtin_class_pack,
     load_builtin_equipment_pack,
+    load_builtin_feature_pack,
     load_builtin_spell_pack,
     long_rest,
     modified_armor_class,
@@ -388,6 +389,7 @@ def show_effects_and_conditions() -> None:
 def show_resource_features() -> None:
     print_section("Resources And Features")
 
+    feature_pack = load_builtin_feature_pack()
     second_wind = create_feature_state(FEATURES["second_wind"])
     spent_second_wind = spend_feature_resource(second_wind)
     rested_second_wind = short_rest_feature(spent_second_wind)
@@ -407,6 +409,7 @@ def show_resource_features() -> None:
     assert recharged.resource is not None
     assert proficiency_uses.resource is not None
 
+    print(f"Built-in feature pack: {len(feature_pack.features)} features")
     print(
         f"{second_wind.definition.name}: "
         f"{spent_second_wind.resource.remaining}/{spent_second_wind.resource.maximum} after use, "

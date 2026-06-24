@@ -1,4 +1,5 @@
 from typing import cast
+from pathlib import Path
 
 import pytest
 
@@ -6,6 +7,7 @@ from dnd5e import (
     FEATURES,
     RESOURCE_REFRESHES,
     FeatureDefinition,
+    FeaturePack,
     FeatureState,
     RechargeResult,
     ResourceDefinition,
@@ -16,6 +18,9 @@ from dnd5e import (
     apply_second_wind,
     create_feature_state,
     create_resource_state,
+    load_builtin_feature_pack,
+    load_feature_pack,
+    load_feature_pack_data,
     long_rest_feature,
     long_rest_resource,
     recharge_feature,
@@ -38,8 +43,132 @@ def test_public_resource_imports_and_docstrings() -> None:
     assert ResourceState.__doc__
     assert RechargeResult.__doc__
     assert FeatureDefinition.__doc__
+    assert FeaturePack.__doc__
     assert FeatureState.__doc__
     assert SecondWindResult.__doc__
+
+
+def test_builtin_feature_pack_loads_current_catalog() -> None:
+    pack = load_builtin_feature_pack()
+
+    assert pack.features == FEATURES
+    assert pack.features["second_wind"].resource is not None
+    assert pack.features["second_wind"].resource.refresh == "short_rest"
+    assert pack.features["sneak_attack"].resource is None
+
+
+def test_feature_pack_loads_from_decoded_data() -> None:
+    pack = load_feature_pack_data(
+        {
+            "features": [
+                {
+                    "id": "spark",
+                    "name": "Spark",
+                    "tags": ["fire"],
+                    "resource": None,
+                },
+                {
+                    "id": "breath",
+                    "name": "Breath",
+                    "tags": ["recharge"],
+                    "resource": {
+                        "id": "breath",
+                        "name": "Breath",
+                        "maximum": 1,
+                        "refresh": "recharge",
+                        "proficiency_based": False,
+                        "recharge_minimum": 5,
+                        "recharge_die": 6,
+                    },
+                },
+            ]
+        }
+    )
+
+    assert pack.features["spark"].tags == ("fire",)
+    assert pack.features["spark"].resource is None
+    assert pack.features["breath"].resource is not None
+    assert pack.features["breath"].resource.recharge_minimum == 5
+
+
+def test_feature_pack_loads_json_file(tmp_path: Path) -> None:
+    path = tmp_path / "features.json"
+    path.write_text(
+        """
+        {
+          "features": [
+            {
+              "id": "focus",
+              "name": "Focus",
+              "tags": ["concentration"],
+              "resource": {
+                "id": "focus",
+                "name": "Focus",
+                "maximum": null,
+                "refresh": "long_rest",
+                "proficiency_based": true,
+                "recharge_minimum": null,
+                "recharge_die": 6
+              }
+            }
+          ]
+        }
+        """,
+        encoding="utf-8",
+    )
+
+    pack = load_feature_pack(path)
+
+    assert pack.features["focus"].resource is not None
+    assert pack.features["focus"].resource.proficiency_based is True
+
+
+def test_feature_pack_rejects_invalid_shape() -> None:
+    with pytest.raises(ValueError, match="missing sections"):
+        load_feature_pack_data({})
+
+    with pytest.raises(ValueError, match="unknown sections"):
+        load_feature_pack_data({"features": [], "resources": []})
+
+    with pytest.raises(ValueError, match="content section features must be a list"):
+        load_feature_pack_data({"features": {}})
+
+    with pytest.raises(ValueError, match="entries must be objects"):
+        load_feature_pack_data({"features": ["spark"]})
+
+    with pytest.raises(ValueError, match="unknown fields"):
+        load_feature_pack_data(
+            {
+                "features": [
+                    {
+                        "id": "spark",
+                        "name": "Spark",
+                        "tags": [],
+                        "resource": None,
+                        "text": "",
+                    }
+                ]
+            }
+        )
+
+    with pytest.raises(ValueError, match="duplicate feature id"):
+        load_feature_pack_data(
+            {
+                "features": [
+                    {"id": "spark", "name": "Spark", "tags": [], "resource": None},
+                    {"id": "spark", "name": "Spark", "tags": [], "resource": None},
+                ]
+            }
+        )
+
+    with pytest.raises(ValueError, match="feature.resource must be an object or null"):
+        load_feature_pack_data(
+            {
+                "features": [
+                    {"id": "spark", "name": "Spark", "tags": [], "resource": []},
+                ]
+            }
+        )
 
 
 def test_fixed_resource_spends_and_restores_by_rest_type() -> None:

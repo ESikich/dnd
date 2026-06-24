@@ -1,0 +1,72 @@
+{
+  "features": [
+    {
+      "id": "second_wind",
+      "name": "Second Wind",
+      "tags": ["healing"],
+      "resource": {
+        "id": "second_wind",
+        "name": "Second Wind",
+        "maximum": 1,
+        "refresh": "short_rest",
+        "proficiency_based": false,
+        "recharge_minimum": null,
+        "recharge_die": 6
+      }
+    },
+    {
+      "id": "rage",
+      "name": "Rage",
+      "tags": ["damage_bonus", "resistance"],
+      "resource": {
+        "id": "rage",
+        "name": "Rage",
+        "maximum": 2,
+        "refresh": "long_rest",
+        "proficiency_based": false,
+        "recharge_minimum": null,
+        "recharge_die": 6
+      }
+    },
+    {
+      "id": "sneak_attack",
+      "name": "Sneak Attack",
+      "tags": ["bonus_damage", "once_per_turn"],
+      "resource": null
+    },
+    {
+      "id": "pack_tactics",
+      "name": "Pack Tactics",
+      "tags": ["attack_advantage_adjacent_ally"],
+      "resource": null
+    },
+    {
+      "id": "proficiency_uses",
+      "name": "Proficiency Uses",
+      "tags": ["proficiency_based_uses"],
+      "resource": {
+        "id": "proficiency_uses",
+        "name": "Proficiency Uses",
+        "maximum": null,
+        "refresh": "long_rest",
+        "proficiency_based": true,
+        "recharge_minimum": null,
+        "recharge_die": 6
+      }
+    },
+    {
+      "id": "recharge_5_6",
+      "name": "Recharge 5-6",
+      "tags": ["recharge"],
+      "resource": {
+        "id": "recharge_5_6",
+        "name": "Recharge 5-6",
+        "maximum": 1,
+        "refresh": "recharge",
+        "proficiency_based": false,
+        "recharge_minimum": 5,
+        "recharge_die": 6
+      }
+    }
+  ]
+}

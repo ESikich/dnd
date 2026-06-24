@@ -1,8 +1,12 @@
 from __future__ import annotations
 
+import json
+from collections.abc import Mapping
 from dataclasses import dataclass
+from importlib.resources import files
+from pathlib import Path
 from random import random
-from typing import Literal
+from typing import Any, Literal, TypeVar
 
 from dnd5e.abilities import RandomSource, proficiency_bonus, random_die
 from dnd5e.combat import DamageResult, damage_roll
@@ -10,6 +14,7 @@ from dnd5e.hit_points import HealingResult, HitPointState, apply_healing
 from dnd5e.types import DamageType
 
 ResourceRefresh = Literal["none", "short_rest", "long_rest", "recharge"]
+T = TypeVar("T")
 
 
 @dataclass(frozen=True)
@@ -86,6 +91,13 @@ class FeatureDefinition:
 
 
 @dataclass(frozen=True)
+class FeaturePack:
+    """Loaded feature content grouped into a feature-definition catalog."""
+
+    features: dict[str, FeatureDefinition]
+
+
+@dataclass(frozen=True)
 class FeatureState:
     """Runtime state for a feature and its optional resource."""
 
@@ -124,6 +136,142 @@ RESOURCE_REFRESHES: tuple[ResourceRefresh, ...] = (
     "long_rest",
     "recharge",
 )
+
+
+def load_feature_pack(path: str | Path) -> FeaturePack:
+    """Load feature definitions from a feature content-pack JSON file."""
+
+    with Path(path).open(encoding="utf-8") as file:
+        data = json.load(file)
+    if not isinstance(data, Mapping):
+        raise ValueError("feature content pack must be a JSON object")
+    return load_feature_pack_data(data)
+
+
+def load_builtin_feature_pack() -> FeaturePack:
+    """Load the packaged SRD-style feature content pack."""
+
+    data_resource = files("dnd5e.data").joinpath("features.json")
+    with data_resource.open(encoding="utf-8") as file:
+        data = json.load(file)
+    if not isinstance(data, Mapping):
+        raise ValueError("built-in feature content pack must be a JSON object")
+    return load_feature_pack_data(data)
+
+
+def load_feature_pack_data(data: Mapping[str, Any]) -> FeaturePack:
+    """Validate and construct a feature pack from decoded JSON-style data."""
+
+    _validate_pack_keys(data)
+    return FeaturePack(features=_load_feature_entries(data["features"]))
+
+
+def _validate_pack_keys(data: Mapping[str, Any]) -> None:
+    expected = {"features"}
+    missing = expected - set(data)
+    if missing:
+        raise ValueError(f"feature content pack missing sections: {', '.join(sorted(missing))}")
+    extra = set(data) - expected
+    if extra:
+        raise ValueError(f"feature content pack has unknown sections: {', '.join(sorted(extra))}")
+
+
+def _load_feature_entries(entries: Any) -> dict[str, FeatureDefinition]:
+    return _catalog_by_id(
+        "feature",
+        [
+            FeatureDefinition(
+                id=_field(entry, "id", str, "feature"),
+                name=_field(entry, "name", str, "feature"),
+                tags=tuple(_string_list_field(entry, "tags", "feature")),
+                resource=_resource_definition_field(entry, "resource", "feature"),
+            )
+            for entry in _validated_entries(
+                entries,
+                "features",
+                {"id", "name", "tags", "resource"},
+            )
+        ],
+    )
+
+
+def _resource_definition_field(
+    entry: Mapping[str, Any], name: str, section: str
+) -> ResourceDefinition | None:
+    if name not in entry:
+        raise ValueError(f"{section} entry missing field: {name}")
+    value = entry[name]
+    if value is None:
+        return None
+    if not isinstance(value, Mapping):
+        raise ValueError(f"{section}.{name} must be an object or null")
+    return ResourceDefinition(
+        id=_field(value, "id", str, "resource"),
+        name=_field(value, "name", str, "resource"),
+        maximum=_optional_field(value, "maximum", int, "resource"),
+        refresh=_field(value, "refresh", str, "resource"),  # type: ignore[arg-type]
+        proficiency_based=_field(value, "proficiency_based", bool, "resource"),
+        recharge_minimum=_optional_field(value, "recharge_minimum", int, "resource"),
+        recharge_die=_field(value, "recharge_die", int, "resource"),
+    )
+
+
+def _validated_entries(
+    entries: Any, section: str, expected_fields: set[str]
+) -> tuple[Mapping[str, Any], ...]:
+    if not isinstance(entries, list):
+        raise ValueError(f"feature content section {section} must be a list")
+    for entry in entries:
+        if not isinstance(entry, Mapping):
+            raise ValueError(f"feature content section {section} entries must be objects")
+        extra = set(entry) - expected_fields
+        if extra:
+            raise ValueError(f"{section} entry has unknown fields: {', '.join(sorted(extra))}")
+    return tuple(entries)
+
+
+def _catalog_by_id(section: str, entries: list[T]) -> dict[str, T]:
+    catalog: dict[str, T] = {}
+    for entry in entries:
+        entry_id = getattr(entry, "id")
+        if entry_id in catalog:
+            raise ValueError(f"duplicate {section} id: {entry_id}")
+        catalog[entry_id] = entry
+    return catalog
+
+
+def _field(entry: Mapping[str, Any], name: str, expected_type: type[T], section: str) -> T:
+    if name not in entry:
+        raise ValueError(f"{section} entry missing field: {name}")
+    value = entry[name]
+    if not isinstance(value, expected_type):
+        raise ValueError(f"{section}.{name} must be {expected_type.__name__}")
+    return value
+
+
+def _optional_field(
+    entry: Mapping[str, Any], name: str, expected_type: type[T], section: str
+) -> T | None:
+    if name not in entry:
+        raise ValueError(f"{section} entry missing field: {name}")
+    value = entry[name]
+    if value is None:
+        return None
+    if not isinstance(value, expected_type):
+        raise ValueError(f"{section}.{name} must be {expected_type.__name__} or null")
+    return value
+
+
+def _string_list_field(entry: Mapping[str, Any], name: str, section: str) -> tuple[str, ...]:
+    if name not in entry:
+        raise ValueError(f"{section} entry missing field: {name}")
+    value = entry[name]
+    if not isinstance(value, list):
+        raise ValueError(f"{section}.{name} must be a list")
+    for item in value:
+        if not isinstance(item, str):
+            raise ValueError(f"{section}.{name} entries must be strings")
+    return tuple(value)
 
 
 def create_resource_state(
@@ -347,60 +495,5 @@ def _roll_feature_die(
     return random_die(sides, rng)
 
 
-FEATURES: dict[str, FeatureDefinition] = {
-    "second_wind": FeatureDefinition(
-        id="second_wind",
-        name="Second Wind",
-        tags=("healing",),
-        resource=ResourceDefinition(
-            id="second_wind",
-            name="Second Wind",
-            maximum=1,
-            refresh="short_rest",
-        ),
-    ),
-    "rage": FeatureDefinition(
-        id="rage",
-        name="Rage",
-        tags=("damage_bonus", "resistance"),
-        resource=ResourceDefinition(
-            id="rage",
-            name="Rage",
-            maximum=2,
-            refresh="long_rest",
-        ),
-    ),
-    "sneak_attack": FeatureDefinition(
-        id="sneak_attack",
-        name="Sneak Attack",
-        tags=("bonus_damage", "once_per_turn"),
-    ),
-    "pack_tactics": FeatureDefinition(
-        id="pack_tactics",
-        name="Pack Tactics",
-        tags=("attack_advantage_adjacent_ally",),
-    ),
-    "proficiency_uses": FeatureDefinition(
-        id="proficiency_uses",
-        name="Proficiency Uses",
-        tags=("proficiency_based_uses",),
-        resource=ResourceDefinition(
-            id="proficiency_uses",
-            name="Proficiency Uses",
-            refresh="long_rest",
-            proficiency_based=True,
-        ),
-    ),
-    "recharge_5_6": FeatureDefinition(
-        id="recharge_5_6",
-        name="Recharge 5-6",
-        tags=("recharge",),
-        resource=ResourceDefinition(
-            id="recharge_5_6",
-            name="Recharge 5-6",
-            maximum=1,
-            refresh="recharge",
-            recharge_minimum=5,
-        ),
-    ),
-}
+_BUILTIN_FEATURES = load_builtin_feature_pack()
+FEATURES: dict[str, FeatureDefinition] = _BUILTIN_FEATURES.features
