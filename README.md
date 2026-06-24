@@ -12,6 +12,12 @@ helpers without copying long-form rule text.
 python -m pip install -e .
 ```
 
+For development tools:
+
+```sh
+python -m pip install -e ".[dev]"
+```
+
 ## Use
 
 ```py
@@ -25,6 +31,7 @@ from dnd5e import (
     SPELLS,
     SRD_CLASSES,
     ability_modifier,
+    apply_second_wind,
     apply_spell_condition,
     apply_spell_healing,
     attack_roll,
@@ -50,6 +57,7 @@ from dnd5e import (
     summarize_encounter,
     roll_dice,
     short_rest_feature,
+    sneak_attack_damage_dice,
     spell_attack_bonus,
     spell_save_dc,
     spell_slots_remaining,
@@ -130,6 +138,13 @@ spell_slots = spend_spell_slot(create_spell_slots({1: 4, 2: 3}), 2)
 pact_magic = restore_pact_magic(spend_pact_slot(create_pact_magic(slot_level=2, maximum=2)))
 second_wind = spend_feature_resource(create_feature_state(FEATURES["second_wind"]))
 rested_second_wind = short_rest_feature(second_wind)
+second_wind_healing = apply_second_wind(
+    create_feature_state(FEATURES["second_wind"]),
+    HitPointState(current=12, maximum=20),
+    fighter_level=5,
+    roll=6,
+)
+sneak_attack_dice = sneak_attack_damage_dice(5)
 recharge_feature_state = create_feature_state(FEATURES["recharge_5_6"], remaining=0)
 recharged_feature, recharge_roll = recharge_feature(recharge_feature_state, roll=5)
 encounter = summarize_encounter(
@@ -210,6 +225,8 @@ print(spell_dc)  # 11
 print(spell_slots_remaining(spell_slots, 2))  # 2
 print(pact_magic.remaining)  # 2
 print(rested_second_wind.resource.remaining)  # 1
+print(second_wind_healing.healing.applied)  # 8
+print(sneak_attack_dice)  # "3d6"
 print(recharge_roll.recharged)  # True
 print(spell_hit.damage.total)  # 1
 print(spell_save.save.success)  # False

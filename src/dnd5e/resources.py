@@ -4,7 +4,10 @@ from dataclasses import dataclass
 from random import random
 from typing import Literal
 
-from dnd5e.abilities import RandomSource, proficiency_bonus
+from dnd5e.abilities import RandomSource, proficiency_bonus, random_die
+from dnd5e.combat import DamageResult, damage_roll
+from dnd5e.hit_points import HealingResult, HitPointState, apply_healing
+from dnd5e.types import DamageType
 
 ResourceRefresh = Literal["none", "short_rest", "long_rest", "recharge"]
 
@@ -98,6 +101,21 @@ class FeatureState:
             and self.definition.resource.id != self.resource.definition.id
         ):
             raise ValueError("resource state does not match feature resource definition")
+
+
+@dataclass(frozen=True)
+class SecondWindResult:
+    """Healing and feature state produced by using Second Wind."""
+
+    feature: FeatureState
+    healing: HealingResult
+    roll: int
+
+    def __post_init__(self) -> None:
+        if self.feature.definition.id != "second_wind":
+            raise ValueError("Second Wind result requires the Second Wind feature")
+        if not 1 <= self.roll <= 10:
+            raise ValueError("Second Wind roll must be from 1 to 10")
 
 
 RESOURCE_REFRESHES: tuple[ResourceRefresh, ...] = (
@@ -257,6 +275,52 @@ def recharge_feature(
     return FeatureState(definition=state.definition, resource=result.state), result
 
 
+def apply_second_wind(
+    state: FeatureState,
+    hit_points: HitPointState,
+    *,
+    fighter_level: int,
+    roll: int | None = None,
+    rng: RandomSource = random,
+) -> SecondWindResult:
+    """Spend Second Wind and heal ``1d10 + fighter_level`` hit points."""
+
+    if state.definition.id != "second_wind":
+        raise ValueError("feature must be Second Wind")
+    if not 1 <= fighter_level <= 20:
+        raise ValueError("fighter_level must be from 1 to 20")
+
+    spent = spend_feature_resource(state)
+    die_roll = _roll_feature_die(10, roll=roll, rng=rng, context="Second Wind roll")
+    healing = apply_healing(hit_points, die_roll + fighter_level)
+    return SecondWindResult(feature=spent, healing=healing, roll=die_roll)
+
+
+def sneak_attack_damage_dice(rogue_level: int) -> str:
+    """Return Sneak Attack bonus damage dice for a rogue level."""
+
+    if not 1 <= rogue_level <= 20:
+        raise ValueError("rogue_level must be from 1 to 20")
+    return f"{(rogue_level + 1) // 2}d6"
+
+
+def sneak_attack_damage(
+    *,
+    rogue_level: int,
+    damage_type: DamageType,
+    critical: bool = False,
+    rng: RandomSource = random,
+) -> DamageResult:
+    """Roll Sneak Attack bonus damage using the triggering attack's damage type."""
+
+    return damage_roll(
+        dice=sneak_attack_damage_dice(rogue_level),
+        type=damage_type,
+        critical=critical,
+        rng=rng,
+    )
+
+
 def _validate_id_and_name(id: str, name: str) -> None:
     if not id:
         raise ValueError("id is required")
@@ -267,6 +331,20 @@ def _validate_id_and_name(id: str, name: str) -> None:
 def _validate_positive(name: str, value: int) -> None:
     if value < 1:
         raise ValueError(f"{name} must be positive")
+
+
+def _roll_feature_die(
+    sides: int,
+    *,
+    roll: int | None,
+    rng: RandomSource,
+    context: str,
+) -> int:
+    if roll is not None:
+        if not 1 <= roll <= sides:
+            raise ValueError(f"{context} must be from 1 to {sides}")
+        return roll
+    return random_die(sides, rng)
 
 
 FEATURES: dict[str, FeatureDefinition] = {

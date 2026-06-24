@@ -23,6 +23,13 @@ classifiers = [
   "Topic :: Games/Entertainment :: Role-Playing"
 ]
 
+[project.optional-dependencies]
+dev = [
+  "pytest>=9,<10",
+  "pyright>=1.1,<2",
+  "ruff>=0.13,<1",
+]
+
 [tool.hatch.build.targets.wheel]
 packages = ["src/dnd5e"]
 

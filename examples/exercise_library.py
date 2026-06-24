@@ -29,6 +29,7 @@ from dnd5e import (
     ability_bonus,
     ability_modifier,
     apply_healing,
+    apply_second_wind,
     apply_spell_condition,
     apply_spell_healing,
     armor_class,
@@ -70,6 +71,8 @@ from dnd5e import (
     short_rest,
     short_rest_feature,
     skill_bonus,
+    sneak_attack_damage,
+    sneak_attack_damage_dice,
     spell_attack_bonus,
     spell_save_dc,
     spell_slots_remaining,
@@ -317,6 +320,13 @@ def show_resource_features() -> None:
     second_wind = create_feature_state(FEATURES["second_wind"])
     spent_second_wind = spend_feature_resource(second_wind)
     rested_second_wind = short_rest_feature(spent_second_wind)
+    second_wind_healing = apply_second_wind(
+        create_feature_state(FEATURES["second_wind"]),
+        HitPointState(current=12, maximum=20),
+        fighter_level=5,
+        roll=6,
+    )
+    sneak_attack = sneak_attack_damage(rogue_level=5, damage_type="piercing", rng=lambda: 0)
     recharge = create_feature_state(FEATURES["recharge_5_6"], remaining=0)
     recharged, recharge_roll = recharge_feature(recharge, roll=5)
     proficiency_uses = create_feature_state(FEATURES["proficiency_uses"], level=9)
@@ -330,6 +340,14 @@ def show_resource_features() -> None:
         f"{second_wind.definition.name}: "
         f"{spent_second_wind.resource.remaining}/{spent_second_wind.resource.maximum} after use, "
         f"{rested_second_wind.resource.remaining}/{rested_second_wind.resource.maximum} after short rest"
+    )
+    print(
+        f"Second Wind healing: roll {second_wind_healing.roll} + fighter level 5 "
+        f"-> {second_wind_healing.healing.applied} HP restored"
+    )
+    print(
+        f"Sneak Attack level 5: {sneak_attack_damage_dice(5)} bonus damage "
+        f"-> {sneak_attack.total} {sneak_attack.type}"
     )
     print(
         f"{recharge.definition.name}: roll {recharge_roll.roll}, "

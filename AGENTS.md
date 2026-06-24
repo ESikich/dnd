@@ -47,6 +47,13 @@ Run tests:
 python3 -m pytest
 ```
 
+Run lint and type checks:
+
+```sh
+ruff check .
+pyright
+```
+
 Run the demo:
 
 ```sh
@@ -59,6 +66,12 @@ Install locally:
 python3 -m pip install -e .
 ```
 
+Install development tools:
+
+```sh
+python3 -m pip install -e ".[dev]"
+```
+
 ## Implementation Pattern
 
 For a new rules area:
@@ -68,7 +81,7 @@ For a new rules area:
 3. Export public symbols from `__init__.py`.
 4. Add focused tests in `tests/test_<feature>.py`.
 5. Update the demo and docs when they can show or explain the new behavior.
-6. Run `python3 -m pytest`.
+6. Run `ruff check .`, `pyright`, and `python3 -m pytest`.
 
 ## Preferred Next Work
 

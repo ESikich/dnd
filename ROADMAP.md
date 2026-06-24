@@ -179,11 +179,11 @@ Progress:
 - Done: add feature definitions and runtime feature state.
 - Done: add common feature examples for Second Wind, Rage, Sneak Attack, Pack
   Tactics, proficiency-based uses, and Recharge 5-6.
+- Done: add focused helpers for Second Wind healing and Sneak Attack bonus
+  damage dice/rolls.
 
 Todo:
 
-- Add focused helpers that apply feature examples where they have concrete
-  mechanics, such as Second Wind healing and Sneak Attack bonus damage.
 - Connect creature recharge metadata to creature action definitions where useful.
 
 Done when:
