@@ -17,6 +17,7 @@ python -m pip install -e .
 ```py
 from dnd5e import (
     CREATURES,
+    FEATURES,
     CharacterClassLevel,
     CharacterLoadout,
     CharacterSheet,
@@ -35,10 +36,12 @@ from dnd5e import (
     create_combat,
     create_combatant,
     create_creature_instance,
+    create_feature_state,
     create_pact_magic,
     create_spell_slots,
     d20_check,
     creature_runtime_combatant,
+    recharge_feature,
     resolve_attack_action,
     resolve_spell_attack,
     resolve_spell_save_damage,
@@ -46,9 +49,11 @@ from dnd5e import (
     encounter_monster,
     summarize_encounter,
     roll_dice,
+    short_rest_feature,
     spell_attack_bonus,
     spell_save_dc,
     spell_slots_remaining,
+    spend_feature_resource,
     spend_pact_slot,
     spend_spell_slot,
 )
@@ -123,6 +128,10 @@ spell_attack = spell_attack_bonus(character_sheet_rules(kara), "int")
 spell_dc = spell_save_dc(character_sheet_rules(kara), "int")
 spell_slots = spend_spell_slot(create_spell_slots({1: 4, 2: 3}), 2)
 pact_magic = restore_pact_magic(spend_pact_slot(create_pact_magic(slot_level=2, maximum=2)))
+second_wind = spend_feature_resource(create_feature_state(FEATURES["second_wind"]))
+rested_second_wind = short_rest_feature(second_wind)
+recharge_feature_state = create_feature_state(FEATURES["recharge_5_6"], remaining=0)
+recharged_feature, recharge_roll = recharge_feature(recharge_feature_state, roll=5)
 encounter = summarize_encounter(
     [encounter_monster("ogre"), encounter_monster("bandit", count=2)],
     party_levels=[3, 3, 3, 3],
@@ -200,6 +209,8 @@ print(spell_attack)  # 3
 print(spell_dc)  # 11
 print(spell_slots_remaining(spell_slots, 2))  # 2
 print(pact_magic.remaining)  # 2
+print(rested_second_wind.resource.remaining)  # 1
+print(recharge_roll.recharged)  # True
 print(spell_hit.damage.total)  # 1
 print(spell_save.save.success)  # False
 print(spell_healing.healing.applied)  # 0
@@ -235,10 +246,12 @@ Included now:
 - Spell attack bonus and spell save DC helpers
 - Spell slot and pact magic state with spend and restore helpers
 - Basic spell-effect helpers for spell attacks, saving throw damage, rolled healing, and conditions
+- Generic limited-use resources for fixed charges, rests, proficiency-based uses, and recharge rolls
+- Feature definitions and runtime feature state, with examples such as Second Wind, Rage, Sneak Attack,
+  Pack Tactics, and Recharge 5-6
 
 Good next modules:
 
-- Resources and feature recharge
 - Effect/modifier hooks for conditions, concentration, and damage resistance
 - Character advancement and multiclassing
 

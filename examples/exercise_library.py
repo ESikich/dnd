@@ -8,6 +8,7 @@ from dnd5e import (
     ARMOR,
     CONDITIONS,
     CREATURES,
+    FEATURES,
     SKILL_ABILITIES,
     SPELLS,
     SRD_CLASSES,
@@ -44,6 +45,7 @@ from dnd5e import (
     create_combatant,
     create_creature_instance,
     create_hit_dice_pool,
+    create_feature_state,
     create_pact_magic,
     create_spell_slots,
     creature_runtime_combatant,
@@ -52,6 +54,7 @@ from dnd5e import (
     encounter_monster,
     initiative_bonus,
     long_rest,
+    recharge_feature,
     next_turn,
     parse_dice_notation,
     passive_score,
@@ -65,10 +68,12 @@ from dnd5e import (
     roll_dice,
     saving_throw_bonus,
     short_rest,
+    short_rest_feature,
     skill_bonus,
     spell_attack_bonus,
     spell_save_dc,
     spell_slots_remaining,
+    spend_feature_resource,
     spend_pact_slot,
     spend_spell_slot,
     summarize_encounter,
@@ -88,6 +93,7 @@ def main() -> None:
     show_sheet_validation()
     show_equipment(hero)
     show_class_and_condition_data()
+    show_resource_features()
     show_spell_catalog()
     show_creature_catalog()
     show_encounter_summary()
@@ -303,6 +309,36 @@ def show_class_and_condition_data() -> None:
     for name in condition_names:
         condition = CONDITIONS[name]
         print(f"Condition {name}: {', '.join(condition.tags)}")
+
+
+def show_resource_features() -> None:
+    print_section("Resources And Features")
+
+    second_wind = create_feature_state(FEATURES["second_wind"])
+    spent_second_wind = spend_feature_resource(second_wind)
+    rested_second_wind = short_rest_feature(spent_second_wind)
+    recharge = create_feature_state(FEATURES["recharge_5_6"], remaining=0)
+    recharged, recharge_roll = recharge_feature(recharge, roll=5)
+    proficiency_uses = create_feature_state(FEATURES["proficiency_uses"], level=9)
+
+    assert spent_second_wind.resource is not None
+    assert rested_second_wind.resource is not None
+    assert recharged.resource is not None
+    assert proficiency_uses.resource is not None
+
+    print(
+        f"{second_wind.definition.name}: "
+        f"{spent_second_wind.resource.remaining}/{spent_second_wind.resource.maximum} after use, "
+        f"{rested_second_wind.resource.remaining}/{rested_second_wind.resource.maximum} after short rest"
+    )
+    print(
+        f"{recharge.definition.name}: roll {recharge_roll.roll}, "
+        f"recharged={recharge_roll.recharged}, remaining {recharged.resource.remaining}"
+    )
+    print(
+        f"Level 9 proficiency-based uses: "
+        f"{proficiency_uses.resource.remaining}/{proficiency_uses.resource.maximum}"
+    )
 
 
 def show_spell_catalog() -> None:

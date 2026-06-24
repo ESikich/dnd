@@ -170,11 +170,21 @@ Done when:
 
 Goal: support class features and monster abilities that have limited uses.
 
+Status: In progress.
+
+Progress:
+
+- Done: add a generic resource model for charges, short-rest uses, long-rest
+  uses, proficiency-based uses, and recharge rolls.
+- Done: add feature definitions and runtime feature state.
+- Done: add common feature examples for Second Wind, Rage, Sneak Attack, Pack
+  Tactics, proficiency-based uses, and Recharge 5-6.
+
 Todo:
 
-- Add a generic resource model for charges, short-rest uses, long-rest uses, proficiency-based uses, and recharge rolls.
-- Add feature definitions and feature state.
-- Add common feature examples such as Second Wind, Rage, Sneak Attack, Pack Tactics, and Recharge 5-6.
+- Add focused helpers that apply feature examples where they have concrete
+  mechanics, such as Second Wind healing and Sneak Attack bonus damage.
+- Connect creature recharge metadata to creature action definitions where useful.
 
 Done when:
 
