@@ -1,3 +1,5 @@
+from typing import cast
+
 import pytest
 
 from dnd5e import (
@@ -6,7 +8,9 @@ from dnd5e import (
     SPELL_SCHOOLS,
     PactMagicState,
     CharacterRules,
+    SpellComponent,
     SpellDefinition,
+    SpellSchool,
     SpellSlotPool,
     SpellSlotState,
     create_pact_magic,
@@ -53,7 +57,16 @@ def test_spell_definition_rejects_invalid_core_metadata() -> None:
         SpellDefinition("test", "Test", 10, "evocation", "1 action", "self", "instantaneous", ("verbal",))
 
     with pytest.raises(ValueError, match="unknown spell school"):
-        SpellDefinition("test", "Test", 1, "dunamancy", "1 action", "self", "instantaneous", ("verbal",))
+        SpellDefinition(
+            "test",
+            "Test",
+            1,
+            cast(SpellSchool, "dunamancy"),
+            "1 action",
+            "self",
+            "instantaneous",
+            ("verbal",),
+        )
 
     with pytest.raises(ValueError, match="casting_time is required"):
         SpellDefinition("test", "Test", 1, "evocation", "", "self", "instantaneous", ("verbal",))
@@ -64,7 +77,16 @@ def test_spell_definition_rejects_invalid_components() -> None:
         SpellDefinition("test", "Test", 1, "evocation", "1 action", "self", "instantaneous", ())
 
     with pytest.raises(ValueError, match="unknown spell component"):
-        SpellDefinition("test", "Test", 1, "evocation", "1 action", "self", "instantaneous", ("focus",))
+        SpellDefinition(
+            "test",
+            "Test",
+            1,
+            "evocation",
+            "1 action",
+            "self",
+            "instantaneous",
+            cast(tuple[SpellComponent, ...], ("focus",)),
+        )
 
     with pytest.raises(ValueError, match="requires a material component"):
         SpellDefinition(
