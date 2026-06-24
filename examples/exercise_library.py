@@ -65,6 +65,7 @@ from dnd5e import (
     load_builtin_class_pack,
     load_builtin_condition_pack,
     load_builtin_creature_pack,
+    load_builtin_encounter_rules_pack,
     load_builtin_equipment_pack,
     load_builtin_feature_pack,
     load_builtin_spell_pack,
@@ -606,6 +607,7 @@ def show_creature_catalog() -> None:
 def show_encounter_summary() -> None:
     print_section("Encounter Summary")
 
+    encounter_rules = load_builtin_encounter_rules_pack()
     encounter = summarize_encounter(
         [
             encounter_monster("ogre"),
@@ -614,6 +616,10 @@ def show_encounter_summary() -> None:
         party_levels=[3, 3, 3, 3],
     )
 
+    print(
+        f"Built-in encounter rules: {len(encounter_rules.challenge_rating_xp)} CR XP entries, "
+        f"{len(encounter_rules.party_thresholds)} party threshold levels"
+    )
     print(
         f"Monsters {encounter.monster_count}, raw XP {encounter.total_xp}, "
         f"adjusted XP {encounter.adjusted_xp:g} (x{encounter.xp_multiplier:g})"

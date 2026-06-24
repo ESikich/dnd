@@ -245,11 +245,15 @@ Progress:
   and user-provided condition metadata.
 - Done: load built-in condition metadata through the same condition content-pack
   path exposed to users.
+- Done: add JSON encounter-rules content-pack schema checks and loaders for
+  packaged and user-provided CR XP and party threshold tables.
+- Done: load built-in encounter math through the same encounter-rules
+  content-pack path exposed to users.
 
 Todo:
 
 - Broaden user/homebrew content pack support beyond equipment, classes, spells,
-  features, creatures, and conditions.
+  features, creatures, conditions, and encounter rules.
 
 Done when:
 

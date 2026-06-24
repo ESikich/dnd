@@ -1,15 +1,21 @@
+from pathlib import Path
+
 import pytest
 
 from dnd5e import (
     CREATURES,
     XP_BY_CHALLENGE_RATING,
     EncounterMonster,
+    EncounterRulesPack,
     EncounterSummary,
     EncounterThresholds,
     challenge_rating_xp,
     encounter_difficulty,
     encounter_monster,
     encounter_xp_multiplier,
+    load_builtin_encounter_rules_pack,
+    load_encounter_rules_pack,
+    load_encounter_rules_pack_data,
     party_xp_thresholds,
     summarize_encounter,
 )
@@ -18,8 +24,96 @@ from dnd5e import (
 def test_public_encounter_imports_and_docstrings() -> None:
     assert XP_BY_CHALLENGE_RATING["1/4"] == 50
     assert EncounterThresholds.__doc__
+    assert EncounterRulesPack.__doc__
     assert EncounterMonster.__doc__
     assert EncounterSummary.__doc__
+
+
+def test_builtin_encounter_rules_pack_loads_srd_tables() -> None:
+    pack = load_builtin_encounter_rules_pack()
+
+    assert isinstance(pack, EncounterRulesPack)
+    assert pack.challenge_rating_xp["5"] == 1800
+    assert pack.party_thresholds[3] == EncounterThresholds(easy=75, medium=150, hard=225, deadly=400)
+    assert pack.challenge_rating_xp == XP_BY_CHALLENGE_RATING
+
+
+def test_encounter_rules_pack_data_loads_user_content() -> None:
+    pack = load_encounter_rules_pack_data(
+        {
+            "challenge_rating_xp": {"tiny": 5, "boss": 500},
+            "party_thresholds": [
+                {"level": 1, "easy": 10, "medium": 20, "hard": 30, "deadly": 40},
+                {"level": 2, "easy": 20, "medium": 40, "hard": 60, "deadly": 80},
+            ],
+        }
+    )
+
+    assert pack.challenge_rating_xp["boss"] == 500
+    assert pack.party_thresholds[2].deadly == 80
+
+
+def test_encounter_rules_pack_loads_json_file(tmp_path: Path) -> None:
+    path = tmp_path / "encounters.json"
+    path.write_text(
+        """
+        {
+          "challenge_rating_xp": { "0": 10 },
+          "party_thresholds": [
+            { "level": 1, "easy": 25, "medium": 50, "hard": 75, "deadly": 100 }
+          ]
+        }
+        """,
+        encoding="utf-8",
+    )
+
+    pack = load_encounter_rules_pack(path)
+
+    assert pack.challenge_rating_xp["0"] == 10
+    assert pack.party_thresholds[1].medium == 50
+
+
+def test_encounter_rules_pack_rejects_invalid_shape() -> None:
+    with pytest.raises(ValueError, match="missing sections"):
+        load_encounter_rules_pack_data({})
+
+    with pytest.raises(ValueError, match="unknown sections"):
+        load_encounter_rules_pack_data(
+            {"challenge_rating_xp": {}, "party_thresholds": [], "multipliers": []}
+        )
+
+    with pytest.raises(ValueError, match="challenge_rating_xp must be an object"):
+        load_encounter_rules_pack_data({"challenge_rating_xp": [], "party_thresholds": []})
+
+    with pytest.raises(ValueError, match="party_thresholds must be a list"):
+        load_encounter_rules_pack_data({"challenge_rating_xp": {"0": 10}, "party_thresholds": {}})
+
+    with pytest.raises(ValueError, match="unknown fields"):
+        load_encounter_rules_pack_data(
+            {
+                "challenge_rating_xp": {"0": 10},
+                "party_thresholds": [
+                    {
+                        "level": 1,
+                        "easy": 25,
+                        "medium": 50,
+                        "hard": 75,
+                        "deadly": 100,
+                        "extreme": 200,
+                    }
+                ],
+            }
+        )
+
+    with pytest.raises(ValueError, match="thresholds must be ordered"):
+        load_encounter_rules_pack_data(
+            {
+                "challenge_rating_xp": {"0": 10},
+                "party_thresholds": [
+                    {"level": 1, "easy": 100, "medium": 50, "hard": 75, "deadly": 100}
+                ],
+            }
+        )
 
 
 def test_challenge_rating_xp_uses_srd_xp_table() -> None:
