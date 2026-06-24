@@ -170,7 +170,7 @@ Done when:
 
 Goal: support class features and monster abilities that have limited uses.
 
-Status: In progress.
+Status: Complete.
 
 Progress:
 
@@ -181,14 +181,12 @@ Progress:
   Tactics, proficiency-based uses, and Recharge 5-6.
 - Done: add focused helpers for Second Wind healing and Sneak Attack bonus
   damage dice/rolls.
-
-Todo:
-
-- Connect creature recharge metadata to creature action definitions where useful.
+- Done: connect creature recharge metadata to rechargeable creature action
+  definitions and runtime feature/resource state.
 
 Done when:
 
-- A feature can be used, depleted, restored, and demonstrated in tests.
+- Done: a feature can be used, depleted, restored, and demonstrated in tests.
 
 ## Phase 7: Effects And Conditions Runtime
 

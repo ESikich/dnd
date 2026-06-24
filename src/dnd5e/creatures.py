@@ -18,6 +18,7 @@ from dnd5e.combat import (
 )
 from dnd5e.dice import parse_dice_notation
 from dnd5e.hit_points import HitPointState
+from dnd5e.resources import FeatureDefinition, FeatureState, ResourceDefinition, create_feature_state
 from dnd5e.skills import SKILL_ABILITIES
 from dnd5e.types import Ability, ConditionName, CreatureSize, CreatureType, DamageType, Skill
 
@@ -51,20 +52,28 @@ class CreatureAction:
 
     name: str
     attack_bonus: int
-    damage_dice: str
-    damage_type: DamageType
+    damage_dice: str | None = None
+    damage_type: DamageType | None = None
     reach: int | None = None
     normal_range: int | None = None
     long_range: int | None = None
     target: str = "one target"
+    recharge_minimum: int | None = None
+    recharge_die: int = 6
 
     def __post_init__(self) -> None:
-        parse_dice_notation(self.damage_dice)
+        if (self.damage_dice is None) != (self.damage_type is None):
+            raise ValueError("damage_dice and damage_type must be provided together")
+        if self.damage_dice is not None:
+            parse_dice_notation(self.damage_dice)
         _validate_positive_optional("reach", self.reach)
         _validate_positive_optional("normal_range", self.normal_range)
         _validate_positive_optional("long_range", self.long_range)
+        _validate_positive_optional("recharge_die", self.recharge_die)
         if self.normal_range is not None and self.long_range is not None and self.long_range < self.normal_range:
             raise ValueError("long_range must be greater than or equal to normal_range")
+        if self.recharge_minimum is not None and not 1 <= self.recharge_minimum <= self.recharge_die:
+            raise ValueError("recharge_minimum must be from 1 to recharge_die")
 
 
 @dataclass(frozen=True)
@@ -440,7 +449,17 @@ CREATURES: dict[str, CreatureDefinition] = {
         languages=(),
         challenge_rating="1",
         xp=200,
-        actions=(CreatureAction("Bite", 5, "1d8+3", "piercing", reach=5),),
+        actions=(
+            CreatureAction("Bite", 5, "1d8+3", "piercing", reach=5),
+            CreatureAction(
+                "Web",
+                5,
+                normal_range=30,
+                long_range=60,
+                target="one creature",
+                recharge_minimum=5,
+            ),
+        ),
         traits=(
             CreatureFeature("Spider Climb", ("climb_difficult_surfaces",)),
             CreatureFeature("Web Sense", ("sense_web_vibrations",)),
@@ -602,11 +621,46 @@ def creature_action_damage(
 ) -> DamageResult:
     """Roll damage for a creature action."""
 
+    if action.damage_dice is None or action.damage_type is None:
+        raise ValueError(f"{action.name} does not deal direct damage")
     return damage_roll(
         dice=action.damage_dice,
         type=action.damage_type,
         critical=critical,
         rng=rng,
+    )
+
+
+def creature_action_recharge_feature(action: CreatureAction) -> FeatureDefinition:
+    """Create limited-use feature metadata for a rechargeable creature action."""
+
+    if action.recharge_minimum is None:
+        raise ValueError(f"{action.name} does not use recharge")
+    return FeatureDefinition(
+        id=f"{_rules_id(action.name)}_recharge",
+        name=f"{action.name} Recharge",
+        tags=("recharge", "creature_action"),
+        resource=ResourceDefinition(
+            id=f"{_rules_id(action.name)}_recharge",
+            name=f"{action.name} Recharge",
+            maximum=1,
+            refresh="recharge",
+            recharge_minimum=action.recharge_minimum,
+            recharge_die=action.recharge_die,
+        ),
+    )
+
+
+def creature_action_recharge_state(
+    action: CreatureAction,
+    *,
+    remaining: int | None = None,
+) -> FeatureState:
+    """Create runtime feature state for a rechargeable creature action."""
+
+    return create_feature_state(
+        creature_action_recharge_feature(action),
+        remaining=remaining,
     )
 
 
@@ -618,3 +672,7 @@ def _resolve_definition(definition: str | CreatureDefinition) -> CreatureDefinit
     if isinstance(definition, CreatureDefinition):
         return definition
     return CREATURES[definition]
+
+
+def _rules_id(value: str) -> str:
+    return "_".join(value.lower().replace("-", " ").split())

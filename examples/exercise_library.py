@@ -49,6 +49,7 @@ from dnd5e import (
     create_feature_state,
     create_pact_magic,
     create_spell_slots,
+    creature_action_recharge_state,
     creature_runtime_combatant,
     d20_check,
     damage_roll,
@@ -508,7 +509,8 @@ def show_creature_catalog() -> None:
     )
     print(
         f"{giant_spider.name}: CR {giant_spider.challenge_rating}, "
-        f"traits {join_names(giant_spider.traits)}"
+        f"traits {join_names(giant_spider.traits)}, "
+        f"{giant_spider.actions[1].name} recharge {giant_spider.actions[1].recharge_minimum}-6"
     )
     print(
         f"{gray_ooze.name}: resists {', '.join(gray_ooze.damage_resistances)}, "
@@ -612,6 +614,8 @@ def show_battle() -> None:
     kara_weapon = character_sheet_weapon_profile(kara, "longsword")
     goblin = create_creature_instance(CREATURES["goblin"])
     goblin_action = goblin.definition.actions[0]
+    if goblin_action.damage_dice is None or goblin_action.damage_type is None:
+        raise RuntimeError("scripted goblin action must deal damage")
 
     names = {
         "hero": "Kara",
@@ -705,6 +709,21 @@ def show_battle() -> None:
         f"Goblin {goblin_hp.current}"
     )
     show_rest_example(hero_hp)
+    show_creature_recharge_example()
+
+
+def show_creature_recharge_example() -> None:
+    print_section("Creature Recharge")
+
+    web = CREATURES["giant_spider"].actions[1]
+    web_recharge = creature_action_recharge_state(web, remaining=0)
+    recharged, result = recharge_feature(web_recharge, roll=5)
+
+    assert recharged.resource is not None
+    print(
+        f"{web.name}: roll {result.roll}, recharged={result.recharged}, "
+        f"uses {recharged.resource.remaining}/{recharged.resource.maximum}"
+    )
 
 
 def show_rest_example(kara_hp: HitPointState) -> None:

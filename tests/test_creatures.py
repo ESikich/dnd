@@ -10,9 +10,12 @@ from dnd5e import (
     creature_ability_bonus,
     creature_action_attack,
     creature_action_damage,
+    creature_action_recharge_feature,
+    creature_action_recharge_state,
     creature_combatant,
     creature_initiative_bonus,
     creature_skill_bonus,
+    recharge_feature,
 )
 
 
@@ -117,6 +120,9 @@ def test_creature_catalog_includes_more_srd_style_combatants() -> None:
     assert giant_spider.challenge_rating == "1"
     assert giant_spider.skills["stealth"] == 7
     assert [trait.name for trait in giant_spider.traits] == ["Spider Climb", "Web Sense", "Web Walker"]
+    assert giant_spider.actions[1].name == "Web"
+    assert giant_spider.actions[1].recharge_minimum == 5
+    assert giant_spider.actions[1].damage_dice is None
     assert gray_ooze.type == "ooze"
     assert gray_ooze.damage_resistances == ("acid", "cold", "fire")
     assert gray_ooze.condition_immunities == ("blinded", "charmed", "deafened", "frightened", "prone")
@@ -175,6 +181,24 @@ def test_creature_action_damage_uses_existing_damage_roll_rules() -> None:
     assert critical.total == 4
 
 
+def test_creature_action_recharge_metadata_creates_feature_state() -> None:
+    web = CREATURES["giant_spider"].actions[1]
+
+    feature = creature_action_recharge_feature(web)
+    state = creature_action_recharge_state(web, remaining=0)
+    recharged, result = recharge_feature(state, roll=5)
+
+    assert feature.id == "web_recharge"
+    assert feature.resource is not None
+    assert feature.resource.refresh == "recharge"
+    assert feature.resource.recharge_minimum == 5
+    assert state.resource is not None
+    assert state.resource.remaining == 0
+    assert result.recharged is True
+    assert recharged.resource is not None
+    assert recharged.resource.remaining == 1
+
+
 def test_creature_action_rejects_invalid_dice() -> None:
     with pytest.raises(ValueError, match="invalid dice notation"):
         CreatureAction("Broken", 1, "flat 3", "slashing")
@@ -186,6 +210,22 @@ def test_creature_action_rejects_invalid_ranges() -> None:
 
     with pytest.raises(ValueError, match="long_range"):
         CreatureAction("Broken", 1, "1d4", "slashing", normal_range=60, long_range=30)
+
+    with pytest.raises(ValueError, match="recharge_minimum"):
+        CreatureAction("Broken", 1, recharge_minimum=7)
+
+
+def test_creature_action_damage_and_recharge_helpers_reject_unsupported_actions() -> None:
+    web = CREATURES["giant_spider"].actions[1]
+
+    with pytest.raises(ValueError, match="does not deal direct damage"):
+        creature_action_damage(web)
+
+    with pytest.raises(ValueError, match="provided together"):
+        CreatureAction("Broken", 1, "1d4")
+
+    with pytest.raises(ValueError, match="does not use recharge"):
+        creature_action_recharge_feature(CREATURES["goblin"].actions[0])
 
 
 def test_creature_definition_rejects_impossible_hp_ac_and_dice() -> None:

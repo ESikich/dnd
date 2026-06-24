@@ -46,6 +46,7 @@ from dnd5e import (
     create_feature_state,
     create_pact_magic,
     create_spell_slots,
+    creature_action_recharge_state,
     d20_check,
     creature_runtime_combatant,
     recharge_feature,
@@ -147,6 +148,8 @@ second_wind_healing = apply_second_wind(
 sneak_attack_dice = sneak_attack_damage_dice(5)
 recharge_feature_state = create_feature_state(FEATURES["recharge_5_6"], remaining=0)
 recharged_feature, recharge_roll = recharge_feature(recharge_feature_state, roll=5)
+web_recharge_state = creature_action_recharge_state(giant_spider.actions[1], remaining=0)
+recharged_web, web_recharge_roll = recharge_feature(web_recharge_state, roll=5)
 encounter = summarize_encounter(
     [encounter_monster("ogre"), encounter_monster("bandit", count=2)],
     party_levels=[3, 3, 3, 3],
@@ -228,6 +231,7 @@ print(rested_second_wind.resource.remaining)  # 1
 print(second_wind_healing.healing.applied)  # 8
 print(sneak_attack_dice)  # "3d6"
 print(recharge_roll.recharged)  # True
+print(web_recharge_roll.recharged)  # True
 print(spell_hit.damage.total)  # 1
 print(spell_save.save.success)  # False
 print(spell_healing.healing.applied)  # 0
@@ -255,7 +259,8 @@ Included now:
 - Equipment definition validation for impossible AC, costs, weights, damage, ranges, and metadata
 - HP, healing, temporary HP, hit dice, rests, death saves, and validation for impossible HP states
 - A small SRD-style creature/stat block catalog with validation for HP, AC, abilities,
-  dice, movement, senses, XP, feature metadata, and immunity/resistance metadata
+  dice, movement, senses, XP, feature metadata, rechargeable action metadata, and
+  immunity/resistance metadata
 - Encounter helpers for challenge-rating XP, party thresholds, adjusted XP, and difficulty summaries
 - SRD-style base class metadata with validation for impossible hit dice, proficiencies, and skill choices
 - Condition metadata as validated mechanical tags
@@ -265,7 +270,7 @@ Included now:
 - Basic spell-effect helpers for spell attacks, saving throw damage, rolled healing, and conditions
 - Generic limited-use resources for fixed charges, rests, proficiency-based uses, and recharge rolls
 - Feature definitions and runtime feature state, with examples such as Second Wind, Rage, Sneak Attack,
-  Pack Tactics, and Recharge 5-6
+  Pack Tactics, Recharge 5-6, and creature action recharge state
 
 Good next modules:
 
