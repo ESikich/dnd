@@ -1,15 +1,22 @@
+from typing import cast
+
 import pytest
 
 from dnd5e import (
     ARMOR,
     SHIELDS,
     WEAPONS,
+    ArmorCategory,
     ArmorClassResult,
     ArmorDefinition,
     CharacterRules,
+    DamageType,
     ShieldDefinition,
     WeaponAttackProfile,
+    WeaponCategory,
     WeaponDefinition,
+    WeaponProperty,
+    WeaponRangeType,
     armor_class,
     weapon_attack_bonus,
     weapon_attack_profile,
@@ -116,7 +123,7 @@ def test_armor_definition_validates_impossible_values() -> None:
         ArmorDefinition("", "Nameless", "light", 11, 0, 1)
 
     with pytest.raises(ValueError, match="unknown armor category"):
-        ArmorDefinition("robes", "Robes", "cloth", 10, 0, 1)
+        ArmorDefinition("robes", "Robes", cast(ArmorCategory, "cloth"), 10, 0, 1)
 
     with pytest.raises(ValueError, match="armor base AC must be positive"):
         ArmorDefinition("robes", "Robes", "light", 0, 0, 1)
@@ -141,10 +148,28 @@ def test_shield_definition_validates_impossible_values() -> None:
 
 def test_weapon_definition_validates_impossible_values() -> None:
     with pytest.raises(ValueError, match="unknown weapon category"):
-        WeaponDefinition("knife", "Knife", "tiny", "melee", "1d4", "piercing", 0, 1)
+        WeaponDefinition(
+            "knife",
+            "Knife",
+            cast(WeaponCategory, "tiny"),
+            "melee",
+            "1d4",
+            "piercing",
+            0,
+            1,
+        )
 
     with pytest.raises(ValueError, match="unknown weapon range type"):
-        WeaponDefinition("knife", "Knife", "simple", "near", "1d4", "piercing", 0, 1)
+        WeaponDefinition(
+            "knife",
+            "Knife",
+            "simple",
+            cast(WeaponRangeType, "near"),
+            "1d4",
+            "piercing",
+            0,
+            1,
+        )
 
     with pytest.raises(ValueError, match="invalid dice notation"):
         WeaponDefinition("knife", "Knife", "simple", "melee", "bad", "piercing", 0, 1)
@@ -153,10 +178,29 @@ def test_weapon_definition_validates_impossible_values() -> None:
         WeaponDefinition("knife", "Knife", "simple", "melee", "-1", "piercing", 0, 1)
 
     with pytest.raises(ValueError, match="unknown weapon damage type"):
-        WeaponDefinition("knife", "Knife", "simple", "melee", "1d4", "sharp", 0, 1)
+        WeaponDefinition(
+            "knife",
+            "Knife",
+            "simple",
+            "melee",
+            "1d4",
+            cast(DamageType, "sharp"),
+            0,
+            1,
+        )
 
     with pytest.raises(ValueError, match="unknown weapon property"):
-        WeaponDefinition("knife", "Knife", "simple", "melee", "1d4", "piercing", 0, 1, ("tiny",))
+        WeaponDefinition(
+            "knife",
+            "Knife",
+            "simple",
+            "melee",
+            "1d4",
+            "piercing",
+            0,
+            1,
+            cast(tuple[WeaponProperty, ...], ("tiny",)),
+        )
 
     with pytest.raises(ValueError, match="versatile damage dice require the versatile property"):
         WeaponDefinition(

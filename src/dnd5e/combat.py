@@ -3,7 +3,7 @@ from __future__ import annotations
 import re
 from dataclasses import dataclass, field
 from random import random
-from typing import Any
+from typing import Any, SupportsInt
 
 from dnd5e.abilities import RandomSource, d20_check
 from dnd5e.character import CharacterRules, initiative_bonus
@@ -465,18 +465,25 @@ def _combatant_from_mapping(combatant: dict[str, object]) -> Combatant:
     elif isinstance(hit_points, HitPointState):
         hp = hit_points
     else:
-        hp = HitPointState(current=int(hit_points), maximum=int(hit_points))
+        hp_value = _coerce_int(hit_points, "hit_points")
+        hp = HitPointState(current=hp_value, maximum=hp_value)
 
     return create_combatant(
         id=str(combatant["id"]),
         name=str(combatant["name"]),
-        initiative_bonus=int(combatant["initiative_bonus"]),
-        roll=int(combatant.get("roll", 0)),
-        armor_class=int(combatant.get("armor_class", combatant.get("ac", 10))),
+        initiative_bonus=_coerce_int(combatant["initiative_bonus"], "initiative_bonus"),
+        roll=_coerce_int(combatant.get("roll", 0), "roll"),
+        armor_class=_coerce_int(combatant.get("armor_class", combatant.get("ac", 10)), "armor_class"),
         hit_points=hp,
         conditions=tuple(combatant.get("conditions", ())),  # type: ignore[arg-type]
         source=combatant.get("source"),
     )
+
+
+def _coerce_int(value: object, context: str) -> int:
+    if isinstance(value, str | bytes | bytearray | SupportsInt):
+        return int(value)
+    raise TypeError(f"{context} must be convertible to int")
 
 
 def _replace_combatant(

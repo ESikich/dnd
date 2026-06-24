@@ -1,7 +1,9 @@
 from __future__ import annotations
 
+from collections.abc import Mapping
 from dataclasses import dataclass
 from random import random
+from typing import TypeVar
 
 from dnd5e.abilities import RandomSource, ability_modifier
 from dnd5e.combat import (
@@ -21,6 +23,7 @@ from dnd5e.types import Ability, ConditionName, CreatureSize, CreatureType, Dama
 
 _ABILITIES: tuple[Ability, ...] = ("str", "dex", "con", "int", "wis", "cha")
 _SKILLS: tuple[Skill, ...] = tuple(SKILL_ABILITIES)
+_KnownKey = TypeVar("_KnownKey", bound=str)
 
 
 @dataclass(frozen=True)
@@ -138,13 +141,17 @@ def _validate_ability_scores(abilities: dict[Ability, int]) -> None:
             raise ValueError(f"{ability} ability score must be between 1 and 30")
 
 
-def _validate_known_keys(name: str, values: dict[str, int], allowed: tuple[str, ...]) -> None:
+def _validate_known_keys(
+    name: str,
+    values: Mapping[_KnownKey, int],
+    allowed: tuple[_KnownKey, ...],
+) -> None:
     invalid = set(values) - set(allowed)
     if invalid:
         raise ValueError(f"invalid {name}: {', '.join(sorted(invalid))}")
 
 
-def _validate_non_negative_values(name: str, values: dict[str, int]) -> None:
+def _validate_non_negative_values(name: str, values: Mapping[str, int]) -> None:
     for key, value in values.items():
         if value < 0:
             raise ValueError(f"{name}.{key} cannot be negative")

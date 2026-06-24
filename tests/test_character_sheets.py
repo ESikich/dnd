@@ -1,9 +1,14 @@
+from typing import cast
+
 import pytest
 
 from dnd5e import (
+    Ability,
     CharacterClassLevel,
     CharacterLoadout,
     CharacterSheet,
+    ProficiencyLevel,
+    Skill,
     character_sheet_armor_class,
     character_sheet_combatant,
     character_sheet_hit_points,
@@ -92,7 +97,7 @@ def test_character_sheet_validates_proficiency_choices() -> None:
             name="Bad Skill",
             classes=(CharacterClassLevel("fighter", 1),),
             abilities=abilities(),
-            skill_proficiencies={"tactics": "proficient"},
+            skill_proficiencies=cast(dict[Skill, ProficiencyLevel], {"tactics": "proficient"}),
         )
 
     with pytest.raises(ValueError, match="unknown skill proficiency for stealth: trained"):
@@ -101,7 +106,7 @@ def test_character_sheet_validates_proficiency_choices() -> None:
             name="Bad Proficiency",
             classes=(CharacterClassLevel("fighter", 1),),
             abilities=abilities(),
-            skill_proficiencies={"stealth": "trained"},
+            skill_proficiencies=cast(dict[Skill, ProficiencyLevel], {"stealth": "trained"}),
         )
 
     with pytest.raises(ValueError, match="unknown saving throw proficiency: luck"):
@@ -110,7 +115,10 @@ def test_character_sheet_validates_proficiency_choices() -> None:
             name="Bad Save",
             classes=(CharacterClassLevel("fighter", 1),),
             abilities=abilities(),
-            saving_throw_proficiencies={"luck": "proficient"},
+            saving_throw_proficiencies=cast(
+                dict[Ability, ProficiencyLevel],
+                {"luck": "proficient"},
+            ),
         )
 
 
@@ -121,7 +129,7 @@ def test_character_sheet_validates_bonus_keys() -> None:
             name="Bad Skill Bonus",
             classes=(CharacterClassLevel("fighter", 1),),
             abilities=abilities(),
-            skill_bonuses={"tactics": 1},
+            skill_bonuses=cast(dict[Skill, int], {"tactics": 1}),
         )
 
     with pytest.raises(ValueError, match="unknown saving throw bonus: luck"):
@@ -130,7 +138,7 @@ def test_character_sheet_validates_bonus_keys() -> None:
             name="Bad Save Bonus",
             classes=(CharacterClassLevel("fighter", 1),),
             abilities=abilities(),
-            saving_throw_bonuses={"luck": 1},
+            saving_throw_bonuses=cast(dict[Ability, int], {"luck": 1}),
         )
 
 

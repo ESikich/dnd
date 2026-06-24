@@ -1,11 +1,21 @@
+from typing import cast
+
 import pytest
 
 from dnd5e import (
+    Ability,
     CONDITIONS,
     SRD_CLASSES,
+    ArmorTraining,
+    CharacterClassName,
     ClassDefinition,
     ConditionDefinition,
     CharacterRules,
+    ConditionName,
+    ConditionTag,
+    ProficiencyLevel,
+    Skill,
+    WeaponTraining,
     ability_modifier,
     attack_roll,
     average_dice,
@@ -116,13 +126,25 @@ def test_character_rules_validates_core_inputs() -> None:
         CharacterRules(level=1, abilities=abilities(charisma=31))
 
     with pytest.raises(ValueError, match="unknown skill proficiency: tactics"):
-        CharacterRules(level=1, abilities=abilities(), skill_proficiencies={"tactics": "proficient"})
+        CharacterRules(
+            level=1,
+            abilities=abilities(),
+            skill_proficiencies=cast(dict[Skill, ProficiencyLevel], {"tactics": "proficient"}),
+        )
 
     with pytest.raises(ValueError, match="unknown skill proficiency for stealth: trained"):
-        CharacterRules(level=1, abilities=abilities(), skill_proficiencies={"stealth": "trained"})
+        CharacterRules(
+            level=1,
+            abilities=abilities(),
+            skill_proficiencies=cast(dict[Skill, ProficiencyLevel], {"stealth": "trained"}),
+        )
 
     with pytest.raises(ValueError, match="unknown saving throw bonus: luck"):
-        CharacterRules(level=1, abilities=abilities(), saving_throw_bonuses={"luck": 1})
+        CharacterRules(
+            level=1,
+            abilities=abilities(),
+            saving_throw_bonuses=cast(dict[Ability, int], {"luck": 1}),
+        )
 
 
 def test_combat() -> None:
@@ -156,22 +178,67 @@ def test_class_metadata() -> None:
 
 def test_class_metadata_validates_impossible_values() -> None:
     with pytest.raises(ValueError, match="unknown class: artificer"):
-        ClassDefinition("artificer", 8, ("int",), ("int", "con"), ("light",), ("simple",), ("arcana",), 1)
+        ClassDefinition(
+            cast(CharacterClassName, "artificer"),
+            8,
+            ("int",),
+            ("int", "con"),
+            ("light",),
+            ("simple",),
+            ("arcana",),
+            1,
+        )
 
     with pytest.raises(ValueError, match="class hit die must be one of"):
         ClassDefinition("fighter", 7, ("str",), ("str", "con"), ("light",), ("simple",), ("athletics",), 1)
 
     with pytest.raises(ValueError, match="unknown primary ability: luck"):
-        ClassDefinition("fighter", 10, ("luck",), ("str", "con"), ("light",), ("simple",), ("athletics",), 1)
+        ClassDefinition(
+            "fighter",
+            10,
+            cast(tuple[Ability, ...], ("luck",)),
+            ("str", "con"),
+            ("light",),
+            ("simple",),
+            ("athletics",),
+            1,
+        )
 
     with pytest.raises(ValueError, match="unknown armor training: cloth"):
-        ClassDefinition("fighter", 10, ("str",), ("str", "con"), ("cloth",), ("simple",), ("athletics",), 1)
+        ClassDefinition(
+            "fighter",
+            10,
+            ("str",),
+            ("str", "con"),
+            cast(tuple[ArmorTraining, ...], ("cloth",)),
+            ("simple",),
+            ("athletics",),
+            1,
+        )
 
     with pytest.raises(ValueError, match="unknown weapon training: exotic"):
-        ClassDefinition("fighter", 10, ("str",), ("str", "con"), ("light",), ("exotic",), ("athletics",), 1)
+        ClassDefinition(
+            "fighter",
+            10,
+            ("str",),
+            ("str", "con"),
+            ("light",),
+            cast(tuple[WeaponTraining, ...], ("exotic",)),
+            ("athletics",),
+            1,
+        )
 
     with pytest.raises(ValueError, match="unknown skill choice: tactics"):
-        ClassDefinition("fighter", 10, ("str",), ("str", "con"), ("light",), ("simple",), ("tactics",), 1)
+        ClassDefinition(
+            "fighter",
+            10,
+            ("str",),
+            ("str", "con"),
+            ("light",),
+            ("simple",),
+            cast(tuple[Skill, ...], ("tactics",)),
+            1,
+        )
 
     with pytest.raises(ValueError, match="skill choice count cannot exceed available skill choices"):
         ClassDefinition("fighter", 10, ("str",), ("str", "con"), ("light",), ("simple",), ("athletics",), 2)
@@ -184,10 +251,10 @@ def test_condition_metadata() -> None:
 
 def test_condition_metadata_validates_impossible_values() -> None:
     with pytest.raises(ValueError, match="unknown condition: burning"):
-        ConditionDefinition("burning", ("cannot_act",))
+        ConditionDefinition(cast(ConditionName, "burning"), ("cannot_act",))
 
     with pytest.raises(ValueError, match="unknown condition tag: on_fire"):
-        ConditionDefinition("poisoned", ("on_fire",))
+        ConditionDefinition("poisoned", cast(tuple[ConditionTag, ...], ("on_fire",)))
 
 
 def abilities(
