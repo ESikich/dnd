@@ -33,3 +33,8 @@ testpaths = ["tests"]
 [tool.ruff]
 line-length = 100
 target-version = "py311"
+
+[tool.pyright]
+include = ["src", "tests", "examples"]
+extraPaths = ["src"]
+pythonVersion = "3.11"

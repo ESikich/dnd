@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from random import Random
 from collections.abc import Callable
-from typing import NamedTuple
+from typing import NamedTuple, cast
 
 from dnd5e import (
     ARMOR,
@@ -16,13 +16,20 @@ from dnd5e import (
     CharacterLoadout,
     CharacterRules,
     CharacterSheet,
+    ConditionName,
     CreatureFeature,
+    DamageType,
     DiceRoll,
     HitPointState,
+    ProficiencyLevel,
+    Skill,
     WEAPONS,
+    Ability,
     ability_bonus,
     ability_modifier,
     apply_healing,
+    apply_spell_condition,
+    apply_spell_healing,
     armor_class,
     attack_roll,
     average_dice,
@@ -34,6 +41,7 @@ from dnd5e import (
     combatant_by_id,
     combatant_defeated,
     create_combat,
+    create_combatant,
     create_creature_instance,
     create_hit_dice_pool,
     create_pact_magic,
@@ -51,6 +59,8 @@ from dnd5e import (
     proficiency_bonus,
     proficiency_value,
     resolve_attack_action,
+    resolve_spell_attack,
+    resolve_spell_save_damage,
     restore_pact_magic,
     roll_dice,
     saving_throw_bonus,
@@ -186,18 +196,21 @@ def show_character(hero: CharacterRules) -> None:
 
     print(f"Level: {hero.level}, proficiency bonus: +{proficiency_bonus(hero.level)}")
     print("Ability bonuses:")
-    for ability in ["str", "dex", "con", "int", "wis", "cha"]:
+    abilities: tuple[Ability, ...] = ("str", "dex", "con", "int", "wis", "cha")
+    for ability in abilities:
         print(f"  {ability.upper()}: {ability_bonus(hero, ability):+d}")
 
     print("\nSkill map sample:")
-    for skill in ["athletics", "perception", "stealth", "survival"]:
+    skills: tuple[Skill, ...] = ("athletics", "perception", "stealth", "survival")
+    for skill in skills:
         print(
             f"  {skill:<10} uses {SKILL_ABILITIES[skill].upper()} "
             f"-> bonus {skill_bonus(hero, skill):+d}, passive {passive_skill(hero, skill)}"
         )
 
     print("\nSaving throws:")
-    for ability in ["str", "dex", "con", "wis"]:
+    saving_throws: tuple[Ability, ...] = ("str", "dex", "con", "wis")
+    for ability in saving_throws:
         print(f"  {ability.upper()}: {saving_throw_bonus(hero, ability):+d}")
 
     print(f"\nInitiative bonus: {initiative_bonus(hero):+d}")
@@ -236,7 +249,7 @@ def show_sheet_validation() -> None:
                 "wis": 10,
                 "cha": 10,
             },
-            skill_proficiencies={"tactics": "proficient"},
+            skill_proficiencies=cast(dict[Skill, ProficiencyLevel], {"tactics": "proficient"}),
             loadout=CharacterLoadout(armor="chain_mail", weapons=("spoon",)),
         )
     except ValueError as error:
@@ -286,7 +299,8 @@ def show_class_and_condition_data() -> None:
         f"skill picks {wizard.skill_choice_count}"
     )
 
-    for name in ["blinded", "grappled", "poisoned", "unconscious"]:
+    condition_names: tuple[ConditionName, ...] = ("blinded", "grappled", "poisoned", "unconscious")
+    for name in condition_names:
         condition = CONDITIONS[name]
         print(f"Condition {name}: {', '.join(condition.tags)}")
 
@@ -330,6 +344,72 @@ def show_spell_catalog() -> None:
     print(
         f"After casting a 3rd-level spell: {spell_slots_remaining(slots, 3)} level-3 slots remain; "
         f"rested pact slots at level {pact_magic.slot_level}: {pact_magic.remaining}/{pact_magic.maximum}"
+    )
+
+    spell_combat = create_combat(
+        [
+            create_combatant(
+                id="wizard",
+                name="Apprentice Wizard",
+                initiative_bonus=2,
+                roll=12,
+                armor_class=12,
+                hit_points=HitPointState(current=8, maximum=12),
+            ),
+            create_combatant(
+                id="goblin",
+                name="Goblin",
+                initiative_bonus=2,
+                roll=10,
+                armor_class=15,
+                hit_points=HitPointState(current=7, maximum=7),
+            ),
+        ]
+    )
+    fire_bolt = resolve_spell_attack(
+        spell_combat,
+        actor_id="wizard",
+        target_id="goblin",
+        attack_bonus=spell_attack_bonus(wizard, "int"),
+        damage_dice="1d10",
+        damage_type="fire",
+        roll=12,
+        damage_rng=lambda: 0,
+    )
+    sacred_flame = resolve_spell_save_damage(
+        spell_combat,
+        target_id="goblin",
+        save_ability="dex",
+        save_bonus=2,
+        save_dc=spell_save_dc(wizard, "int"),
+        damage_dice="1d8",
+        damage_type="radiant",
+        roll=8,
+        damage_rng=lambda: 0,
+    )
+    healed = apply_spell_healing(
+        spell_combat,
+        target_id="wizard",
+        healing_dice="1d8+3",
+        healing_rng=lambda: 0,
+    )
+    blinded = apply_spell_condition(
+        spell_combat,
+        target_id="goblin",
+        condition="blinded",
+        save_ability="con",
+        save_bonus=0,
+        save_dc=spell_save_dc(wizard, "int"),
+        roll=5,
+    )
+    print(
+        f"Fire Bolt hit: {fire_bolt.hit}; "
+        f"Sacred Flame save {sacred_flame.save.total} vs DC {sacred_flame.save.dc}, "
+        f"Goblin HP {sacred_flame.target_after.hit_points.current}"
+    )
+    print(
+        f"Cure Wounds style healing restores {healed.healing.applied}; "
+        f"condition applied: {blinded.condition}={blinded.applied}"
     )
 
 
@@ -467,7 +547,7 @@ class BattleAction(NamedTuple):
     attack_bonus: int
     roll: int
     damage_dice: str
-    damage_type: str
+    damage_type: DamageType
     damage_rng: Callable[[], float]
 
 

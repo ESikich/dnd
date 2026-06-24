@@ -8,15 +8,28 @@ from dnd5e import (
     SPELL_SCHOOLS,
     PactMagicState,
     CharacterRules,
+    HitPointState,
+    SavingThrowResult,
+    SpellConditionResult,
     SpellComponent,
     SpellDefinition,
+    SpellHealingResult,
+    SpellSaveDamageResult,
     SpellSchool,
     SpellSlotPool,
     SpellSlotState,
+    apply_spell_condition,
+    apply_spell_healing,
+    combatant_by_id,
+    create_combat,
+    create_combatant,
     create_pact_magic,
     create_spell_slots,
+    resolve_spell_attack,
+    resolve_spell_save_damage,
     restore_pact_magic,
     restore_spell_slots,
+    saving_throw,
     spell_attack_bonus,
     spell_save_dc,
     spell_slots_remaining,
@@ -32,6 +45,10 @@ def test_public_spell_imports_and_docstrings() -> None:
     assert SpellSlotPool.__doc__
     assert SpellSlotState.__doc__
     assert PactMagicState.__doc__
+    assert SavingThrowResult.__doc__
+    assert SpellSaveDamageResult.__doc__
+    assert SpellHealingResult.__doc__
+    assert SpellConditionResult.__doc__
     assert isinstance(SPELLS["fire_bolt"], SpellDefinition)
 
 
@@ -199,3 +216,182 @@ def test_pact_magic_state_rejects_invalid_or_unavailable_slots() -> None:
 
     with pytest.raises(ValueError, match="no pact magic slots remaining"):
         spend_pact_slot(PactMagicState(slot_level=1, maximum=1, remaining=0))
+
+
+def test_saving_throw_resolves_against_spell_dc() -> None:
+    result = saving_throw(ability="dex", save_bonus=2, dc=13, roll=11)
+
+    assert result.roll == 11
+    assert result.total == 13
+    assert result.success is True
+
+
+def test_spell_attack_applies_damage_on_hit() -> None:
+    combat = simple_spell_combat()
+
+    result = resolve_spell_attack(
+        combat,
+        actor_id="wizard",
+        target_id="goblin",
+        attack_bonus=6,
+        damage_dice="1d10",
+        damage_type="fire",
+        roll=12,
+        damage_rng=lambda: 0,
+    )
+
+    assert result.hit
+    assert result.damage is not None
+    assert result.damage.total == 1
+    assert combatant_by_id(result.state, "goblin").hit_points.current == 6
+
+
+def test_spell_save_damage_applies_full_damage_on_failed_save() -> None:
+    combat = simple_spell_combat()
+
+    result = resolve_spell_save_damage(
+        combat,
+        target_id="goblin",
+        save_ability="dex",
+        save_bonus=2,
+        save_dc=13,
+        damage_dice="1d8",
+        damage_type="radiant",
+        roll=8,
+        damage_rng=lambda: 0,
+    )
+
+    assert result.save.success is False
+    assert result.damage is not None
+    assert result.damage.total == 1
+    assert result.damage_application is not None
+    assert result.damage_application.applied_to_current == 1
+    assert result.target_after.hit_points.current == 6
+
+
+def test_spell_save_damage_can_skip_or_half_damage_on_success() -> None:
+    combat = simple_spell_combat()
+
+    avoided = resolve_spell_save_damage(
+        combat,
+        target_id="goblin",
+        save_ability="dex",
+        save_bonus=5,
+        save_dc=13,
+        damage_dice="1d8",
+        damage_type="radiant",
+        roll=10,
+    )
+    halved = resolve_spell_save_damage(
+        combat,
+        target_id="goblin",
+        save_ability="dex",
+        save_bonus=5,
+        save_dc=13,
+        damage_dice="1d8",
+        damage_type="radiant",
+        roll=10,
+        damage_rng=lambda: 0.99,
+        half_damage_on_success=True,
+    )
+
+    assert avoided.damage is None
+    assert avoided.target_after.hit_points.current == 7
+    assert halved.damage is not None
+    assert halved.damage.total == 8
+    assert halved.damage_application is not None
+    assert halved.damage_application.applied_to_current == 4
+    assert halved.target_after.hit_points.current == 3
+
+
+def test_spell_healing_rolls_dice_and_applies_healing() -> None:
+    combat = simple_spell_combat()
+    damaged = resolve_spell_save_damage(
+        combat,
+        target_id="wizard",
+        save_ability="dex",
+        save_bonus=0,
+        save_dc=12,
+        damage_dice="1d8",
+        damage_type="necrotic",
+        roll=1,
+        damage_rng=lambda: 0.99,
+    )
+
+    result = apply_spell_healing(
+        damaged.state,
+        target_id="wizard",
+        healing_dice="1d8+3",
+        healing_rng=lambda: 0,
+    )
+
+    assert result.roll.total == 4
+    assert result.healing.applied == 4
+    assert result.target_after.hit_points.current == 16
+
+
+def test_spell_condition_applies_directly_or_after_failed_save() -> None:
+    combat = simple_spell_combat()
+
+    direct = apply_spell_condition(combat, target_id="goblin", condition="blinded")
+    resisted = apply_spell_condition(
+        combat,
+        target_id="goblin",
+        condition="poisoned",
+        save_ability="con",
+        save_bonus=4,
+        save_dc=12,
+        roll=10,
+    )
+    failed = apply_spell_condition(
+        combat,
+        target_id="goblin",
+        condition="poisoned",
+        save_ability="con",
+        save_bonus=0,
+        save_dc=12,
+        roll=5,
+    )
+
+    assert direct.applied is True
+    assert direct.target_after.conditions == ("blinded",)
+    assert resisted.applied is False
+    assert resisted.target_after.conditions == ()
+    assert failed.applied is True
+    assert failed.target_after.conditions == ("poisoned",)
+
+
+def test_spell_effect_helpers_validate_saves() -> None:
+    with pytest.raises(ValueError, match="saving throw DC must be positive"):
+        saving_throw(ability="wis", save_bonus=1, dc=0, roll=10)
+
+    with pytest.raises(ValueError, match="save_dc is required"):
+        apply_spell_condition(
+            simple_spell_combat(),
+            target_id="goblin",
+            condition="restrained",
+            save_ability="str",
+        )
+
+
+def simple_spell_combat():
+    return create_combat(
+        [
+            create_combatant(
+                id="wizard",
+                name="Wizard",
+                initiative_bonus=2,
+                roll=12,
+                armor_class=12,
+                hit_points=HitPointState(current=20, maximum=20),
+            ),
+            create_combatant(
+                id="goblin",
+                name="Goblin",
+                initiative_bonus=2,
+                roll=10,
+                armor_class=15,
+                hit_points=HitPointState(current=7, maximum=7),
+            ),
+        ]
+    )

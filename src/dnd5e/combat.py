@@ -159,6 +159,16 @@ class AttackActionResult:
 
 
 @dataclass(frozen=True)
+class CombatDamageResult:
+    """Combat event returned after applying direct damage to one target."""
+
+    state: CombatState
+    target_before: Combatant
+    target_after: Combatant
+    damage_application: DamageApplicationResult
+
+
+@dataclass(frozen=True)
 class CombatHealingResult:
     """Combat event returned after applying healing to one target."""
 
@@ -383,6 +393,26 @@ def apply_combat_healing(
         target_before=target,
         target_after=target_after,
         healing=healing,
+    )
+
+
+def apply_combat_damage(
+    state: CombatState,
+    *,
+    target_id: str,
+    amount: int,
+) -> CombatDamageResult:
+    """Apply direct damage to a combatant and return the updated combat state event."""
+
+    target = combatant_by_id(state, target_id)
+    damage = apply_damage(target.hit_points, amount)
+    target_after = _replace_combatant(target, hit_points=damage.hit_points)
+
+    return CombatDamageResult(
+        state=_replace_in_state(state, target_after),
+        target_before=target,
+        target_after=target_after,
+        damage_application=damage,
     )
 
 

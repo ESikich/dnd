@@ -28,6 +28,7 @@ Implemented:
 - A deterministic example program with a tiny battle
 - Combat runtime state with validated HP, AC, conditions, healing, and attack action resolution
 - Basic spell definitions with validated metadata and a small SRD-style catalog
+- Basic spell-effect helpers for spell attacks, saving throw damage, healing, and conditions
 
 ## Phase 1: Rules Foundation Polish
 
@@ -141,6 +142,8 @@ Done when:
 Goal: add spell definitions and spellcasting math without building the full
 effect engine yet.
 
+Status: Complete.
+
 Progress:
 
 - Done: add spell definitions for level, school, casting time, range, duration,
@@ -150,14 +153,18 @@ Progress:
   and character sheets.
 - Done: add spell slot and pact magic runtime state with spend and restore
   helpers.
+- Done: add basic spell-effect helpers for spell attacks, saving throw damage,
+  rolled healing, and condition application.
 
-Todo:
+Deferred:
 
-- Add basic spell effects for attack, save, damage, healing, and conditions.
+- Rich spell area targeting, concentration, scaling, ongoing effects, and
+  resistance/immunity integration wait for the effects runtime phases.
 
 Done when:
 
-- A spellcaster can make a spell attack, force a save, spend a slot, and apply simple damage/healing.
+- Done: a spellcaster can make a spell attack, force a save, spend a slot, and
+  apply simple damage/healing.
 
 ## Phase 6: Resources And Features
 

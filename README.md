@@ -24,6 +24,8 @@ from dnd5e import (
     SPELLS,
     SRD_CLASSES,
     ability_modifier,
+    apply_spell_condition,
+    apply_spell_healing,
     attack_roll,
     character_sheet_armor_class,
     character_sheet_combatant,
@@ -38,6 +40,8 @@ from dnd5e import (
     d20_check,
     creature_runtime_combatant,
     resolve_attack_action,
+    resolve_spell_attack,
+    resolve_spell_save_damage,
     restore_pact_magic,
     encounter_monster,
     summarize_encounter,
@@ -135,6 +139,43 @@ result = resolve_attack_action(
     damage_rng=lambda: 0,
 )
 
+spell_hit = resolve_spell_attack(
+    combat,
+    actor_id="fighter",
+    target_id="goblin",
+    attack_bonus=spell_attack,
+    damage_dice="1d10",
+    damage_type="fire",
+    roll=12,
+    damage_rng=lambda: 0,
+)
+spell_save = resolve_spell_save_damage(
+    combat,
+    target_id="goblin",
+    save_ability="dex",
+    save_bonus=2,
+    save_dc=spell_dc,
+    damage_dice="1d8",
+    damage_type="radiant",
+    roll=8,
+    damage_rng=lambda: 0,
+)
+spell_healing = apply_spell_healing(
+    combat,
+    target_id="fighter",
+    healing_dice="1d8+3",
+    healing_rng=lambda: 0,
+)
+spell_condition = apply_spell_condition(
+    combat,
+    target_id="goblin",
+    condition="blinded",
+    save_ability="con",
+    save_bonus=0,
+    save_dc=spell_dc,
+    roll=5,
+)
+
 print(ability_modifier(16))  # 3
 print(athletics.total)  # 17
 print(combat.current.name)  # "Fighter"
@@ -159,6 +200,10 @@ print(spell_attack)  # 3
 print(spell_dc)  # 11
 print(spell_slots_remaining(spell_slots, 2))  # 2
 print(pact_magic.remaining)  # 2
+print(spell_hit.damage.total)  # 1
+print(spell_save.save.success)  # False
+print(spell_healing.healing.applied)  # 0
+print(spell_condition.applied)  # True
 print(CREATURES["wolf"].traits[0].name)  # "Keen Hearing and Smell"
 print(encounter.adjusted_xp)  # 1000
 print(encounter.difficulty)  # "hard"
@@ -189,11 +234,12 @@ Included now:
 - Spell definitions with level, school, casting time, range, duration, components, concentration, and ritual metadata
 - Spell attack bonus and spell save DC helpers
 - Spell slot and pact magic state with spend and restore helpers
+- Basic spell-effect helpers for spell attacks, saving throw damage, rolled healing, and conditions
 
 Good next modules:
 
-- Simple spell effects
 - Resources and feature recharge
+- Effect/modifier hooks for conditions, concentration, and damage resistance
 - Character advancement and multiclassing
 
 See [ROADMAP.md](./ROADMAP.md) for phased development guidance. Future coding
@@ -204,10 +250,11 @@ agents should also read [AGENTS.md](./AGENTS.md).
 ```sh
 python3 -m pytest
 ruff check .
+pyright
 ```
 
-`ruff` is configured in `pyproject.toml`. `mypy` is intentionally deferred until
-the public typing shapes settle further.
+`ruff` and `pyright` are configured in `pyproject.toml`. `mypy` is intentionally
+deferred until the public typing shapes settle further.
 
 ```sh
 PYTHONPATH=src python3 examples/exercise_library.py
