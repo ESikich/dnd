@@ -1,0 +1,182 @@
+{
+  "classes": [
+    {
+      "name": "barbarian",
+      "hit_die": 12,
+      "primary_abilities": ["str"],
+      "saving_throws": ["str", "con"],
+      "armor_training": ["light", "medium", "shield"],
+      "weapon_training": ["simple", "martial"],
+      "skill_choices": ["animal_handling", "athletics", "intimidation", "nature", "perception", "survival"],
+      "skill_choice_count": 2
+    },
+    {
+      "name": "bard",
+      "hit_die": 8,
+      "primary_abilities": ["cha"],
+      "saving_throws": ["dex", "cha"],
+      "armor_training": ["light"],
+      "weapon_training": ["simple"],
+      "skill_choices": [
+        "acrobatics",
+        "animal_handling",
+        "arcana",
+        "athletics",
+        "deception",
+        "history",
+        "insight",
+        "intimidation",
+        "investigation",
+        "medicine",
+        "nature",
+        "perception",
+        "performance",
+        "persuasion",
+        "religion",
+        "sleight_of_hand",
+        "stealth",
+        "survival"
+      ],
+      "skill_choice_count": 3
+    },
+    {
+      "name": "cleric",
+      "hit_die": 8,
+      "primary_abilities": ["wis"],
+      "saving_throws": ["wis", "cha"],
+      "armor_training": ["light", "medium", "shield"],
+      "weapon_training": ["simple"],
+      "skill_choices": ["history", "insight", "medicine", "persuasion", "religion"],
+      "skill_choice_count": 2
+    },
+    {
+      "name": "druid",
+      "hit_die": 8,
+      "primary_abilities": ["wis"],
+      "saving_throws": ["int", "wis"],
+      "armor_training": ["light", "medium", "shield"],
+      "weapon_training": ["simple"],
+      "skill_choices": [
+        "arcana",
+        "animal_handling",
+        "insight",
+        "medicine",
+        "nature",
+        "perception",
+        "religion",
+        "survival"
+      ],
+      "skill_choice_count": 2
+    },
+    {
+      "name": "fighter",
+      "hit_die": 10,
+      "primary_abilities": ["str", "dex"],
+      "saving_throws": ["str", "con"],
+      "armor_training": ["light", "medium", "heavy", "shield"],
+      "weapon_training": ["simple", "martial"],
+      "skill_choices": [
+        "acrobatics",
+        "animal_handling",
+        "athletics",
+        "history",
+        "insight",
+        "intimidation",
+        "perception",
+        "survival"
+      ],
+      "skill_choice_count": 2
+    },
+    {
+      "name": "monk",
+      "hit_die": 8,
+      "primary_abilities": ["dex", "wis"],
+      "saving_throws": ["str", "dex"],
+      "armor_training": [],
+      "weapon_training": ["simple"],
+      "skill_choices": ["acrobatics", "athletics", "history", "insight", "religion", "stealth"],
+      "skill_choice_count": 2
+    },
+    {
+      "name": "paladin",
+      "hit_die": 10,
+      "primary_abilities": ["str", "cha"],
+      "saving_throws": ["wis", "cha"],
+      "armor_training": ["light", "medium", "heavy", "shield"],
+      "weapon_training": ["simple", "martial"],
+      "skill_choices": ["athletics", "insight", "intimidation", "medicine", "persuasion", "religion"],
+      "skill_choice_count": 2
+    },
+    {
+      "name": "ranger",
+      "hit_die": 10,
+      "primary_abilities": ["dex", "wis"],
+      "saving_throws": ["str", "dex"],
+      "armor_training": ["light", "medium", "shield"],
+      "weapon_training": ["simple", "martial"],
+      "skill_choices": [
+        "animal_handling",
+        "athletics",
+        "insight",
+        "investigation",
+        "nature",
+        "perception",
+        "stealth",
+        "survival"
+      ],
+      "skill_choice_count": 3
+    },
+    {
+      "name": "rogue",
+      "hit_die": 8,
+      "primary_abilities": ["dex"],
+      "saving_throws": ["dex", "int"],
+      "armor_training": ["light"],
+      "weapon_training": ["simple"],
+      "skill_choices": [
+        "acrobatics",
+        "athletics",
+        "deception",
+        "insight",
+        "intimidation",
+        "investigation",
+        "perception",
+        "performance",
+        "persuasion",
+        "sleight_of_hand",
+        "stealth"
+      ],
+      "skill_choice_count": 4
+    },
+    {
+      "name": "sorcerer",
+      "hit_die": 6,
+      "primary_abilities": ["cha"],
+      "saving_throws": ["con", "cha"],
+      "armor_training": [],
+      "weapon_training": ["simple"],
+      "skill_choices": ["arcana", "deception", "insight", "intimidation", "persuasion", "religion"],
+      "skill_choice_count": 2
+    },
+    {
+      "name": "warlock",
+      "hit_die": 8,
+      "primary_abilities": ["cha"],
+      "saving_throws": ["wis", "cha"],
+      "armor_training": ["light"],
+      "weapon_training": ["simple"],
+      "skill_choices": ["arcana", "deception", "history", "intimidation", "investigation", "nature", "religion"],
+      "skill_choice_count": 2
+    },
+    {
+      "name": "wizard",
+      "hit_die": 6,
+      "primary_abilities": ["int"],
+      "saving_throws": ["int", "wis"],
+      "armor_training": [],
+      "weapon_training": ["simple"],
+      "skill_choices": ["arcana", "history", "insight", "investigation", "medicine", "religion"],
+      "skill_choice_count": 2
+    }
+  ]
+}

@@ -1,3 +1,4 @@
+from pathlib import Path
 from typing import cast
 
 import pytest
@@ -9,6 +10,7 @@ from dnd5e import (
     ArmorTraining,
     CharacterClassName,
     ClassDefinition,
+    ClassPack,
     ConditionDefinition,
     CharacterRules,
     ConditionName,
@@ -23,6 +25,9 @@ from dnd5e import (
     d20_check,
     damage_roll,
     initiative_bonus,
+    load_builtin_class_pack,
+    load_class_pack,
+    load_class_pack_data,
     passive_skill,
     parse_dice_notation,
     proficiency_bonus,
@@ -174,6 +179,112 @@ def test_critical_damage_doubles_dice() -> None:
 def test_class_metadata() -> None:
     assert SRD_CLASSES["fighter"].hit_die == 10
     assert SRD_CLASSES["wizard"].saving_throws == ("int", "wis")
+    assert isinstance(load_builtin_class_pack(), ClassPack)
+    assert load_builtin_class_pack().classes["fighter"] == SRD_CLASSES["fighter"]
+
+
+def test_class_pack_data_loads_user_content() -> None:
+    pack = load_class_pack_data(
+        {
+            "classes": [
+                {
+                    "name": "fighter",
+                    "hit_die": 10,
+                    "primary_abilities": ["str"],
+                    "saving_throws": ["str", "con"],
+                    "armor_training": ["light"],
+                    "weapon_training": ["simple"],
+                    "skill_choices": ["athletics"],
+                    "skill_choice_count": 1,
+                }
+            ]
+        }
+    )
+
+    assert pack.classes["fighter"].primary_abilities == ("str",)
+    assert pack.classes["fighter"].skill_choices == ("athletics",)
+
+
+def test_class_pack_loads_json_file(tmp_path: Path) -> None:
+    path = tmp_path / "classes.json"
+    path.write_text(
+        """
+        {
+          "classes": [
+            {
+              "name": "wizard",
+              "hit_die": 6,
+              "primary_abilities": ["int"],
+              "saving_throws": ["int", "wis"],
+              "armor_training": [],
+              "weapon_training": ["simple"],
+              "skill_choices": ["arcana", "history"],
+              "skill_choice_count": 1
+            }
+          ]
+        }
+        """,
+        encoding="utf-8",
+    )
+
+    pack = load_class_pack(path)
+
+    assert pack.classes["wizard"].hit_die == 6
+
+
+def test_class_pack_rejects_invalid_shape() -> None:
+    with pytest.raises(ValueError, match="missing sections"):
+        load_class_pack_data({})
+
+    with pytest.raises(ValueError, match="unknown sections"):
+        load_class_pack_data({"classes": [], "subclasses": []})
+
+    with pytest.raises(ValueError, match="unknown fields"):
+        load_class_pack_data(
+            {
+                "classes": [
+                    {
+                        "name": "fighter",
+                        "hit_die": 10,
+                        "primary_abilities": ["str"],
+                        "saving_throws": ["str", "con"],
+                        "armor_training": ["light"],
+                        "weapon_training": ["simple"],
+                        "skill_choices": ["athletics"],
+                        "skill_choice_count": 1,
+                        "spellcasting": False,
+                    }
+                ]
+            }
+        )
+
+    with pytest.raises(ValueError, match="duplicate class name"):
+        load_class_pack_data(
+            {
+                "classes": [
+                    {
+                        "name": "fighter",
+                        "hit_die": 10,
+                        "primary_abilities": ["str"],
+                        "saving_throws": ["str", "con"],
+                        "armor_training": ["light"],
+                        "weapon_training": ["simple"],
+                        "skill_choices": ["athletics"],
+                        "skill_choice_count": 1,
+                    },
+                    {
+                        "name": "fighter",
+                        "hit_die": 10,
+                        "primary_abilities": ["dex"],
+                        "saving_throws": ["str", "con"],
+                        "armor_training": ["light"],
+                        "weapon_training": ["simple"],
+                        "skill_choices": ["acrobatics"],
+                        "skill_choice_count": 1,
+                    },
+                ]
+            }
+        )
 
 
 def test_class_metadata_validates_impossible_values() -> None:

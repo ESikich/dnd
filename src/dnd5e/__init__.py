@@ -16,7 +16,14 @@ from dnd5e.character import (
     saving_throw_bonus,
     skill_bonus,
 )
-from dnd5e.classes import ClassDefinition, SRD_CLASSES
+from dnd5e.classes import (
+    SRD_CLASSES,
+    ClassDefinition,
+    ClassPack,
+    load_builtin_class_pack,
+    load_class_pack,
+    load_class_pack_data,
+)
 from dnd5e.combat import (
     AttackActionResult,
     AttackRollResult,
@@ -250,6 +257,7 @@ __all__ = [
     "CharacterRules",
     "CharacterSheet",
     "ClassDefinition",
+    "ClassPack",
     "CombatDamageResult",
     "CombatHealingResult",
     "CombatState",
@@ -392,6 +400,9 @@ __all__ = [
     "long_rest_feature",
     "long_rest_resource",
     "load_builtin_equipment_pack",
+    "load_builtin_class_pack",
+    "load_class_pack",
+    "load_class_pack_data",
     "load_equipment_pack",
     "load_equipment_pack_data",
     "max_hit_points",

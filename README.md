@@ -62,6 +62,7 @@ from dnd5e import (
     resolve_spell_save_damage,
     restore_pact_magic,
     encounter_monster,
+    load_builtin_class_pack,
     load_builtin_equipment_pack,
     modified_armor_class,
     summarize_encounter,
@@ -286,6 +287,7 @@ print(encounter.adjusted_xp)  # 1000
 print(encounter.difficulty)  # "hard"
 print(roll_dice("2d6+3").total)
 print(SRD_CLASSES["fighter"].hit_die)  # 10
+print(len(load_builtin_class_pack().classes))  # 12
 ```
 
 ## Scope
@@ -302,13 +304,14 @@ Included now:
 - Character rules validation for levels, ability scores, proficiencies, and bonus keys
 - Equipment, armor, shields, weapons, AC, and weapon attack profiles
 - Equipment definition validation for impossible AC, costs, weights, damage, ranges, and metadata
-- Packaged JSON equipment content with public loaders for user content packs
+- Packaged JSON equipment and class content with public loaders for user content packs
 - HP, healing, temporary HP, hit dice, rests, death saves, and validation for impossible HP states
 - A small SRD-style creature/stat block catalog with validation for HP, AC, abilities,
   dice, movement, senses, XP, feature metadata, rechargeable action metadata, and
   immunity/resistance metadata
 - Encounter helpers for challenge-rating XP, party thresholds, adjusted XP, and difficulty summaries
-- SRD-style base class metadata with validation for impossible hit dice, proficiencies, and skill choices
+- SRD-style base class metadata loaded from packaged JSON, with validation for
+  impossible hit dice, proficiencies, and skill choices
 - Condition metadata as validated mechanical tags
 - Spell definitions with level, school, casting time, range, duration, components, concentration, and ritual metadata
 - Spell attack bonus and spell save DC helpers
@@ -323,7 +326,7 @@ Included now:
 
 Good next modules:
 
-- Data files and content loading for creatures, spells, classes, and features
+- Data files and content loading for creatures, spells, and features
 - Character advancement and multiclassing
 
 See [ROADMAP.md](./ROADMAP.md) for phased development guidance. Future coding

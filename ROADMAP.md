@@ -225,11 +225,15 @@ Progress:
   and user-provided armor, shield, and weapon data.
 - Done: load built-in armor, shield, and weapon catalogs through the same
   equipment content-pack path exposed to users.
+- Done: add JSON class content-pack schema checks and loaders for packaged and
+  user-provided class metadata.
+- Done: load built-in SRD class metadata through the same class content-pack
+  path exposed to users.
 
 Todo:
 
-- Define JSON or YAML schemas for creatures, spells, classes, and features.
-- Add loaders and validators for creatures, spells, classes, and features.
+- Define JSON or YAML schemas for creatures, spells, and features.
+- Add loaders and validators for creatures, spells, and features.
 - Keep remaining built-in SRD content loadable as package data.
 - Broaden user/homebrew content pack support beyond equipment.
 

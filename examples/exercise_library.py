@@ -62,6 +62,7 @@ from dnd5e import (
     damage_roll,
     encounter_monster,
     initiative_bonus,
+    load_builtin_class_pack,
     load_builtin_equipment_pack,
     long_rest,
     modified_armor_class,
@@ -313,8 +314,10 @@ def show_equipment(hero: CharacterRules) -> None:
 def show_class_and_condition_data() -> None:
     print_section("Class And Condition Data")
 
+    class_pack = load_builtin_class_pack()
     fighter = SRD_CLASSES["fighter"]
     wizard = SRD_CLASSES["wizard"]
+    print(f"Built-in class pack: {len(class_pack.classes)} classes")
     print(
         f"Fighter: d{fighter.hit_die} hit die, saves {join_upper(fighter.saving_throws)}, "
         f"armor {', '.join(fighter.armor_training)}"
