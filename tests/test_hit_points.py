@@ -1,3 +1,5 @@
+import pytest
+
 from dnd5e import (
     DamageApplicationResult,
     DeathSaveRollResult,
@@ -29,6 +31,39 @@ def test_public_hit_point_imports() -> None:
     assert HealingResult is not None
     assert RestResult is not None
     assert DeathSaveRollResult is not None
+
+
+def test_hit_point_state_validates_possible_values() -> None:
+    with pytest.raises(ValueError, match="maximum hit points cannot be negative"):
+        HitPointState(current=0, maximum=-1)
+
+    with pytest.raises(ValueError, match="current hit points must be from 0 to maximum"):
+        HitPointState(current=-1, maximum=10)
+
+    with pytest.raises(ValueError, match="current hit points must be from 0 to maximum"):
+        HitPointState(current=11, maximum=10)
+
+    with pytest.raises(ValueError, match="temporary hit points cannot be negative"):
+        HitPointState(current=10, maximum=10, temporary=-1)
+
+
+def test_hit_dice_pool_validates_possible_values() -> None:
+    with pytest.raises(ValueError, match="hit_die must be positive"):
+        HitDicePool(hit_die=0, total=1, remaining=1)
+
+    with pytest.raises(ValueError, match="total must be non-negative"):
+        HitDicePool(hit_die=8, total=-1, remaining=0)
+
+    with pytest.raises(ValueError, match="remaining hit dice must be from 0 to total"):
+        HitDicePool(hit_die=8, total=2, remaining=3)
+
+
+def test_death_save_state_validates_possible_values() -> None:
+    with pytest.raises(ValueError, match="death save successes must be from 0 to 3"):
+        DeathSaveState(successes=4)
+
+    with pytest.raises(ValueError, match="death save failures must be from 0 to 3"):
+        DeathSaveState(failures=-1)
 
 
 def test_max_hit_points_uses_max_first_level_and_average_later_levels() -> None:

@@ -123,7 +123,7 @@ Included now:
 - Combat runtime state with AC, HP, conditions, attack resolution, and healing
 - Character sheets with class levels, validated proficiencies/loadouts, derived stats, HP, and combatants
 - Equipment, armor, shields, weapons, AC, and weapon attack profiles
-- HP, healing, temporary HP, hit dice, rests, and death saves
+- HP, healing, temporary HP, hit dice, rests, death saves, and validation for impossible HP states
 - Basic creature/stat block definitions
 - SRD-style base class metadata
 - Condition metadata as mechanical tags

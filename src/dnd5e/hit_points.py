@@ -8,27 +8,55 @@ from dnd5e.abilities import RandomSource, random_die
 
 @dataclass(frozen=True)
 class HitPointState:
+    """Current, maximum, and temporary hit points for a creature or character."""
+
     current: int
     maximum: int
     temporary: int = 0
 
+    def __post_init__(self) -> None:
+        if self.maximum < 0:
+            raise ValueError("maximum hit points cannot be negative")
+        if not 0 <= self.current <= self.maximum:
+            raise ValueError("current hit points must be from 0 to maximum hit points")
+        if self.temporary < 0:
+            raise ValueError("temporary hit points cannot be negative")
+
 
 @dataclass(frozen=True)
 class HitDicePool:
+    """A pool of class hit dice available to spend during short rests."""
+
     hit_die: int
     total: int
     remaining: int
 
+    def __post_init__(self) -> None:
+        _require_positive(self.hit_die, "hit_die")
+        _require_non_negative(self.total, "total")
+        if not 0 <= self.remaining <= self.total:
+            raise ValueError("remaining hit dice must be from 0 to total hit dice")
+
 
 @dataclass(frozen=True)
 class DeathSaveState:
+    """Accumulated death save successes and failures for a downed creature."""
+
     successes: int = 0
     failures: int = 0
     stable: bool = False
 
+    def __post_init__(self) -> None:
+        if not 0 <= self.successes <= 3:
+            raise ValueError("death save successes must be from 0 to 3")
+        if not 0 <= self.failures <= 3:
+            raise ValueError("death save failures must be from 0 to 3")
+
 
 @dataclass(frozen=True)
 class DamageApplicationResult:
+    """Result of applying damage to hit points, including temporary HP absorption."""
+
     hit_points: HitPointState
     damage: int
     absorbed_by_temporary: int
@@ -37,6 +65,8 @@ class DamageApplicationResult:
 
 @dataclass(frozen=True)
 class HealingResult:
+    """Result of applying healing to a hit point state."""
+
     hit_points: HitPointState
     amount: int
     applied: int
@@ -44,6 +74,8 @@ class HealingResult:
 
 @dataclass(frozen=True)
 class RestResult:
+    """Hit point and hit dice changes produced by a short or long rest helper."""
+
     hit_points: HitPointState
     hit_dice: tuple[HitDicePool, ...]
     healing: int = 0
@@ -52,6 +84,8 @@ class RestResult:
 
 @dataclass(frozen=True)
 class DeathSaveRollResult:
+    """Result of a death saving throw roll and its state transition."""
+
     state: DeathSaveState
     roll: int
     successes_added: int

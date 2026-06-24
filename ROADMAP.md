@@ -19,6 +19,7 @@ Implemented:
 - SRD-style class metadata
 - Condition metadata as tags
 - Character sheets with class levels, loadouts, validation, derived HP, AC, skills, saves, attacks, and combatants
+- HP state, hit dice pool, and death save state validation for impossible values
 - A deterministic example program with a tiny battle
 - Combat runtime state with HP, AC, conditions, healing, and attack action resolution
 
@@ -38,6 +39,8 @@ Todo:
 Progress:
 
 - Done: character sheets validate loadout equipment IDs before derived AC or attack helpers run.
+- Done: HP state, hit dice pool, and death save state objects validate impossible values at construction.
+- Done: public HP dataclasses have docstrings describing their mechanics role.
 
 Done when:
 
