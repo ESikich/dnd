@@ -1,9 +1,12 @@
 from __future__ import annotations
 
+import json
 from collections.abc import Mapping
 from dataclasses import dataclass
+from importlib.resources import files
+from pathlib import Path
 from random import random
-from typing import TypeVar
+from typing import Any, TypeVar
 
 from dnd5e.abilities import RandomSource, ability_modifier
 from dnd5e.combat import (
@@ -25,6 +28,7 @@ from dnd5e.types import Ability, ConditionName, CreatureSize, CreatureType, Dama
 _ABILITIES: tuple[Ability, ...] = ("str", "dex", "con", "int", "wis", "cha")
 _SKILLS: tuple[Skill, ...] = tuple(SKILL_ABILITIES)
 _KnownKey = TypeVar("_KnownKey", bound=str)
+T = TypeVar("T")
 
 
 @dataclass(frozen=True)
@@ -125,12 +129,266 @@ class CreatureDefinition:
 
 
 @dataclass(frozen=True)
+class CreaturePack:
+    """Loaded creature content grouped into a creature-definition catalog."""
+
+    creatures: dict[str, CreatureDefinition]
+
+
+@dataclass(frozen=True)
 class CreatureInstance:
     """A creature definition paired with runtime hit point state."""
 
     id: str
     definition: CreatureDefinition
     hit_points: HitPointState
+
+
+def load_creature_pack(path: str | Path) -> CreaturePack:
+    """Load creature definitions from a creature content-pack JSON file."""
+
+    with Path(path).open(encoding="utf-8") as file:
+        data = json.load(file)
+    if not isinstance(data, Mapping):
+        raise ValueError("creature content pack must be a JSON object")
+    return load_creature_pack_data(data)
+
+
+def load_builtin_creature_pack() -> CreaturePack:
+    """Load the packaged SRD-style creature content pack."""
+
+    data_resource = files("dnd5e.data").joinpath("creatures.json")
+    with data_resource.open(encoding="utf-8") as file:
+        data = json.load(file)
+    if not isinstance(data, Mapping):
+        raise ValueError("built-in creature content pack must be a JSON object")
+    return load_creature_pack_data(data)
+
+
+def load_creature_pack_data(data: Mapping[str, Any]) -> CreaturePack:
+    """Validate and construct a creature pack from decoded JSON-style data."""
+
+    _validate_pack_keys(data)
+    return CreaturePack(creatures=_load_creature_entries(data["creatures"]))
+
+
+def _validate_pack_keys(data: Mapping[str, Any]) -> None:
+    expected = {"creatures"}
+    missing = expected - set(data)
+    if missing:
+        raise ValueError(f"creature content pack missing sections: {', '.join(sorted(missing))}")
+    extra = set(data) - expected
+    if extra:
+        raise ValueError(f"creature content pack has unknown sections: {', '.join(sorted(extra))}")
+
+
+def _load_creature_entries(entries: Any) -> dict[str, CreatureDefinition]:
+    return _catalog_by_id(
+        [
+            CreatureDefinition(
+                id=_field(entry, "id", str, "creature"),
+                name=_field(entry, "name", str, "creature"),
+                size=_field(entry, "size", str, "creature"),  # type: ignore[arg-type]
+                type=_field(entry, "type", str, "creature"),  # type: ignore[arg-type]
+                alignment=_field(entry, "alignment", str, "creature"),
+                armor_class=_field(entry, "armor_class", int, "creature"),
+                hit_points=_field(entry, "hit_points", int, "creature"),
+                hit_dice=_field(entry, "hit_dice", str, "creature"),
+                speed=dict(_int_mapping_field(entry, "speed", "creature")),
+                abilities=dict(_int_mapping_field(entry, "abilities", "creature")),  # type: ignore[arg-type]
+                saving_throws=dict(_int_mapping_field(entry, "saving_throws", "creature")),  # type: ignore[arg-type]
+                skills=dict(_int_mapping_field(entry, "skills", "creature")),  # type: ignore[arg-type]
+                senses=dict(_int_mapping_field(entry, "senses", "creature")),
+                languages=_string_tuple_field(entry, "languages", "creature"),
+                challenge_rating=_field(entry, "challenge_rating", str, "creature"),
+                xp=_field(entry, "xp", int, "creature"),
+                actions=tuple(_action_entries(entry, "actions", "creature")),
+                traits=tuple(_feature_entries(entry, "traits", "creature")),
+                bonus_actions=tuple(_feature_entries(entry, "bonus_actions", "creature")),
+                reactions=tuple(_feature_entries(entry, "reactions", "creature")),
+                damage_resistances=_string_tuple_field(entry, "damage_resistances", "creature"),  # type: ignore[arg-type]
+                damage_vulnerabilities=_string_tuple_field(entry, "damage_vulnerabilities", "creature"),  # type: ignore[arg-type]
+                damage_immunities=_string_tuple_field(entry, "damage_immunities", "creature"),  # type: ignore[arg-type]
+                condition_immunities=_string_tuple_field(entry, "condition_immunities", "creature"),  # type: ignore[arg-type]
+            )
+            for entry in _validated_entries(
+                entries,
+                "creatures",
+                {
+                    "id",
+                    "name",
+                    "size",
+                    "type",
+                    "alignment",
+                    "armor_class",
+                    "hit_points",
+                    "hit_dice",
+                    "speed",
+                    "abilities",
+                    "saving_throws",
+                    "skills",
+                    "senses",
+                    "languages",
+                    "challenge_rating",
+                    "xp",
+                    "actions",
+                    "traits",
+                    "bonus_actions",
+                    "reactions",
+                    "damage_resistances",
+                    "damage_vulnerabilities",
+                    "damage_immunities",
+                    "condition_immunities",
+                },
+            )
+        ]
+    )
+
+
+def _action_entries(
+    entry: Mapping[str, Any],
+    name: str,
+    section: str,
+) -> tuple[CreatureAction, ...]:
+    return tuple(
+        CreatureAction(
+            name=_field(action, "name", str, "creature action"),
+            attack_bonus=_field(action, "attack_bonus", int, "creature action"),
+            damage_dice=_optional_field(action, "damage_dice", str, "creature action"),
+            damage_type=_optional_field(action, "damage_type", str, "creature action"),  # type: ignore[arg-type]
+            reach=_optional_field(action, "reach", int, "creature action"),
+            normal_range=_optional_field(action, "normal_range", int, "creature action"),
+            long_range=_optional_field(action, "long_range", int, "creature action"),
+            target=_field(action, "target", str, "creature action"),
+            recharge_minimum=_optional_field(action, "recharge_minimum", int, "creature action"),
+            recharge_die=_field(action, "recharge_die", int, "creature action"),
+        )
+        for action in _validated_nested_entries(
+            entry,
+            name,
+            section,
+            {
+                "name",
+                "attack_bonus",
+                "damage_dice",
+                "damage_type",
+                "reach",
+                "normal_range",
+                "long_range",
+                "target",
+                "recharge_minimum",
+                "recharge_die",
+            },
+        )
+    )
+
+
+def _feature_entries(
+    entry: Mapping[str, Any],
+    name: str,
+    section: str,
+) -> tuple[CreatureFeature, ...]:
+    return tuple(
+        CreatureFeature(
+            name=_field(feature, "name", str, "creature feature"),
+            tags=_string_tuple_field(feature, "tags", "creature feature"),
+        )
+        for feature in _validated_nested_entries(entry, name, section, {"name", "tags"})
+    )
+
+
+def _validated_entries(
+    entries: Any, section: str, expected_fields: set[str]
+) -> tuple[Mapping[str, Any], ...]:
+    if not isinstance(entries, list):
+        raise ValueError(f"creature content section {section} must be a list")
+    for entry in entries:
+        if not isinstance(entry, Mapping):
+            raise ValueError(f"creature content section {section} entries must be objects")
+        extra = set(entry) - expected_fields
+        if extra:
+            raise ValueError(f"{section} entry has unknown fields: {', '.join(sorted(extra))}")
+    return tuple(entries)
+
+
+def _validated_nested_entries(
+    entry: Mapping[str, Any],
+    name: str,
+    section: str,
+    expected_fields: set[str],
+) -> tuple[Mapping[str, Any], ...]:
+    if name not in entry:
+        raise ValueError(f"{section} entry missing field: {name}")
+    value = entry[name]
+    if not isinstance(value, list):
+        raise ValueError(f"{section}.{name} must be a list")
+    for item in value:
+        if not isinstance(item, Mapping):
+            raise ValueError(f"{section}.{name} entries must be objects")
+        extra = set(item) - expected_fields
+        if extra:
+            raise ValueError(f"{section}.{name} entry has unknown fields: {', '.join(sorted(extra))}")
+    return tuple(value)
+
+
+def _catalog_by_id(entries: list[CreatureDefinition]) -> dict[str, CreatureDefinition]:
+    catalog: dict[str, CreatureDefinition] = {}
+    for entry in entries:
+        if entry.id in catalog:
+            raise ValueError(f"duplicate creature id: {entry.id}")
+        catalog[entry.id] = entry
+    return catalog
+
+
+def _field(entry: Mapping[str, Any], name: str, expected_type: type[T], section: str) -> T:
+    if name not in entry:
+        raise ValueError(f"{section} entry missing field: {name}")
+    value = entry[name]
+    if not isinstance(value, expected_type):
+        raise ValueError(f"{section}.{name} must be {expected_type.__name__}")
+    return value
+
+
+def _optional_field(
+    entry: Mapping[str, Any],
+    name: str,
+    expected_type: type[T],
+    section: str,
+) -> T | None:
+    if name not in entry:
+        raise ValueError(f"{section} entry missing field: {name}")
+    value = entry[name]
+    if value is None:
+        return None
+    if not isinstance(value, expected_type):
+        raise ValueError(f"{section}.{name} must be {expected_type.__name__} or null")
+    return value
+
+
+def _string_tuple_field(entry: Mapping[str, Any], name: str, section: str) -> tuple[str, ...]:
+    if name not in entry:
+        raise ValueError(f"{section} entry missing field: {name}")
+    value = entry[name]
+    if not isinstance(value, list):
+        raise ValueError(f"{section}.{name} must be a list")
+    for item in value:
+        if not isinstance(item, str):
+            raise ValueError(f"{section}.{name} entries must be strings")
+    return tuple(value)
+
+
+def _int_mapping_field(entry: Mapping[str, Any], name: str, section: str) -> dict[str, int]:
+    if name not in entry:
+        raise ValueError(f"{section} entry missing field: {name}")
+    value = entry[name]
+    if not isinstance(value, Mapping):
+        raise ValueError(f"{section}.{name} must be an object")
+    for key, item in value.items():
+        if not isinstance(key, str):
+            raise ValueError(f"{section}.{name} keys must be strings")
+        if not isinstance(item, int):
+            raise ValueError(f"{section}.{name}.{key} must be int")
+    return dict(value)
 
 
 def _validate_positive_optional(name: str, value: int | None) -> None:
@@ -178,361 +436,8 @@ def _validate_condition_names(name: str, values: tuple[ConditionName, ...]) -> N
         raise ValueError(f"invalid {name}: {', '.join(sorted(invalid))}")
 
 
-CREATURES: dict[str, CreatureDefinition] = {
-    "goblin": CreatureDefinition(
-        id="goblin",
-        name="Goblin",
-        size="small",
-        type="humanoid",
-        alignment="neutral evil",
-        armor_class=15,
-        hit_points=7,
-        hit_dice="2d6",
-        speed={"walk": 30},
-        abilities={"str": 8, "dex": 14, "con": 10, "int": 10, "wis": 8, "cha": 8},
-        saving_throws={},
-        skills={"stealth": 6},
-        senses={"darkvision": 60, "passive_perception": 9},
-        languages=("Common", "Goblin"),
-        challenge_rating="1/4",
-        xp=50,
-        actions=(
-            CreatureAction("Scimitar", 4, "1d6+2", "slashing", reach=5),
-            CreatureAction("Shortbow", 4, "1d6+2", "piercing", normal_range=80, long_range=320),
-        ),
-        bonus_actions=(CreatureFeature("Nimble Escape", ("disengage", "hide")),),
-    ),
-    "cultist": CreatureDefinition(
-        id="cultist",
-        name="Cultist",
-        size="medium",
-        type="humanoid",
-        alignment="any non-good alignment",
-        armor_class=12,
-        hit_points=9,
-        hit_dice="2d8",
-        speed={"walk": 30},
-        abilities={"str": 11, "dex": 12, "con": 10, "int": 10, "wis": 11, "cha": 10},
-        saving_throws={},
-        skills={"deception": 2, "religion": 2},
-        senses={"passive_perception": 10},
-        languages=("any one language",),
-        challenge_rating="1/8",
-        xp=25,
-        actions=(CreatureAction("Scimitar", 3, "1d6+1", "slashing", reach=5),),
-    ),
-    "bandit": CreatureDefinition(
-        id="bandit",
-        name="Bandit",
-        size="medium",
-        type="humanoid",
-        alignment="any non-lawful alignment",
-        armor_class=12,
-        hit_points=11,
-        hit_dice="2d8+2",
-        speed={"walk": 30},
-        abilities={"str": 11, "dex": 12, "con": 12, "int": 10, "wis": 10, "cha": 10},
-        saving_throws={},
-        skills={},
-        senses={"passive_perception": 10},
-        languages=("any one language",),
-        challenge_rating="1/8",
-        xp=25,
-        actions=(
-            CreatureAction("Scimitar", 3, "1d6+1", "slashing", reach=5),
-            CreatureAction("Light Crossbow", 3, "1d8+1", "piercing", normal_range=80, long_range=320),
-        ),
-    ),
-    "kobold": CreatureDefinition(
-        id="kobold",
-        name="Kobold",
-        size="small",
-        type="humanoid",
-        alignment="lawful evil",
-        armor_class=12,
-        hit_points=5,
-        hit_dice="2d6-2",
-        speed={"walk": 30},
-        abilities={"str": 7, "dex": 15, "con": 9, "int": 8, "wis": 7, "cha": 8},
-        saving_throws={},
-        skills={},
-        senses={"darkvision": 60, "passive_perception": 8},
-        languages=("Common", "Draconic"),
-        challenge_rating="1/8",
-        xp=25,
-        actions=(
-            CreatureAction("Dagger", 4, "1d4+2", "piercing", reach=5),
-            CreatureAction("Sling", 4, "1d4+2", "bludgeoning", normal_range=30, long_range=120),
-        ),
-        traits=(
-            CreatureFeature("Pack Tactics", ("attack_advantage_adjacent_ally",)),
-            CreatureFeature("Sunlight Sensitivity", ("sunlight_attack_disadvantage", "sunlight_perception_disadvantage")),
-        ),
-    ),
-    "orc": CreatureDefinition(
-        id="orc",
-        name="Orc",
-        size="medium",
-        type="humanoid",
-        alignment="chaotic evil",
-        armor_class=13,
-        hit_points=15,
-        hit_dice="2d8+6",
-        speed={"walk": 30},
-        abilities={"str": 16, "dex": 12, "con": 16, "int": 7, "wis": 11, "cha": 10},
-        saving_throws={},
-        skills={"intimidation": 2},
-        senses={"darkvision": 60, "passive_perception": 10},
-        languages=("Common", "Orc"),
-        challenge_rating="1/2",
-        xp=100,
-        actions=(
-            CreatureAction("Greataxe", 5, "1d12+3", "slashing", reach=5),
-            CreatureAction("Javelin", 5, "1d6+3", "piercing", reach=5, normal_range=30, long_range=120),
-        ),
-        bonus_actions=(CreatureFeature("Aggressive", ("move_toward_enemy",)),),
-    ),
-    "wolf": CreatureDefinition(
-        id="wolf",
-        name="Wolf",
-        size="medium",
-        type="beast",
-        alignment="unaligned",
-        armor_class=13,
-        hit_points=11,
-        hit_dice="2d8+2",
-        speed={"walk": 40},
-        abilities={"str": 12, "dex": 15, "con": 12, "int": 3, "wis": 12, "cha": 6},
-        saving_throws={},
-        skills={"perception": 3, "stealth": 4},
-        senses={"passive_perception": 13},
-        languages=(),
-        challenge_rating="1/4",
-        xp=50,
-        actions=(CreatureAction("Bite", 4, "2d4+2", "piercing", reach=5),),
-        traits=(
-            CreatureFeature("Keen Hearing and Smell", ("perception_advantage_hearing_smell",)),
-            CreatureFeature("Pack Tactics", ("attack_advantage_adjacent_ally",)),
-        ),
-    ),
-    "axe_beak": CreatureDefinition(
-        id="axe_beak",
-        name="Axe Beak",
-        size="large",
-        type="beast",
-        alignment="unaligned",
-        armor_class=11,
-        hit_points=19,
-        hit_dice="3d10+3",
-        speed={"walk": 50},
-        abilities={"str": 14, "dex": 12, "con": 12, "int": 2, "wis": 10, "cha": 5},
-        saving_throws={},
-        skills={},
-        senses={"passive_perception": 10},
-        languages=(),
-        challenge_rating="1/4",
-        xp=50,
-        actions=(CreatureAction("Beak", 4, "1d8+2", "slashing", reach=5),),
-    ),
-    "black_bear": CreatureDefinition(
-        id="black_bear",
-        name="Black Bear",
-        size="medium",
-        type="beast",
-        alignment="unaligned",
-        armor_class=11,
-        hit_points=19,
-        hit_dice="3d8+6",
-        speed={"walk": 40, "climb": 30},
-        abilities={"str": 15, "dex": 10, "con": 14, "int": 2, "wis": 12, "cha": 7},
-        saving_throws={},
-        skills={"perception": 3},
-        senses={"passive_perception": 13},
-        languages=(),
-        challenge_rating="1/2",
-        xp=100,
-        actions=(
-            CreatureAction("Bite", 3, "1d6+2", "piercing", reach=5),
-            CreatureAction("Claws", 3, "2d4+2", "slashing", reach=5),
-        ),
-        traits=(CreatureFeature("Keen Smell", ("perception_advantage_smell",)),),
-    ),
-    "skeleton": CreatureDefinition(
-        id="skeleton",
-        name="Skeleton",
-        size="medium",
-        type="undead",
-        alignment="lawful evil",
-        armor_class=13,
-        hit_points=13,
-        hit_dice="2d8+4",
-        speed={"walk": 30},
-        abilities={"str": 10, "dex": 14, "con": 15, "int": 6, "wis": 8, "cha": 5},
-        saving_throws={},
-        skills={},
-        senses={"darkvision": 60, "passive_perception": 9},
-        languages=("understands languages it knew in life",),
-        challenge_rating="1/4",
-        xp=50,
-        actions=(
-            CreatureAction("Shortsword", 4, "1d6+2", "piercing", reach=5),
-            CreatureAction("Shortbow", 4, "1d6+2", "piercing", normal_range=80, long_range=320),
-        ),
-        damage_vulnerabilities=("bludgeoning",),
-        damage_immunities=("poison",),
-        condition_immunities=("poisoned",),
-    ),
-    "bugbear": CreatureDefinition(
-        id="bugbear",
-        name="Bugbear",
-        size="medium",
-        type="humanoid",
-        alignment="chaotic evil",
-        armor_class=16,
-        hit_points=27,
-        hit_dice="5d8+5",
-        speed={"walk": 30},
-        abilities={"str": 15, "dex": 14, "con": 13, "int": 8, "wis": 11, "cha": 9},
-        saving_throws={},
-        skills={"stealth": 6, "survival": 2},
-        senses={"darkvision": 60, "passive_perception": 10},
-        languages=("Common", "Goblin"),
-        challenge_rating="1",
-        xp=200,
-        actions=(
-            CreatureAction("Morningstar", 4, "2d8+2", "piercing", reach=5),
-            CreatureAction("Javelin", 4, "2d6+2", "piercing", reach=5, normal_range=30, long_range=120),
-        ),
-        traits=(
-            CreatureFeature("Brute", ("extra_weapon_damage_die",)),
-            CreatureFeature("Surprise Attack", ("bonus_damage_on_surprise",)),
-        ),
-    ),
-    "ghoul": CreatureDefinition(
-        id="ghoul",
-        name="Ghoul",
-        size="medium",
-        type="undead",
-        alignment="chaotic evil",
-        armor_class=12,
-        hit_points=22,
-        hit_dice="5d8",
-        speed={"walk": 30},
-        abilities={"str": 13, "dex": 15, "con": 10, "int": 7, "wis": 10, "cha": 6},
-        saving_throws={},
-        skills={},
-        senses={"darkvision": 60, "passive_perception": 10},
-        languages=("Common",),
-        challenge_rating="1",
-        xp=200,
-        actions=(
-            CreatureAction("Bite", 2, "2d6+2", "piercing", reach=5),
-            CreatureAction("Claws", 4, "2d4+2", "slashing", reach=5),
-        ),
-        damage_immunities=("poison",),
-        condition_immunities=("charmed", "poisoned"),
-    ),
-    "giant_spider": CreatureDefinition(
-        id="giant_spider",
-        name="Giant Spider",
-        size="large",
-        type="beast",
-        alignment="unaligned",
-        armor_class=14,
-        hit_points=26,
-        hit_dice="4d10+4",
-        speed={"walk": 30, "climb": 30},
-        abilities={"str": 14, "dex": 16, "con": 12, "int": 2, "wis": 11, "cha": 4},
-        saving_throws={},
-        skills={"stealth": 7},
-        senses={"blindsight": 10, "darkvision": 60, "passive_perception": 10},
-        languages=(),
-        challenge_rating="1",
-        xp=200,
-        actions=(
-            CreatureAction("Bite", 5, "1d8+3", "piercing", reach=5),
-            CreatureAction(
-                "Web",
-                5,
-                normal_range=30,
-                long_range=60,
-                target="one creature",
-                recharge_minimum=5,
-            ),
-        ),
-        traits=(
-            CreatureFeature("Spider Climb", ("climb_difficult_surfaces",)),
-            CreatureFeature("Web Sense", ("sense_web_vibrations",)),
-            CreatureFeature("Web Walker", ("ignore_web_movement_restriction",)),
-        ),
-    ),
-    "gray_ooze": CreatureDefinition(
-        id="gray_ooze",
-        name="Gray Ooze",
-        size="medium",
-        type="ooze",
-        alignment="unaligned",
-        armor_class=8,
-        hit_points=22,
-        hit_dice="3d8+9",
-        speed={"walk": 10, "climb": 10},
-        abilities={"str": 12, "dex": 6, "con": 16, "int": 1, "wis": 6, "cha": 2},
-        saving_throws={},
-        skills={"stealth": 2},
-        senses={"blindsight": 60, "passive_perception": 8},
-        languages=(),
-        challenge_rating="1/2",
-        xp=100,
-        actions=(CreatureAction("Pseudopod", 3, "1d6+1", "bludgeoning", reach=5),),
-        traits=(CreatureFeature("Corrode Metal", ("metal_armor_weapon_damage",)),),
-        damage_resistances=("acid", "cold", "fire"),
-        condition_immunities=("blinded", "charmed", "deafened", "frightened", "prone"),
-    ),
-    "zombie": CreatureDefinition(
-        id="zombie",
-        name="Zombie",
-        size="medium",
-        type="undead",
-        alignment="neutral evil",
-        armor_class=8,
-        hit_points=22,
-        hit_dice="3d8+9",
-        speed={"walk": 20},
-        abilities={"str": 13, "dex": 6, "con": 16, "int": 3, "wis": 6, "cha": 5},
-        saving_throws={"wis": 0},
-        skills={},
-        senses={"darkvision": 60, "passive_perception": 8},
-        languages=("understands languages it knew in life",),
-        challenge_rating="1/4",
-        xp=50,
-        actions=(CreatureAction("Slam", 3, "1d6+1", "bludgeoning", reach=5),),
-        traits=(CreatureFeature("Undead Fortitude", ("drop_to_1_hp_save",)),),
-        damage_immunities=("poison",),
-        condition_immunities=("poisoned",),
-    ),
-    "ogre": CreatureDefinition(
-        id="ogre",
-        name="Ogre",
-        size="large",
-        type="giant",
-        alignment="chaotic evil",
-        armor_class=11,
-        hit_points=59,
-        hit_dice="7d10+21",
-        speed={"walk": 40},
-        abilities={"str": 19, "dex": 8, "con": 16, "int": 5, "wis": 7, "cha": 7},
-        saving_throws={},
-        skills={},
-        senses={"darkvision": 60, "passive_perception": 8},
-        languages=("Common", "Giant"),
-        challenge_rating="2",
-        xp=450,
-        actions=(
-            CreatureAction("Greatclub", 6, "2d8+4", "bludgeoning", reach=5),
-            CreatureAction("Javelin", 6, "2d6+4", "piercing", reach=5, normal_range=30, long_range=120),
-        ),
-    ),
-}
+_BUILTIN_CREATURES = load_builtin_creature_pack()
+CREATURES: dict[str, CreatureDefinition] = _BUILTIN_CREATURES.creatures
 
 
 def creature_ability_bonus(creature: CreatureDefinition | CreatureInstance, ability: Ability) -> int:

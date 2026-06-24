@@ -1,0 +1,1054 @@
+{
+  "creatures": [
+    {
+      "id": "goblin",
+      "name": "Goblin",
+      "size": "small",
+      "type": "humanoid",
+      "alignment": "neutral evil",
+      "armor_class": 15,
+      "hit_points": 7,
+      "hit_dice": "2d6",
+      "speed": {
+        "walk": 30
+      },
+      "abilities": {
+        "str": 8,
+        "dex": 14,
+        "con": 10,
+        "int": 10,
+        "wis": 8,
+        "cha": 8
+      },
+      "saving_throws": {},
+      "skills": {
+        "stealth": 6
+      },
+      "senses": {
+        "darkvision": 60,
+        "passive_perception": 9
+      },
+      "languages": [
+        "Common",
+        "Goblin"
+      ],
+      "challenge_rating": "1/4",
+      "xp": 50,
+      "actions": [
+        {
+          "name": "Scimitar",
+          "attack_bonus": 4,
+          "damage_dice": "1d6+2",
+          "damage_type": "slashing",
+          "reach": 5,
+          "normal_range": null,
+          "long_range": null,
+          "target": "one target",
+          "recharge_minimum": null,
+          "recharge_die": 6
+        },
+        {
+          "name": "Shortbow",
+          "attack_bonus": 4,
+          "damage_dice": "1d6+2",
+          "damage_type": "piercing",
+          "reach": null,
+          "normal_range": 80,
+          "long_range": 320,
+          "target": "one target",
+          "recharge_minimum": null,
+          "recharge_die": 6
+        }
+      ],
+      "traits": [],
+      "bonus_actions": [
+        {
+          "name": "Nimble Escape",
+          "tags": [
+            "disengage",
+            "hide"
+          ]
+        }
+      ],
+      "reactions": [],
+      "damage_resistances": [],
+      "damage_vulnerabilities": [],
+      "damage_immunities": [],
+      "condition_immunities": []
+    },
+    {
+      "id": "cultist",
+      "name": "Cultist",
+      "size": "medium",
+      "type": "humanoid",
+      "alignment": "any non-good alignment",
+      "armor_class": 12,
+      "hit_points": 9,
+      "hit_dice": "2d8",
+      "speed": {
+        "walk": 30
+      },
+      "abilities": {
+        "str": 11,
+        "dex": 12,
+        "con": 10,
+        "int": 10,
+        "wis": 11,
+        "cha": 10
+      },
+      "saving_throws": {},
+      "skills": {
+        "deception": 2,
+        "religion": 2
+      },
+      "senses": {
+        "passive_perception": 10
+      },
+      "languages": [
+        "any one language"
+      ],
+      "challenge_rating": "1/8",
+      "xp": 25,
+      "actions": [
+        {
+          "name": "Scimitar",
+          "attack_bonus": 3,
+          "damage_dice": "1d6+1",
+          "damage_type": "slashing",
+          "reach": 5,
+          "normal_range": null,
+          "long_range": null,
+          "target": "one target",
+          "recharge_minimum": null,
+          "recharge_die": 6
+        }
+      ],
+      "traits": [],
+      "bonus_actions": [],
+      "reactions": [],
+      "damage_resistances": [],
+      "damage_vulnerabilities": [],
+      "damage_immunities": [],
+      "condition_immunities": []
+    },
+    {
+      "id": "bandit",
+      "name": "Bandit",
+      "size": "medium",
+      "type": "humanoid",
+      "alignment": "any non-lawful alignment",
+      "armor_class": 12,
+      "hit_points": 11,
+      "hit_dice": "2d8+2",
+      "speed": {
+        "walk": 30
+      },
+      "abilities": {
+        "str": 11,
+        "dex": 12,
+        "con": 12,
+        "int": 10,
+        "wis": 10,
+        "cha": 10
+      },
+      "saving_throws": {},
+      "skills": {},
+      "senses": {
+        "passive_perception": 10
+      },
+      "languages": [
+        "any one language"
+      ],
+      "challenge_rating": "1/8",
+      "xp": 25,
+      "actions": [
+        {
+          "name": "Scimitar",
+          "attack_bonus": 3,
+          "damage_dice": "1d6+1",
+          "damage_type": "slashing",
+          "reach": 5,
+          "normal_range": null,
+          "long_range": null,
+          "target": "one target",
+          "recharge_minimum": null,
+          "recharge_die": 6
+        },
+        {
+          "name": "Light Crossbow",
+          "attack_bonus": 3,
+          "damage_dice": "1d8+1",
+          "damage_type": "piercing",
+          "reach": null,
+          "normal_range": 80,
+          "long_range": 320,
+          "target": "one target",
+          "recharge_minimum": null,
+          "recharge_die": 6
+        }
+      ],
+      "traits": [],
+      "bonus_actions": [],
+      "reactions": [],
+      "damage_resistances": [],
+      "damage_vulnerabilities": [],
+      "damage_immunities": [],
+      "condition_immunities": []
+    },
+    {
+      "id": "kobold",
+      "name": "Kobold",
+      "size": "small",
+      "type": "humanoid",
+      "alignment": "lawful evil",
+      "armor_class": 12,
+      "hit_points": 5,
+      "hit_dice": "2d6-2",
+      "speed": {
+        "walk": 30
+      },
+      "abilities": {
+        "str": 7,
+        "dex": 15,
+        "con": 9,
+        "int": 8,
+        "wis": 7,
+        "cha": 8
+      },
+      "saving_throws": {},
+      "skills": {},
+      "senses": {
+        "darkvision": 60,
+        "passive_perception": 8
+      },
+      "languages": [
+        "Common",
+        "Draconic"
+      ],
+      "challenge_rating": "1/8",
+      "xp": 25,
+      "actions": [
+        {
+          "name": "Dagger",
+          "attack_bonus": 4,
+          "damage_dice": "1d4+2",
+          "damage_type": "piercing",
+          "reach": 5,
+          "normal_range": null,
+          "long_range": null,
+          "target": "one target",
+          "recharge_minimum": null,
+          "recharge_die": 6
+        },
+        {
+          "name": "Sling",
+          "attack_bonus": 4,
+          "damage_dice": "1d4+2",
+          "damage_type": "bludgeoning",
+          "reach": null,
+          "normal_range": 30,
+          "long_range": 120,
+          "target": "one target",
+          "recharge_minimum": null,
+          "recharge_die": 6
+        }
+      ],
+      "traits": [
+        {
+          "name": "Pack Tactics",
+          "tags": [
+            "attack_advantage_adjacent_ally"
+          ]
+        },
+        {
+          "name": "Sunlight Sensitivity",
+          "tags": [
+            "sunlight_attack_disadvantage",
+            "sunlight_perception_disadvantage"
+          ]
+        }
+      ],
+      "bonus_actions": [],
+      "reactions": [],
+      "damage_resistances": [],
+      "damage_vulnerabilities": [],
+      "damage_immunities": [],
+      "condition_immunities": []
+    },
+    {
+      "id": "orc",
+      "name": "Orc",
+      "size": "medium",
+      "type": "humanoid",
+      "alignment": "chaotic evil",
+      "armor_class": 13,
+      "hit_points": 15,
+      "hit_dice": "2d8+6",
+      "speed": {
+        "walk": 30
+      },
+      "abilities": {
+        "str": 16,
+        "dex": 12,
+        "con": 16,
+        "int": 7,
+        "wis": 11,
+        "cha": 10
+      },
+      "saving_throws": {},
+      "skills": {
+        "intimidation": 2
+      },
+      "senses": {
+        "darkvision": 60,
+        "passive_perception": 10
+      },
+      "languages": [
+        "Common",
+        "Orc"
+      ],
+      "challenge_rating": "1/2",
+      "xp": 100,
+      "actions": [
+        {
+          "name": "Greataxe",
+          "attack_bonus": 5,
+          "damage_dice": "1d12+3",
+          "damage_type": "slashing",
+          "reach": 5,
+          "normal_range": null,
+          "long_range": null,
+          "target": "one target",
+          "recharge_minimum": null,
+          "recharge_die": 6
+        },
+        {
+          "name": "Javelin",
+          "attack_bonus": 5,
+          "damage_dice": "1d6+3",
+          "damage_type": "piercing",
+          "reach": 5,
+          "normal_range": 30,
+          "long_range": 120,
+          "target": "one target",
+          "recharge_minimum": null,
+          "recharge_die": 6
+        }
+      ],
+      "traits": [],
+      "bonus_actions": [
+        {
+          "name": "Aggressive",
+          "tags": [
+            "move_toward_enemy"
+          ]
+        }
+      ],
+      "reactions": [],
+      "damage_resistances": [],
+      "damage_vulnerabilities": [],
+      "damage_immunities": [],
+      "condition_immunities": []
+    },
+    {
+      "id": "wolf",
+      "name": "Wolf",
+      "size": "medium",
+      "type": "beast",
+      "alignment": "unaligned",
+      "armor_class": 13,
+      "hit_points": 11,
+      "hit_dice": "2d8+2",
+      "speed": {
+        "walk": 40
+      },
+      "abilities": {
+        "str": 12,
+        "dex": 15,
+        "con": 12,
+        "int": 3,
+        "wis": 12,
+        "cha": 6
+      },
+      "saving_throws": {},
+      "skills": {
+        "perception": 3,
+        "stealth": 4
+      },
+      "senses": {
+        "passive_perception": 13
+      },
+      "languages": [],
+      "challenge_rating": "1/4",
+      "xp": 50,
+      "actions": [
+        {
+          "name": "Bite",
+          "attack_bonus": 4,
+          "damage_dice": "2d4+2",
+          "damage_type": "piercing",
+          "reach": 5,
+          "normal_range": null,
+          "long_range": null,
+          "target": "one target",
+          "recharge_minimum": null,
+          "recharge_die": 6
+        }
+      ],
+      "traits": [
+        {
+          "name": "Keen Hearing and Smell",
+          "tags": [
+            "perception_advantage_hearing_smell"
+          ]
+        },
+        {
+          "name": "Pack Tactics",
+          "tags": [
+            "attack_advantage_adjacent_ally"
+          ]
+        }
+      ],
+      "bonus_actions": [],
+      "reactions": [],
+      "damage_resistances": [],
+      "damage_vulnerabilities": [],
+      "damage_immunities": [],
+      "condition_immunities": []
+    },
+    {
+      "id": "axe_beak",
+      "name": "Axe Beak",
+      "size": "large",
+      "type": "beast",
+      "alignment": "unaligned",
+      "armor_class": 11,
+      "hit_points": 19,
+      "hit_dice": "3d10+3",
+      "speed": {
+        "walk": 50
+      },
+      "abilities": {
+        "str": 14,
+        "dex": 12,
+        "con": 12,
+        "int": 2,
+        "wis": 10,
+        "cha": 5
+      },
+      "saving_throws": {},
+      "skills": {},
+      "senses": {
+        "passive_perception": 10
+      },
+      "languages": [],
+      "challenge_rating": "1/4",
+      "xp": 50,
+      "actions": [
+        {
+          "name": "Beak",
+          "attack_bonus": 4,
+          "damage_dice": "1d8+2",
+          "damage_type": "slashing",
+          "reach": 5,
+          "normal_range": null,
+          "long_range": null,
+          "target": "one target",
+          "recharge_minimum": null,
+          "recharge_die": 6
+        }
+      ],
+      "traits": [],
+      "bonus_actions": [],
+      "reactions": [],
+      "damage_resistances": [],
+      "damage_vulnerabilities": [],
+      "damage_immunities": [],
+      "condition_immunities": []
+    },
+    {
+      "id": "black_bear",
+      "name": "Black Bear",
+      "size": "medium",
+      "type": "beast",
+      "alignment": "unaligned",
+      "armor_class": 11,
+      "hit_points": 19,
+      "hit_dice": "3d8+6",
+      "speed": {
+        "walk": 40,
+        "climb": 30
+      },
+      "abilities": {
+        "str": 15,
+        "dex": 10,
+        "con": 14,
+        "int": 2,
+        "wis": 12,
+        "cha": 7
+      },
+      "saving_throws": {},
+      "skills": {
+        "perception": 3
+      },
+      "senses": {
+        "passive_perception": 13
+      },
+      "languages": [],
+      "challenge_rating": "1/2",
+      "xp": 100,
+      "actions": [
+        {
+          "name": "Bite",
+          "attack_bonus": 3,
+          "damage_dice": "1d6+2",
+          "damage_type": "piercing",
+          "reach": 5,
+          "normal_range": null,
+          "long_range": null,
+          "target": "one target",
+          "recharge_minimum": null,
+          "recharge_die": 6
+        },
+        {
+          "name": "Claws",
+          "attack_bonus": 3,
+          "damage_dice": "2d4+2",
+          "damage_type": "slashing",
+          "reach": 5,
+          "normal_range": null,
+          "long_range": null,
+          "target": "one target",
+          "recharge_minimum": null,
+          "recharge_die": 6
+        }
+      ],
+      "traits": [
+        {
+          "name": "Keen Smell",
+          "tags": [
+            "perception_advantage_smell"
+          ]
+        }
+      ],
+      "bonus_actions": [],
+      "reactions": [],
+      "damage_resistances": [],
+      "damage_vulnerabilities": [],
+      "damage_immunities": [],
+      "condition_immunities": []
+    },
+    {
+      "id": "skeleton",
+      "name": "Skeleton",
+      "size": "medium",
+      "type": "undead",
+      "alignment": "lawful evil",
+      "armor_class": 13,
+      "hit_points": 13,
+      "hit_dice": "2d8+4",
+      "speed": {
+        "walk": 30
+      },
+      "abilities": {
+        "str": 10,
+        "dex": 14,
+        "con": 15,
+        "int": 6,
+        "wis": 8,
+        "cha": 5
+      },
+      "saving_throws": {},
+      "skills": {},
+      "senses": {
+        "darkvision": 60,
+        "passive_perception": 9
+      },
+      "languages": [
+        "understands languages it knew in life"
+      ],
+      "challenge_rating": "1/4",
+      "xp": 50,
+      "actions": [
+        {
+          "name": "Shortsword",
+          "attack_bonus": 4,
+          "damage_dice": "1d6+2",
+          "damage_type": "piercing",
+          "reach": 5,
+          "normal_range": null,
+          "long_range": null,
+          "target": "one target",
+          "recharge_minimum": null,
+          "recharge_die": 6
+        },
+        {
+          "name": "Shortbow",
+          "attack_bonus": 4,
+          "damage_dice": "1d6+2",
+          "damage_type": "piercing",
+          "reach": null,
+          "normal_range": 80,
+          "long_range": 320,
+          "target": "one target",
+          "recharge_minimum": null,
+          "recharge_die": 6
+        }
+      ],
+      "traits": [],
+      "bonus_actions": [],
+      "reactions": [],
+      "damage_resistances": [],
+      "damage_vulnerabilities": [
+        "bludgeoning"
+      ],
+      "damage_immunities": [
+        "poison"
+      ],
+      "condition_immunities": [
+        "poisoned"
+      ]
+    },
+    {
+      "id": "bugbear",
+      "name": "Bugbear",
+      "size": "medium",
+      "type": "humanoid",
+      "alignment": "chaotic evil",
+      "armor_class": 16,
+      "hit_points": 27,
+      "hit_dice": "5d8+5",
+      "speed": {
+        "walk": 30
+      },
+      "abilities": {
+        "str": 15,
+        "dex": 14,
+        "con": 13,
+        "int": 8,
+        "wis": 11,
+        "cha": 9
+      },
+      "saving_throws": {},
+      "skills": {
+        "stealth": 6,
+        "survival": 2
+      },
+      "senses": {
+        "darkvision": 60,
+        "passive_perception": 10
+      },
+      "languages": [
+        "Common",
+        "Goblin"
+      ],
+      "challenge_rating": "1",
+      "xp": 200,
+      "actions": [
+        {
+          "name": "Morningstar",
+          "attack_bonus": 4,
+          "damage_dice": "2d8+2",
+          "damage_type": "piercing",
+          "reach": 5,
+          "normal_range": null,
+          "long_range": null,
+          "target": "one target",
+          "recharge_minimum": null,
+          "recharge_die": 6
+        },
+        {
+          "name": "Javelin",
+          "attack_bonus": 4,
+          "damage_dice": "2d6+2",
+          "damage_type": "piercing",
+          "reach": 5,
+          "normal_range": 30,
+          "long_range": 120,
+          "target": "one target",
+          "recharge_minimum": null,
+          "recharge_die": 6
+        }
+      ],
+      "traits": [
+        {
+          "name": "Brute",
+          "tags": [
+            "extra_weapon_damage_die"
+          ]
+        },
+        {
+          "name": "Surprise Attack",
+          "tags": [
+            "bonus_damage_on_surprise"
+          ]
+        }
+      ],
+      "bonus_actions": [],
+      "reactions": [],
+      "damage_resistances": [],
+      "damage_vulnerabilities": [],
+      "damage_immunities": [],
+      "condition_immunities": []
+    },
+    {
+      "id": "ghoul",
+      "name": "Ghoul",
+      "size": "medium",
+      "type": "undead",
+      "alignment": "chaotic evil",
+      "armor_class": 12,
+      "hit_points": 22,
+      "hit_dice": "5d8",
+      "speed": {
+        "walk": 30
+      },
+      "abilities": {
+        "str": 13,
+        "dex": 15,
+        "con": 10,
+        "int": 7,
+        "wis": 10,
+        "cha": 6
+      },
+      "saving_throws": {},
+      "skills": {},
+      "senses": {
+        "darkvision": 60,
+        "passive_perception": 10
+      },
+      "languages": [
+        "Common"
+      ],
+      "challenge_rating": "1",
+      "xp": 200,
+      "actions": [
+        {
+          "name": "Bite",
+          "attack_bonus": 2,
+          "damage_dice": "2d6+2",
+          "damage_type": "piercing",
+          "reach": 5,
+          "normal_range": null,
+          "long_range": null,
+          "target": "one target",
+          "recharge_minimum": null,
+          "recharge_die": 6
+        },
+        {
+          "name": "Claws",
+          "attack_bonus": 4,
+          "damage_dice": "2d4+2",
+          "damage_type": "slashing",
+          "reach": 5,
+          "normal_range": null,
+          "long_range": null,
+          "target": "one target",
+          "recharge_minimum": null,
+          "recharge_die": 6
+        }
+      ],
+      "traits": [],
+      "bonus_actions": [],
+      "reactions": [],
+      "damage_resistances": [],
+      "damage_vulnerabilities": [],
+      "damage_immunities": [
+        "poison"
+      ],
+      "condition_immunities": [
+        "charmed",
+        "poisoned"
+      ]
+    },
+    {
+      "id": "giant_spider",
+      "name": "Giant Spider",
+      "size": "large",
+      "type": "beast",
+      "alignment": "unaligned",
+      "armor_class": 14,
+      "hit_points": 26,
+      "hit_dice": "4d10+4",
+      "speed": {
+        "walk": 30,
+        "climb": 30
+      },
+      "abilities": {
+        "str": 14,
+        "dex": 16,
+        "con": 12,
+        "int": 2,
+        "wis": 11,
+        "cha": 4
+      },
+      "saving_throws": {},
+      "skills": {
+        "stealth": 7
+      },
+      "senses": {
+        "blindsight": 10,
+        "darkvision": 60,
+        "passive_perception": 10
+      },
+      "languages": [],
+      "challenge_rating": "1",
+      "xp": 200,
+      "actions": [
+        {
+          "name": "Bite",
+          "attack_bonus": 5,
+          "damage_dice": "1d8+3",
+          "damage_type": "piercing",
+          "reach": 5,
+          "normal_range": null,
+          "long_range": null,
+          "target": "one target",
+          "recharge_minimum": null,
+          "recharge_die": 6
+        },
+        {
+          "name": "Web",
+          "attack_bonus": 5,
+          "damage_dice": null,
+          "damage_type": null,
+          "reach": null,
+          "normal_range": 30,
+          "long_range": 60,
+          "target": "one creature",
+          "recharge_minimum": 5,
+          "recharge_die": 6
+        }
+      ],
+      "traits": [
+        {
+          "name": "Spider Climb",
+          "tags": [
+            "climb_difficult_surfaces"
+          ]
+        },
+        {
+          "name": "Web Sense",
+          "tags": [
+            "sense_web_vibrations"
+          ]
+        },
+        {
+          "name": "Web Walker",
+          "tags": [
+            "ignore_web_movement_restriction"
+          ]
+        }
+      ],
+      "bonus_actions": [],
+      "reactions": [],
+      "damage_resistances": [],
+      "damage_vulnerabilities": [],
+      "damage_immunities": [],
+      "condition_immunities": []
+    },
+    {
+      "id": "gray_ooze",
+      "name": "Gray Ooze",
+      "size": "medium",
+      "type": "ooze",
+      "alignment": "unaligned",
+      "armor_class": 8,
+      "hit_points": 22,
+      "hit_dice": "3d8+9",
+      "speed": {
+        "walk": 10,
+        "climb": 10
+      },
+      "abilities": {
+        "str": 12,
+        "dex": 6,
+        "con": 16,
+        "int": 1,
+        "wis": 6,
+        "cha": 2
+      },
+      "saving_throws": {},
+      "skills": {
+        "stealth": 2
+      },
+      "senses": {
+        "blindsight": 60,
+        "passive_perception": 8
+      },
+      "languages": [],
+      "challenge_rating": "1/2",
+      "xp": 100,
+      "actions": [
+        {
+          "name": "Pseudopod",
+          "attack_bonus": 3,
+          "damage_dice": "1d6+1",
+          "damage_type": "bludgeoning",
+          "reach": 5,
+          "normal_range": null,
+          "long_range": null,
+          "target": "one target",
+          "recharge_minimum": null,
+          "recharge_die": 6
+        }
+      ],
+      "traits": [
+        {
+          "name": "Corrode Metal",
+          "tags": [
+            "metal_armor_weapon_damage"
+          ]
+        }
+      ],
+      "bonus_actions": [],
+      "reactions": [],
+      "damage_resistances": [
+        "acid",
+        "cold",
+        "fire"
+      ],
+      "damage_vulnerabilities": [],
+      "damage_immunities": [],
+      "condition_immunities": [
+        "blinded",
+        "charmed",
+        "deafened",
+        "frightened",
+        "prone"
+      ]
+    },
+    {
+      "id": "zombie",
+      "name": "Zombie",
+      "size": "medium",
+      "type": "undead",
+      "alignment": "neutral evil",
+      "armor_class": 8,
+      "hit_points": 22,
+      "hit_dice": "3d8+9",
+      "speed": {
+        "walk": 20
+      },
+      "abilities": {
+        "str": 13,
+        "dex": 6,
+        "con": 16,
+        "int": 3,
+        "wis": 6,
+        "cha": 5
+      },
+      "saving_throws": {
+        "wis": 0
+      },
+      "skills": {},
+      "senses": {
+        "darkvision": 60,
+        "passive_perception": 8
+      },
+      "languages": [
+        "understands languages it knew in life"
+      ],
+      "challenge_rating": "1/4",
+      "xp": 50,
+      "actions": [
+        {
+          "name": "Slam",
+          "attack_bonus": 3,
+          "damage_dice": "1d6+1",
+          "damage_type": "bludgeoning",
+          "reach": 5,
+          "normal_range": null,
+          "long_range": null,
+          "target": "one target",
+          "recharge_minimum": null,
+          "recharge_die": 6
+        }
+      ],
+      "traits": [
+        {
+          "name": "Undead Fortitude",
+          "tags": [
+            "drop_to_1_hp_save"
+          ]
+        }
+      ],
+      "bonus_actions": [],
+      "reactions": [],
+      "damage_resistances": [],
+      "damage_vulnerabilities": [],
+      "damage_immunities": [
+        "poison"
+      ],
+      "condition_immunities": [
+        "poisoned"
+      ]
+    },
+    {
+      "id": "ogre",
+      "name": "Ogre",
+      "size": "large",
+      "type": "giant",
+      "alignment": "chaotic evil",
+      "armor_class": 11,
+      "hit_points": 59,
+      "hit_dice": "7d10+21",
+      "speed": {
+        "walk": 40
+      },
+      "abilities": {
+        "str": 19,
+        "dex": 8,
+        "con": 16,
+        "int": 5,
+        "wis": 7,
+        "cha": 7
+      },
+      "saving_throws": {},
+      "skills": {},
+      "senses": {
+        "darkvision": 60,
+        "passive_perception": 8
+      },
+      "languages": [
+        "Common",
+        "Giant"
+      ],
+      "challenge_rating": "2",
+      "xp": 450,
+      "actions": [
+        {
+          "name": "Greatclub",
+          "attack_bonus": 6,
+          "damage_dice": "2d8+4",
+          "damage_type": "bludgeoning",
+          "reach": 5,
+          "normal_range": null,
+          "long_range": null,
+          "target": "one target",
+          "recharge_minimum": null,
+          "recharge_die": 6
+        },
+        {
+          "name": "Javelin",
+          "attack_bonus": 6,
+          "damage_dice": "2d6+4",
+          "damage_type": "piercing",
+          "reach": 5,
+          "normal_range": 30,
+          "long_range": 120,
+          "target": "one target",
+          "recharge_minimum": null,
+          "recharge_die": 6
+        }
+      ],
+      "traits": [],
+      "bonus_actions": [],
+      "reactions": [],
+      "damage_resistances": [],
+      "damage_vulnerabilities": [],
+      "damage_immunities": [],
+      "condition_immunities": []
+    }
+  ]
+}

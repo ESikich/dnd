@@ -237,14 +237,16 @@ Progress:
   and user-provided feature/resource metadata.
 - Done: load built-in feature metadata through the same feature content-pack
   path exposed to users.
+- Done: add JSON creature content-pack schema checks and loaders for packaged
+  and user-provided creature/stat block metadata.
+- Done: load built-in SRD-style creature metadata through the same creature
+  content-pack path exposed to users.
 
 Todo:
 
-- Define JSON or YAML schemas for creatures.
-- Add loaders and validators for creatures.
 - Keep remaining built-in SRD content loadable as package data.
 - Broaden user/homebrew content pack support beyond equipment, classes, spells,
-  and features.
+  features, and creatures.
 
 Done when:
 

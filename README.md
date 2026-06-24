@@ -63,6 +63,7 @@ from dnd5e import (
     restore_pact_magic,
     encounter_monster,
     load_builtin_class_pack,
+    load_builtin_creature_pack,
     load_builtin_equipment_pack,
     load_builtin_feature_pack,
     load_builtin_spell_pack,
@@ -158,6 +159,7 @@ second_wind_healing = apply_second_wind(
     roll=6,
 )
 equipment_pack = load_builtin_equipment_pack()
+creature_pack = load_builtin_creature_pack()
 spell_pack = load_builtin_spell_pack()
 feature_pack = load_builtin_feature_pack()
 sneak_attack_dice = sneak_attack_damage_dice(5)
@@ -272,6 +274,7 @@ print(pact_magic.remaining)  # 2
 print(rested_second_wind.resource.remaining)  # 1
 print(second_wind_healing.healing.applied)  # 8
 print(len(equipment_pack.weapons))  # 37
+print(len(creature_pack.creatures))  # 15
 print(len(spell_pack.spells))  # 6
 print(len(feature_pack.features))  # 6
 print(sneak_attack_dice)  # "3d6"
@@ -312,11 +315,12 @@ Included now:
 - Character rules validation for levels, ability scores, proficiencies, and bonus keys
 - Equipment, armor, shields, weapons, AC, and weapon attack profiles
 - Equipment definition validation for impossible AC, costs, weights, damage, ranges, and metadata
-- Packaged JSON equipment, class, spell, and feature content with public loaders for user content packs
+- Packaged JSON equipment, class, creature, spell, and feature content with public
+  loaders for user content packs
 - HP, healing, temporary HP, hit dice, rests, death saves, and validation for impossible HP states
-- A small SRD-style creature/stat block catalog with validation for HP, AC, abilities,
-  dice, movement, senses, XP, feature metadata, rechargeable action metadata, and
-  immunity/resistance metadata
+- A small SRD-style creature/stat block catalog loaded from packaged JSON, with
+  validation for HP, AC, abilities, dice, movement, senses, XP, feature metadata,
+  rechargeable action metadata, and immunity/resistance metadata
 - Encounter helpers for challenge-rating XP, party thresholds, adjusted XP, and difficulty summaries
 - SRD-style base class metadata loaded from packaged JSON, with validation for
   impossible hit dice, proficiencies, and skill choices
@@ -335,7 +339,7 @@ Included now:
 
 Good next modules:
 
-- Data files and content loading for creatures
+- Broader homebrew content-pack support
 - Character advancement and multiclassing
 
 See [ROADMAP.md](./ROADMAP.md) for phased development guidance. Future coding

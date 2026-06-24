@@ -63,6 +63,7 @@ from dnd5e import (
     encounter_monster,
     initiative_bonus,
     load_builtin_class_pack,
+    load_builtin_creature_pack,
     load_builtin_equipment_pack,
     load_builtin_feature_pack,
     load_builtin_spell_pack,
@@ -546,6 +547,7 @@ def show_spell_catalog() -> None:
 def show_creature_catalog() -> None:
     print_section("Creature Catalog")
 
+    creature_pack = load_builtin_creature_pack()
     goblin = CREATURES["goblin"]
     wolf = CREATURES["wolf"]
     skeleton = CREATURES["skeleton"]
@@ -558,6 +560,7 @@ def show_creature_catalog() -> None:
     gray_ooze = CREATURES["gray_ooze"]
     ogre = CREATURES["ogre"]
 
+    print(f"Built-in creature pack: {len(creature_pack.creatures)} creatures")
     print(
         f"{goblin.name}: CR {goblin.challenge_rating}, XP {goblin.xp}, "
         f"bonus actions {join_names(goblin.bonus_actions)}"
