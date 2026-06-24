@@ -6,7 +6,9 @@ from random import random
 from dnd5e.abilities import RandomSource, ability_modifier
 from dnd5e.combat import (
     AttackRollResult,
+    CONDITION_NAMES,
     Combatant,
+    DAMAGE_TYPES,
     DamageResult,
     attack_roll,
     create_combatant,
@@ -15,10 +17,25 @@ from dnd5e.combat import (
 from dnd5e.dice import parse_dice_notation
 from dnd5e.hit_points import HitPointState
 from dnd5e.skills import SKILL_ABILITIES
-from dnd5e.types import Ability, CreatureSize, CreatureType, DamageType, Skill
+from dnd5e.types import Ability, ConditionName, CreatureSize, CreatureType, DamageType, Skill
 
 _ABILITIES: tuple[Ability, ...] = ("str", "dex", "con", "int", "wis", "cha")
 _SKILLS: tuple[Skill, ...] = tuple(SKILL_ABILITIES)
+
+
+@dataclass(frozen=True)
+class CreatureFeature:
+    """Named creature mechanics metadata such as a trait, bonus action, or reaction."""
+
+    name: str
+    tags: tuple[str, ...] = ()
+
+    def __post_init__(self) -> None:
+        if not self.name:
+            raise ValueError("creature feature name is required")
+        for tag in self.tags:
+            if not tag:
+                raise ValueError("creature feature tags cannot be empty")
 
 
 @dataclass(frozen=True)
@@ -68,6 +85,13 @@ class CreatureDefinition:
     challenge_rating: str
     xp: int
     actions: tuple[CreatureAction, ...]
+    traits: tuple[CreatureFeature, ...] = ()
+    bonus_actions: tuple[CreatureFeature, ...] = ()
+    reactions: tuple[CreatureFeature, ...] = ()
+    damage_resistances: tuple[DamageType, ...] = ()
+    damage_vulnerabilities: tuple[DamageType, ...] = ()
+    damage_immunities: tuple[DamageType, ...] = ()
+    condition_immunities: tuple[ConditionName, ...] = ()
 
     def __post_init__(self) -> None:
         if self.armor_class < 1:
@@ -82,6 +106,10 @@ class CreatureDefinition:
         _validate_non_negative_values("senses", self.senses)
         if self.xp < 0:
             raise ValueError("xp cannot be negative")
+        _validate_damage_types("damage_resistances", self.damage_resistances)
+        _validate_damage_types("damage_vulnerabilities", self.damage_vulnerabilities)
+        _validate_damage_types("damage_immunities", self.damage_immunities)
+        _validate_condition_names("condition_immunities", self.condition_immunities)
 
 
 @dataclass(frozen=True)
@@ -122,6 +150,18 @@ def _validate_non_negative_values(name: str, values: dict[str, int]) -> None:
             raise ValueError(f"{name}.{key} cannot be negative")
 
 
+def _validate_damage_types(name: str, values: tuple[DamageType, ...]) -> None:
+    invalid = set(values) - set(DAMAGE_TYPES)
+    if invalid:
+        raise ValueError(f"invalid {name}: {', '.join(sorted(invalid))}")
+
+
+def _validate_condition_names(name: str, values: tuple[ConditionName, ...]) -> None:
+    invalid = set(values) - set(CONDITION_NAMES)
+    if invalid:
+        raise ValueError(f"invalid {name}: {', '.join(sorted(invalid))}")
+
+
 CREATURES: dict[str, CreatureDefinition] = {
     "goblin": CreatureDefinition(
         id="goblin",
@@ -144,6 +184,7 @@ CREATURES: dict[str, CreatureDefinition] = {
             CreatureAction("Scimitar", 4, "1d6+2", "slashing", reach=5),
             CreatureAction("Shortbow", 4, "1d6+2", "piercing", normal_range=80, long_range=320),
         ),
+        bonus_actions=(CreatureFeature("Nimble Escape", ("disengage", "hide")),),
     ),
     "cultist": CreatureDefinition(
         id="cultist",
@@ -182,6 +223,35 @@ CREATURES: dict[str, CreatureDefinition] = {
         challenge_rating="1/4",
         xp=50,
         actions=(CreatureAction("Bite", 4, "2d4+2", "piercing", reach=5),),
+        traits=(
+            CreatureFeature("Keen Hearing and Smell", ("perception_advantage_hearing_smell",)),
+            CreatureFeature("Pack Tactics", ("attack_advantage_adjacent_ally",)),
+        ),
+    ),
+    "skeleton": CreatureDefinition(
+        id="skeleton",
+        name="Skeleton",
+        size="medium",
+        type="undead",
+        alignment="lawful evil",
+        armor_class=13,
+        hit_points=13,
+        hit_dice="2d8+4",
+        speed={"walk": 30},
+        abilities={"str": 10, "dex": 14, "con": 15, "int": 6, "wis": 8, "cha": 5},
+        saving_throws={},
+        skills={},
+        senses={"darkvision": 60, "passive_perception": 9},
+        languages=("understands languages it knew in life",),
+        challenge_rating="1/4",
+        xp=50,
+        actions=(
+            CreatureAction("Shortsword", 4, "1d6+2", "piercing", reach=5),
+            CreatureAction("Shortbow", 4, "1d6+2", "piercing", normal_range=80, long_range=320),
+        ),
+        damage_vulnerabilities=("bludgeoning",),
+        damage_immunities=("poison",),
+        condition_immunities=("poisoned",),
     ),
 }
 

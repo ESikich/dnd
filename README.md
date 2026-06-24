@@ -92,6 +92,7 @@ kara_weapon = character_sheet_weapon_profile(kara, "longsword")
 kara_combatant = character_sheet_combatant(kara, roll=14)
 goblin = create_creature_instance(CREATURES["goblin"])
 goblin_combatant = creature_runtime_combatant(goblin, roll=12)
+skeleton = CREATURES["skeleton"]
 
 result = resolve_attack_action(
     combat,
@@ -113,6 +114,8 @@ print(kara_ac.total)  # 18
 print(kara_weapon.attack_bonus)  # 6
 print(kara_combatant.hit_points.maximum)  # 44
 print(goblin_combatant.armor_class)  # 15
+print(skeleton.damage_immunities)  # ("poison",)
+print(CREATURES["wolf"].traits[0].name)  # "Keen Hearing and Smell"
 print(roll_dice("2d6+3").total)
 print(SRD_CLASSES["fighter"].hit_die)  # 10
 ```
@@ -132,7 +135,8 @@ Included now:
 - Equipment, armor, shields, weapons, AC, and weapon attack profiles
 - Equipment definition validation for impossible AC, costs, weights, damage, ranges, and metadata
 - HP, healing, temporary HP, hit dice, rests, death saves, and validation for impossible HP states
-- Basic creature/stat block definitions with validation for HP, AC, abilities, dice, movement, senses, and XP
+- Basic creature/stat block definitions with validation for HP, AC, abilities,
+  dice, movement, senses, XP, feature metadata, and immunity/resistance metadata
 - SRD-style base class metadata with validation for impossible hit dice, proficiencies, and skill choices
 - Condition metadata as validated mechanical tags
 

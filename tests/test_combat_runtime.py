@@ -6,7 +6,6 @@ from dnd5e import (
     CharacterRules,
     CombatHealingResult,
     CombatState,
-    Combatant,
     DamageResult,
     DiceRoll,
     HitPointState,

@@ -18,6 +18,8 @@ Implemented:
 - HP, healing, temporary HP, hit dice, rests, death saves
 - Basic creature/stat block definitions for a small SRD-style catalog
 - Creature stat block validation for impossible HP, AC, ability scores, dice, movement, senses, and XP
+- Creature metadata for traits, bonus actions, reactions, damage
+  vulnerabilities/resistances/immunities, and condition immunities
 - SRD-style class metadata with validation for impossible hit dice, proficiencies, and skill choices
 - Condition metadata as validated tags
 - Character sheets with class levels, loadouts, validation, derived HP, AC, skills, saves, attacks, and combatants
@@ -110,10 +112,16 @@ Done when:
 
 Goal: make creature data and encounter math useful for DM-facing tools.
 
+Progress:
+
+- Done: expand creature definitions with named trait, bonus action, and reaction metadata.
+- Done: add creature damage vulnerability, resistance, immunity, and condition
+  immunity metadata with validation.
+- Done: add another SRD-style creature entry to exercise creature metadata.
+
 Todo:
 
-- Expand creature definitions with traits, bonus actions, reactions, resistances, vulnerabilities, immunities, and condition immunities.
-- Add more SRD-style creatures.
+- Continue adding SRD-style creatures.
 - Add CR/XP helpers and party encounter difficulty calculations.
 - Add encounter summary objects.
 

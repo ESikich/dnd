@@ -15,6 +15,7 @@ from dnd5e import (
     CharacterLoadout,
     CharacterRules,
     CharacterSheet,
+    CreatureFeature,
     DiceRoll,
     HitPointState,
     WEAPONS,
@@ -34,9 +35,6 @@ from dnd5e import (
     create_hit_dice_pool,
     create_combat,
     create_creature_instance,
-    creature_action_attack,
-    creature_action_damage,
-    creature_combatant,
     creature_runtime_combatant,
     d20_check,
     damage_roll,
@@ -69,6 +67,7 @@ def main() -> None:
     show_sheet_validation()
     show_equipment(hero)
     show_class_and_condition_data()
+    show_creature_catalog()
     show_combat(rng, hero)
 
 
@@ -279,6 +278,25 @@ def show_class_and_condition_data() -> None:
         print(f"Condition {name}: {', '.join(condition.tags)}")
 
 
+def show_creature_catalog() -> None:
+    print_section("Creature Catalog")
+
+    goblin = CREATURES["goblin"]
+    wolf = CREATURES["wolf"]
+    skeleton = CREATURES["skeleton"]
+
+    print(
+        f"{goblin.name}: CR {goblin.challenge_rating}, XP {goblin.xp}, "
+        f"bonus actions {join_names(goblin.bonus_actions)}"
+    )
+    print(f"{wolf.name}: traits {join_names(wolf.traits)}")
+    print(
+        f"{skeleton.name}: vulnerable {', '.join(skeleton.damage_vulnerabilities)}, "
+        f"immune {', '.join(skeleton.damage_immunities)}, "
+        f"condition immune {', '.join(skeleton.condition_immunities)}"
+    )
+
+
 def show_combat(rng: Random, hero: CharacterRules) -> None:
     print_section("Combat")
 
@@ -475,6 +493,10 @@ def format_damage_rolls(rolls: tuple[DiceRoll, ...]) -> str:
 
 def join_upper(values: tuple[str, ...]) -> str:
     return ", ".join(value.upper() for value in values)
+
+
+def join_names(values: tuple[CreatureFeature, ...]) -> str:
+    return ", ".join(value.name for value in values) or "none"
 
 
 def fixed_rolls(*values: float) -> Callable[[], float]:

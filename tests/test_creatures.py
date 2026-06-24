@@ -4,6 +4,7 @@ from dnd5e import (
     CREATURES,
     CreatureAction,
     CreatureDefinition,
+    CreatureFeature,
     CreatureInstance,
     create_creature_instance,
     creature_ability_bonus,
@@ -42,10 +43,12 @@ def _creature_definition(**overrides: object) -> CreatureDefinition:
 def test_public_creature_imports() -> None:
     assert isinstance(CREATURES["goblin"], CreatureDefinition)
     assert isinstance(CREATURES["goblin"].actions[0], CreatureAction)
+    assert isinstance(CREATURES["goblin"].bonus_actions[0], CreatureFeature)
     assert CreatureInstance is not None
 
 
 def test_public_creature_dataclasses_have_docstrings() -> None:
+    assert CreatureFeature.__doc__
     assert CreatureAction.__doc__
     assert CreatureDefinition.__doc__
     assert CreatureInstance.__doc__
@@ -62,6 +65,26 @@ def test_goblin_stat_block_values() -> None:
     assert goblin.actions[0].name == "Scimitar"
     assert goblin.actions[0].attack_bonus == 4
     assert goblin.actions[0].damage_dice == "1d6+2"
+    assert goblin.bonus_actions[0].name == "Nimble Escape"
+    assert goblin.bonus_actions[0].tags == ("disengage", "hide")
+
+
+def test_creature_catalog_includes_feature_and_immunity_metadata() -> None:
+    wolf = CREATURES["wolf"]
+    skeleton = CREATURES["skeleton"]
+
+    assert [trait.name for trait in wolf.traits] == ["Keen Hearing and Smell", "Pack Tactics"]
+    assert skeleton.damage_vulnerabilities == ("bludgeoning",)
+    assert skeleton.damage_immunities == ("poison",)
+    assert skeleton.condition_immunities == ("poisoned",)
+
+
+def test_creature_feature_rejects_empty_names_and_tags() -> None:
+    with pytest.raises(ValueError, match="feature name"):
+        CreatureFeature("")
+
+    with pytest.raises(ValueError, match="tags cannot be empty"):
+        CreatureFeature("Broken", ("",))
 
 
 def test_creature_instance_initializes_hp_from_definition() -> None:
@@ -158,3 +181,17 @@ def test_creature_definition_rejects_negative_movement_senses_and_xp() -> None:
 
     with pytest.raises(ValueError, match="xp cannot be negative"):
         _creature_definition(xp=-1)
+
+
+def test_creature_definition_rejects_invalid_damage_and_condition_metadata() -> None:
+    with pytest.raises(ValueError, match="invalid damage_resistances"):
+        _creature_definition(damage_resistances=("water",))
+
+    with pytest.raises(ValueError, match="invalid damage_vulnerabilities"):
+        _creature_definition(damage_vulnerabilities=("water",))
+
+    with pytest.raises(ValueError, match="invalid damage_immunities"):
+        _creature_definition(damage_immunities=("water",))
+
+    with pytest.raises(ValueError, match="invalid condition_immunities"):
+        _creature_definition(condition_immunities=("sleepy",))
