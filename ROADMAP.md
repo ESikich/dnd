@@ -46,6 +46,9 @@ Progress:
 - Done: `CharacterRules` validates level, ability score maps, proficiency choices, and skill/save bonus keys at construction.
 - Done: creature actions and definitions validate impossible dice, HP, AC, ability scores, ranges, movement, senses, and XP at construction.
 - Done: public creature dataclasses have docstrings describing their mechanics role.
+- Done: public dice and d20 helper dataclasses/functions have docstrings describing their mechanics role.
+- Done: README examples show current character-sheet and creature combatant helpers.
+- Done: dice notation and d20 input validation paths are covered by focused tests.
 
 Done when:
 

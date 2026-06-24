@@ -11,6 +11,7 @@ from dnd5e import (
     damage_roll,
     initiative_bonus,
     passive_skill,
+    parse_dice_notation,
     proficiency_bonus,
     roll_dice,
     saving_throw_bonus,
@@ -49,6 +50,25 @@ def test_dice() -> None:
     assert result.rolls == (1, 1)
     assert result.total == 5
     assert average_dice("2d6+3") == 10
+
+
+def test_dice_notation_validation() -> None:
+    with pytest.raises(ValueError, match="invalid dice notation"):
+        parse_dice_notation("2dd6")
+
+    with pytest.raises(ValueError, match="dice count must be positive"):
+        parse_dice_notation("0d6")
+
+    with pytest.raises(ValueError, match="dice sides must be at least 2"):
+        parse_dice_notation("1d1")
+
+
+def test_d20_input_validation() -> None:
+    with pytest.raises(ValueError, match="roll must be from 1 to 20"):
+        d20_check(ability_score=10, roll=21)
+
+    with pytest.raises(ValueError, match="level must be from 1 to 20"):
+        proficiency_bonus(21)
 
 
 def test_character_helpers() -> None:

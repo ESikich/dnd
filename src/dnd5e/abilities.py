@@ -11,6 +11,8 @@ RandomSource = Callable[[], float]
 
 @dataclass(frozen=True)
 class D20CheckResult:
+    """Resolved d20 check with kept roll, modifiers, total, and natural flags."""
+
     roll: int
     modifier: int
     proficiency: int
@@ -22,10 +24,14 @@ class D20CheckResult:
 
 
 def ability_modifier(score: int) -> int:
+    """Return the rules modifier for an ability score."""
+
     return (score - 10) // 2
 
 
 def proficiency_bonus(level: int) -> int:
+    """Return the character proficiency bonus for levels 1 through 20."""
+
     if not 1 <= level <= 20:
         raise ValueError("level must be from 1 to 20")
 
@@ -33,6 +39,8 @@ def proficiency_bonus(level: int) -> int:
 
 
 def proficiency_value(proficiency: ProficiencyLevel, bonus: int) -> int:
+    """Convert a proficiency tier into its numeric contribution."""
+
     multipliers: dict[ProficiencyLevel, float] = {
         "none": 0,
         "half": 0.5,
@@ -43,6 +51,8 @@ def proficiency_value(proficiency: ProficiencyLevel, bonus: int) -> int:
 
 
 def passive_score(modifier: int, proficiency: int = 0, bonus: int = 0) -> int:
+    """Return a passive check score from the same modifier stack as an active check."""
+
     return 10 + modifier + proficiency + bonus
 
 
@@ -56,6 +66,8 @@ def d20_check(
     advantage: AdvantageState = "normal",
     rng: RandomSource = random,
 ) -> D20CheckResult:
+    """Resolve a d20 check with optional proficiency, flat bonus, and advantage."""
+
     kept, discarded = _roll_d20(roll=roll, advantage=advantage, rng=rng)
     modifier = ability_modifier(ability_score)
     proficiency_amount = proficiency_value(proficiency, proficiency_bonus_value)
@@ -74,6 +86,8 @@ def d20_check(
 
 
 def random_die(sides: int, rng: RandomSource = random) -> int:
+    """Roll one die with the given number of sides."""
+
     if sides < 1:
         raise ValueError("sides must be positive")
 

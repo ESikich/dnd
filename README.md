@@ -16,6 +16,7 @@ python -m pip install -e .
 
 ```py
 from dnd5e import (
+    CREATURES,
     CharacterClassLevel,
     CharacterLoadout,
     CharacterSheet,
@@ -29,7 +30,9 @@ from dnd5e import (
     combatant_by_id,
     create_combat,
     create_combatant,
+    create_creature_instance,
     d20_check,
+    creature_runtime_combatant,
     resolve_attack_action,
     roll_dice,
 )
@@ -87,6 +90,8 @@ kara = CharacterSheet(
 kara_ac = character_sheet_armor_class(kara)
 kara_weapon = character_sheet_weapon_profile(kara, "longsword")
 kara_combatant = character_sheet_combatant(kara, roll=14)
+goblin = create_creature_instance(CREATURES["goblin"])
+goblin_combatant = creature_runtime_combatant(goblin, roll=12)
 
 result = resolve_attack_action(
     combat,
@@ -107,6 +112,7 @@ print(combatant_by_id(result.state, "goblin").hit_points.current)  # 3
 print(kara_ac.total)  # 18
 print(kara_weapon.attack_bonus)  # 6
 print(kara_combatant.hit_points.maximum)  # 44
+print(goblin_combatant.armor_class)  # 15
 print(roll_dice("2d6+3").total)
 print(SRD_CLASSES["fighter"].hit_die)  # 10
 ```
@@ -131,9 +137,8 @@ Included now:
 
 Good next modules:
 
-- Foundation naming and README example polish
-- Spell definitions and spellcasting rules
 - Encounter difficulty
+- Spell definitions and spellcasting rules
 - Resources and feature recharge
 - Character advancement and multiclassing
 
