@@ -14,32 +14,28 @@ Implemented:
 - Initiative ordering and turn advancement
 - Attack rolls and damage rolls
 - Equipment, armor, shields, weapons, AC, weapon attack profiles
+- Equipment definition validation for impossible AC, costs, weights, damage, ranges, and metadata
 - HP, healing, temporary HP, hit dice, rests, death saves
 - Basic creature/stat block definitions for a small SRD-style catalog
 - Creature stat block validation for impossible HP, AC, ability scores, dice, movement, senses, and XP
-- SRD-style class metadata
-- Condition metadata as tags
+- SRD-style class metadata with validation for impossible hit dice, proficiencies, and skill choices
+- Condition metadata as validated tags
 - Character sheets with class levels, loadouts, validation, derived HP, AC, skills, saves, attacks, and combatants
 - HP state, hit dice pool, and death save state validation for impossible values
 - Core character rules validation for impossible levels, missing or invalid ability scores, invalid proficiency choices, and invalid skill/save bonus keys
 - A deterministic example program with a tiny battle
-- Combat runtime state with HP, AC, conditions, healing, and attack action resolution
+- Combat runtime state with validated HP, AC, conditions, healing, and attack action resolution
 
 ## Phase 1: Rules Foundation Polish
 
 Goal: make the existing foundation consistent and dependable before adding
 larger systems.
 
-Todo:
-
-- Review naming consistency across modules.
-- Add validation for impossible HP, ability scores, dice pools, and equipment IDs.
-- Add richer docstrings for public dataclasses and functions.
-- Refresh `README.md` examples so they show current features.
-- Consider adding `ruff` and `mypy` commands once the public shapes settle.
+Status: Complete.
 
 Progress:
 
+- Done: naming consistency was reviewed across public modules; current public names are consistent enough to preserve without breaking changes before Phase 4.
 - Done: character sheets validate loadout equipment IDs before derived AC or attack helpers run.
 - Done: HP state, hit dice pool, and death save state objects validate impossible values at construction.
 - Done: public HP dataclasses have docstrings describing their mechanics role.
@@ -47,14 +43,25 @@ Progress:
 - Done: creature actions and definitions validate impossible dice, HP, AC, ability scores, ranges, movement, senses, and XP at construction.
 - Done: public creature dataclasses have docstrings describing their mechanics role.
 - Done: public dice and d20 helper dataclasses/functions have docstrings describing their mechanics role.
+- Done: equipment definitions validate impossible IDs, AC values, costs, weights, damage expressions, ranges, categories, damage types, and properties at construction.
+- Done: public equipment dataclasses have docstrings describing their mechanics role.
+- Done: class metadata validates impossible class names, hit dice, abilities, proficiencies, and skill choice counts at construction.
+- Done: condition metadata validates condition names and mechanical tags at construction.
+- Done: public class and condition dataclasses have docstrings describing their mechanics role.
+- Done: combat runtime dataclasses validate impossible combatants, combat state order, attack outcomes, and damage results at construction.
+- Done: public combat runtime dataclasses have docstrings describing their mechanics role.
+- Done: public character rules and sheet dataclasses/functions have docstrings describing their mechanics role.
+- Done: public combat, creature, equipment, and HP helper functions have docstrings describing their mechanics role.
 - Done: README examples show current character-sheet and creature combatant helpers.
+- Done: README documents test, demo, and `ruff` quality commands.
+- Done: `mypy` is deferred until public typing shapes settle further.
 - Done: dice notation and d20 input validation paths are covered by focused tests.
 
-Done when:
+Done criteria:
 
-- Existing modules are documented and tested.
-- The README accurately reflects the current API.
-- `python3 -m pytest` passes.
+- Done: existing modules are documented and tested.
+- Done: the README accurately reflects the current API.
+- Done: `python3 -m pytest` passes.
 
 ## Phase 2: Combat Runtime With HP
 

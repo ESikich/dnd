@@ -126,14 +126,15 @@ Included now:
 - Character skill and saving throw bonus helpers
 - Initiative ordering and turn advancement
 - Attack rolls, critical hit/miss handling, and damage rolling
-- Combat runtime state with AC, HP, conditions, attack resolution, and healing
-- Character sheets with class levels, validated proficiencies/loadouts, derived stats, HP, and combatants
+- Combat runtime state with validated AC, HP, conditions, attack resolution, and healing
+- Character sheets with class levels, validated proficiencies/loadouts, documented derived stats, HP, and combatants
 - Character rules validation for levels, ability scores, proficiencies, and bonus keys
 - Equipment, armor, shields, weapons, AC, and weapon attack profiles
+- Equipment definition validation for impossible AC, costs, weights, damage, ranges, and metadata
 - HP, healing, temporary HP, hit dice, rests, death saves, and validation for impossible HP states
 - Basic creature/stat block definitions with validation for HP, AC, abilities, dice, movement, senses, and XP
-- SRD-style base class metadata
-- Condition metadata as mechanical tags
+- SRD-style base class metadata with validation for impossible hit dice, proficiencies, and skill choices
+- Condition metadata as validated mechanical tags
 
 Good next modules:
 
@@ -145,16 +146,19 @@ Good next modules:
 See [ROADMAP.md](./ROADMAP.md) for phased development guidance. Future coding
 agents should also read [AGENTS.md](./AGENTS.md).
 
-## Test
+## Development
 
 ```sh
-python -m pytest
+python3 -m pytest
+python3 -m ruff check .
 ```
 
-## Demo
+`ruff` is configured in `pyproject.toml`; install it in your environment before
+running the lint command. `mypy` is intentionally deferred until the public
+typing shapes settle further.
 
 ```sh
-PYTHONPATH=src python examples/exercise_library.py
+PYTHONPATH=src python3 examples/exercise_library.py
 ```
 
 ## Legal

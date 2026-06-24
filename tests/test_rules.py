@@ -1,7 +1,10 @@
 import pytest
 
 from dnd5e import (
+    CONDITIONS,
     SRD_CLASSES,
+    ClassDefinition,
+    ConditionDefinition,
     CharacterRules,
     ability_modifier,
     attack_roll,
@@ -149,6 +152,42 @@ def test_critical_damage_doubles_dice() -> None:
 def test_class_metadata() -> None:
     assert SRD_CLASSES["fighter"].hit_die == 10
     assert SRD_CLASSES["wizard"].saving_throws == ("int", "wis")
+
+
+def test_class_metadata_validates_impossible_values() -> None:
+    with pytest.raises(ValueError, match="unknown class: artificer"):
+        ClassDefinition("artificer", 8, ("int",), ("int", "con"), ("light",), ("simple",), ("arcana",), 1)
+
+    with pytest.raises(ValueError, match="class hit die must be one of"):
+        ClassDefinition("fighter", 7, ("str",), ("str", "con"), ("light",), ("simple",), ("athletics",), 1)
+
+    with pytest.raises(ValueError, match="unknown primary ability: luck"):
+        ClassDefinition("fighter", 10, ("luck",), ("str", "con"), ("light",), ("simple",), ("athletics",), 1)
+
+    with pytest.raises(ValueError, match="unknown armor training: cloth"):
+        ClassDefinition("fighter", 10, ("str",), ("str", "con"), ("cloth",), ("simple",), ("athletics",), 1)
+
+    with pytest.raises(ValueError, match="unknown weapon training: exotic"):
+        ClassDefinition("fighter", 10, ("str",), ("str", "con"), ("light",), ("exotic",), ("athletics",), 1)
+
+    with pytest.raises(ValueError, match="unknown skill choice: tactics"):
+        ClassDefinition("fighter", 10, ("str",), ("str", "con"), ("light",), ("simple",), ("tactics",), 1)
+
+    with pytest.raises(ValueError, match="skill choice count cannot exceed available skill choices"):
+        ClassDefinition("fighter", 10, ("str",), ("str", "con"), ("light",), ("simple",), ("athletics",), 2)
+
+
+def test_condition_metadata() -> None:
+    assert CONDITIONS["poisoned"].tags == ("attack_rolls_affected", "ability_checks_affected")
+    assert "cannot_act" in CONDITIONS["unconscious"].tags
+
+
+def test_condition_metadata_validates_impossible_values() -> None:
+    with pytest.raises(ValueError, match="unknown condition: burning"):
+        ConditionDefinition("burning", ("cannot_act",))
+
+    with pytest.raises(ValueError, match="unknown condition tag: on_fire"):
+        ConditionDefinition("poisoned", ("on_fire",))
 
 
 def abilities(

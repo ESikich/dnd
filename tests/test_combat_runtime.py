@@ -1,7 +1,14 @@
+import pytest
+
 from dnd5e import (
     AttackActionResult,
+    AttackRollResult,
     CharacterRules,
     CombatHealingResult,
+    CombatState,
+    Combatant,
+    DamageResult,
+    DiceRoll,
     HitPointState,
     apply_combat_healing,
     apply_condition,
@@ -188,6 +195,63 @@ def test_turn_advancement_preserves_runtime_state() -> None:
 
     assert next_state.current.id == "goblin"
     assert combatant_by_id(next_state, "hero").hit_points.maximum == 20
+
+
+def test_combatant_validates_impossible_runtime_state() -> None:
+    with pytest.raises(ValueError, match="combatant id is required"):
+        create_combatant(id="", name="Hero", initiative_bonus=2)
+
+    with pytest.raises(ValueError, match="combatant name is required"):
+        create_combatant(id="hero", name="", initiative_bonus=2)
+
+    with pytest.raises(ValueError, match="combatant armor class must be positive"):
+        create_combatant(id="hero", name="Hero", initiative_bonus=2, armor_class=0)
+
+    with pytest.raises(ValueError, match="unknown condition: burning"):
+        create_combatant(id="hero", name="Hero", initiative_bonus=2, conditions=("burning",))
+
+
+def test_combat_state_validates_order_and_turn_index() -> None:
+    hero = create_combatant(id="hero", name="Hero", initiative_bonus=2)
+
+    with pytest.raises(ValueError, match="combat round must be positive"):
+        CombatState(round=0, turn_index=0, order=(hero,))
+
+    with pytest.raises(ValueError, match="combat order cannot be empty"):
+        CombatState(round=1, turn_index=0, order=())
+
+    with pytest.raises(ValueError, match="combat turn index must reference the order"):
+        CombatState(round=1, turn_index=1, order=(hero,))
+
+    with pytest.raises(ValueError, match="combatant ids must be unique"):
+        CombatState(round=1, turn_index=0, order=(hero, hero))
+
+
+def test_attack_roll_result_validates_impossible_values() -> None:
+    with pytest.raises(ValueError, match="attack roll must be from 1 to 20"):
+        AttackRollResult(roll=0, total=5, target_armor_class=10, outcome="miss")
+
+    with pytest.raises(ValueError, match="discarded attack roll must be from 1 to 20"):
+        AttackRollResult(roll=10, total=15, target_armor_class=10, outcome="hit", discarded_roll=21)
+
+    with pytest.raises(ValueError, match="target armor class must be positive"):
+        AttackRollResult(roll=10, total=15, target_armor_class=0, outcome="hit")
+
+    with pytest.raises(ValueError, match="unknown attack outcome: graze"):
+        AttackRollResult(roll=10, total=15, target_armor_class=10, outcome="graze")
+
+
+def test_damage_result_validates_impossible_values() -> None:
+    roll = DiceRoll(notation="1d4", rolls=(1,), modifier=0, total=1)
+
+    with pytest.raises(ValueError, match="unknown damage type: holy"):
+        DamageResult(type="holy", rolls=(roll,), total=1)
+
+    with pytest.raises(ValueError, match="damage result requires at least one roll"):
+        DamageResult(type="radiant", rolls=(), total=1)
+
+    with pytest.raises(ValueError, match="damage total cannot be negative"):
+        DamageResult(type="radiant", rolls=(roll,), total=-1)
 
 
 def simple_combat():

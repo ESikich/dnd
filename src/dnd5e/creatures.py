@@ -187,10 +187,14 @@ CREATURES: dict[str, CreatureDefinition] = {
 
 
 def creature_ability_bonus(creature: CreatureDefinition | CreatureInstance, ability: Ability) -> int:
+    """Return the ability modifier for a creature definition or instance."""
+
     return ability_modifier(_definition(creature).abilities[ability])
 
 
 def creature_skill_bonus(creature: CreatureDefinition | CreatureInstance, skill: Skill) -> int:
+    """Return an explicit creature skill bonus from its stat block."""
+
     definition = _definition(creature)
     if skill not in definition.skills:
         raise KeyError(skill)
@@ -198,6 +202,8 @@ def creature_skill_bonus(creature: CreatureDefinition | CreatureInstance, skill:
 
 
 def creature_initiative_bonus(creature: CreatureDefinition | CreatureInstance) -> int:
+    """Return a creature's initiative bonus from Dexterity."""
+
     return creature_ability_bonus(creature, "dex")
 
 
@@ -205,6 +211,8 @@ def create_creature_instance(
     definition: str | CreatureDefinition,
     id: str | None = None,
 ) -> CreatureInstance:
+    """Create a creature instance with full HP from a catalog id or definition."""
+
     creature_definition = _resolve_definition(definition)
     return CreatureInstance(
         id=id or creature_definition.id,
@@ -217,6 +225,8 @@ def create_creature_instance(
 
 
 def creature_combatant(instance: CreatureInstance, roll: int = 0) -> dict[str, int | str]:
+    """Return the legacy mapping form accepted by ``create_combat``."""
+
     return {
         "id": instance.id,
         "name": instance.definition.name,
@@ -226,6 +236,8 @@ def creature_combatant(instance: CreatureInstance, roll: int = 0) -> dict[str, i
 
 
 def creature_runtime_combatant(instance: CreatureInstance, roll: int = 0) -> Combatant:
+    """Create a validated combatant from a creature instance."""
+
     return create_combatant(
         id=instance.id,
         name=instance.definition.name,
@@ -243,6 +255,8 @@ def creature_action_attack(
     roll: int | None = None,
     rng: RandomSource = random,
 ) -> AttackRollResult:
+    """Resolve one creature action attack roll against a target AC."""
+
     return attack_roll(
         attacker_bonus=action.attack_bonus,
         target_armor_class=target_ac,
@@ -256,6 +270,8 @@ def creature_action_damage(
     critical: bool = False,
     rng: RandomSource = random,
 ) -> DamageResult:
+    """Roll damage for a creature action."""
+
     return damage_roll(
         dice=action.damage_dice,
         type=action.damage_type,
