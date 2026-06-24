@@ -120,6 +120,8 @@ Progress:
 - Done: add another SRD-style creature entry to exercise creature metadata.
 - Done: add CR/XP helpers, party encounter thresholds, adjusted XP, and summary
   objects.
+- Done: add bandit, zombie, and ogre SRD-style creature entries to broaden
+  humanoid, undead, and higher-CR encounter coverage.
 
 Todo:
 

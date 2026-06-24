@@ -287,16 +287,23 @@ def show_creature_catalog() -> None:
     goblin = CREATURES["goblin"]
     wolf = CREATURES["wolf"]
     skeleton = CREATURES["skeleton"]
+    zombie = CREATURES["zombie"]
+    ogre = CREATURES["ogre"]
 
     print(
         f"{goblin.name}: CR {goblin.challenge_rating}, XP {goblin.xp}, "
         f"bonus actions {join_names(goblin.bonus_actions)}"
     )
     print(f"{wolf.name}: traits {join_names(wolf.traits)}")
+    print(f"{zombie.name}: traits {join_names(zombie.traits)}, speed {zombie.speed['walk']}")
     print(
         f"{skeleton.name}: vulnerable {', '.join(skeleton.damage_vulnerabilities)}, "
         f"immune {', '.join(skeleton.damage_immunities)}, "
         f"condition immune {', '.join(skeleton.condition_immunities)}"
+    )
+    print(
+        f"{ogre.name}: CR {ogre.challenge_rating}, HP {ogre.hit_points}, "
+        f"attacks {', '.join(action.name for action in ogre.actions)}"
     )
 
 
@@ -305,10 +312,10 @@ def show_encounter_summary() -> None:
 
     encounter = summarize_encounter(
         [
-            encounter_monster("goblin", count=3),
-            encounter_monster("wolf"),
+            encounter_monster("ogre"),
+            encounter_monster("bandit", count=2),
         ],
-        party_levels=[1, 1, 1, 1],
+        party_levels=[3, 3, 3, 3],
     )
 
     print(

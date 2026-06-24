@@ -72,11 +72,30 @@ def test_goblin_stat_block_values() -> None:
 def test_creature_catalog_includes_feature_and_immunity_metadata() -> None:
     wolf = CREATURES["wolf"]
     skeleton = CREATURES["skeleton"]
+    zombie = CREATURES["zombie"]
 
     assert [trait.name for trait in wolf.traits] == ["Keen Hearing and Smell", "Pack Tactics"]
     assert skeleton.damage_vulnerabilities == ("bludgeoning",)
     assert skeleton.damage_immunities == ("poison",)
     assert skeleton.condition_immunities == ("poisoned",)
+    assert [trait.name for trait in zombie.traits] == ["Undead Fortitude"]
+    assert zombie.damage_immunities == ("poison",)
+    assert zombie.condition_immunities == ("poisoned",)
+
+
+def test_creature_catalog_includes_more_srd_style_combatants() -> None:
+    bandit = CREATURES["bandit"]
+    ogre = CREATURES["ogre"]
+
+    assert bandit.challenge_rating == "1/8"
+    assert bandit.xp == 25
+    assert bandit.actions[1].name == "Light Crossbow"
+    assert bandit.actions[1].normal_range == 80
+    assert ogre.challenge_rating == "2"
+    assert ogre.xp == 450
+    assert ogre.size == "large"
+    assert ogre.actions[0].damage_dice == "2d8+4"
+    assert ogre.actions[1].long_range == 120
 
 
 def test_creature_feature_rejects_empty_names_and_tags() -> None:

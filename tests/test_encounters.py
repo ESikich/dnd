@@ -114,6 +114,22 @@ def test_summarize_encounter_preserves_fractional_adjusted_xp() -> None:
     assert summary.adjusted_xp == 112.5
 
 
+def test_summarize_encounter_uses_expanded_creature_catalog() -> None:
+    summary = summarize_encounter(
+        [
+            encounter_monster("ogre"),
+            encounter_monster("bandit", count=2),
+        ],
+        party_levels=[3, 3, 3, 3],
+    )
+
+    assert summary.monster_count == 3
+    assert summary.total_xp == 500
+    assert summary.xp_multiplier == 2
+    assert summary.adjusted_xp == 1000
+    assert summary.difficulty == "hard"
+
+
 def test_summarize_encounter_rejects_empty_monsters() -> None:
     with pytest.raises(ValueError, match="encounter requires at least one monster"):
         summarize_encounter([], party_levels=[1])
