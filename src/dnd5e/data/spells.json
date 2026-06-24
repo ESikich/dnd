@@ -1,0 +1,82 @@
+{
+  "spells": [
+    {
+      "id": "cure_wounds",
+      "name": "Cure Wounds",
+      "level": 1,
+      "school": "evocation",
+      "casting_time": "1 action",
+      "range": "touch",
+      "duration": "instantaneous",
+      "components": ["verbal", "somatic"],
+      "concentration": false,
+      "ritual": false,
+      "material": null
+    },
+    {
+      "id": "detect_magic",
+      "name": "Detect Magic",
+      "level": 1,
+      "school": "divination",
+      "casting_time": "1 action",
+      "range": "self",
+      "duration": "10 minutes",
+      "components": ["verbal", "somatic"],
+      "concentration": true,
+      "ritual": true,
+      "material": null
+    },
+    {
+      "id": "fire_bolt",
+      "name": "Fire Bolt",
+      "level": 0,
+      "school": "evocation",
+      "casting_time": "1 action",
+      "range": "120 feet",
+      "duration": "instantaneous",
+      "components": ["verbal", "somatic"],
+      "concentration": false,
+      "ritual": false,
+      "material": null
+    },
+    {
+      "id": "light",
+      "name": "Light",
+      "level": 0,
+      "school": "evocation",
+      "casting_time": "1 action",
+      "range": "touch",
+      "duration": "1 hour",
+      "components": ["verbal", "material"],
+      "concentration": false,
+      "ritual": false,
+      "material": "phosphorescent moss or firefly"
+    },
+    {
+      "id": "mage_armor",
+      "name": "Mage Armor",
+      "level": 1,
+      "school": "abjuration",
+      "casting_time": "1 action",
+      "range": "touch",
+      "duration": "8 hours",
+      "components": ["verbal", "somatic", "material"],
+      "concentration": false,
+      "ritual": false,
+      "material": "cured leather"
+    },
+    {
+      "id": "sacred_flame",
+      "name": "Sacred Flame",
+      "level": 0,
+      "school": "evocation",
+      "casting_time": "1 action",
+      "range": "60 feet",
+      "duration": "instantaneous",
+      "components": ["verbal", "somatic"],
+      "concentration": false,
+      "ritual": false,
+      "material": null
+    }
+  ]
+}

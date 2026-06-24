@@ -1,3 +1,4 @@
+from pathlib import Path
 from typing import cast
 
 import pytest
@@ -14,6 +15,7 @@ from dnd5e import (
     SpellComponent,
     SpellDefinition,
     SpellHealingResult,
+    SpellPack,
     SpellSaveDamageResult,
     SpellSchool,
     SpellSlotPool,
@@ -25,6 +27,9 @@ from dnd5e import (
     create_combatant,
     create_pact_magic,
     create_spell_slots,
+    load_builtin_spell_pack,
+    load_spell_pack,
+    load_spell_pack_data,
     resolve_spell_attack,
     resolve_spell_save_damage,
     restore_pact_magic,
@@ -42,6 +47,7 @@ def test_public_spell_imports_and_docstrings() -> None:
     assert "evocation" in SPELL_SCHOOLS
     assert "verbal" in SPELL_COMPONENTS
     assert SpellDefinition.__doc__
+    assert SpellPack.__doc__
     assert SpellSlotPool.__doc__
     assert SpellSlotState.__doc__
     assert PactMagicState.__doc__
@@ -64,6 +70,132 @@ def test_spell_catalog_includes_basic_srd_style_metadata() -> None:
     assert detect_magic.concentration is True
     assert detect_magic.ritual is True
     assert mage_armor.material == "cured leather"
+
+
+def test_builtin_spell_pack_loads_current_catalog() -> None:
+    pack = load_builtin_spell_pack()
+
+    assert pack.spells == SPELLS
+    assert pack.spells["light"].material == "phosphorescent moss or firefly"
+
+
+def test_spell_pack_loads_from_decoded_data() -> None:
+    pack = load_spell_pack_data(
+        {
+            "spells": [
+                {
+                    "id": "spark",
+                    "name": "Spark",
+                    "level": 0,
+                    "school": "evocation",
+                    "casting_time": "1 action",
+                    "range": "30 feet",
+                    "duration": "instantaneous",
+                    "components": ["somatic"],
+                    "concentration": False,
+                    "ritual": False,
+                    "material": None,
+                }
+            ]
+        }
+    )
+
+    assert pack.spells["spark"].school == "evocation"
+    assert pack.spells["spark"].components == ("somatic",)
+
+
+def test_spell_pack_loads_json_file(tmp_path: Path) -> None:
+    path = tmp_path / "spells.json"
+    path.write_text(
+        """
+        {
+          "spells": [
+            {
+              "id": "ward",
+              "name": "Ward",
+              "level": 1,
+              "school": "abjuration",
+              "casting_time": "1 reaction",
+              "range": "self",
+              "duration": "1 round",
+              "components": ["verbal"],
+              "concentration": false,
+              "ritual": false,
+              "material": null
+            }
+          ]
+        }
+        """,
+        encoding="utf-8",
+    )
+
+    pack = load_spell_pack(path)
+
+    assert pack.spells["ward"].casting_time == "1 reaction"
+
+
+def test_spell_pack_rejects_invalid_shape() -> None:
+    with pytest.raises(ValueError, match="missing sections"):
+        load_spell_pack_data({})
+
+    with pytest.raises(ValueError, match="unknown sections"):
+        load_spell_pack_data({"spells": [], "scrolls": []})
+
+    with pytest.raises(ValueError, match="unknown fields"):
+        load_spell_pack_data(
+            {
+                "spells": [
+                    {
+                        "id": "spark",
+                        "name": "Spark",
+                        "level": 0,
+                        "school": "evocation",
+                        "casting_time": "1 action",
+                        "range": "30 feet",
+                        "duration": "instantaneous",
+                        "components": ["somatic"],
+                        "concentration": False,
+                        "ritual": False,
+                        "material": None,
+                        "rarity": "common",
+                    }
+                ]
+            }
+        )
+
+    with pytest.raises(ValueError, match="duplicate spell id"):
+        load_spell_pack_data(
+            {
+                "spells": [
+                    {
+                        "id": "spark",
+                        "name": "Spark",
+                        "level": 0,
+                        "school": "evocation",
+                        "casting_time": "1 action",
+                        "range": "30 feet",
+                        "duration": "instantaneous",
+                        "components": ["somatic"],
+                        "concentration": False,
+                        "ritual": False,
+                        "material": None,
+                    },
+                    {
+                        "id": "spark",
+                        "name": "Spark Copy",
+                        "level": 0,
+                        "school": "evocation",
+                        "casting_time": "1 action",
+                        "range": "30 feet",
+                        "duration": "instantaneous",
+                        "components": ["somatic"],
+                        "concentration": False,
+                        "ritual": False,
+                        "material": None,
+                    },
+                ]
+            }
+        )
 
 
 def test_spell_definition_rejects_invalid_core_metadata() -> None:

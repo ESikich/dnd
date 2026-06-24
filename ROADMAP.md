@@ -229,13 +229,17 @@ Progress:
   user-provided class metadata.
 - Done: load built-in SRD class metadata through the same class content-pack
   path exposed to users.
+- Done: add JSON spell content-pack schema checks and loaders for packaged and
+  user-provided spell metadata.
+- Done: load built-in SRD-style spell metadata through the same spell
+  content-pack path exposed to users.
 
 Todo:
 
-- Define JSON or YAML schemas for creatures, spells, and features.
-- Add loaders and validators for creatures, spells, and features.
+- Define JSON or YAML schemas for creatures and features.
+- Add loaders and validators for creatures and features.
 - Keep remaining built-in SRD content loadable as package data.
-- Broaden user/homebrew content pack support beyond equipment.
+- Broaden user/homebrew content pack support beyond equipment, classes, and spells.
 
 Done when:
 

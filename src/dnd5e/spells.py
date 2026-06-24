@@ -1,7 +1,12 @@
 from __future__ import annotations
 
+import json
+from collections.abc import Mapping
 from dataclasses import dataclass
+from importlib.resources import files
+from pathlib import Path
 from random import random
+from typing import Any, TypeVar
 
 from dnd5e.abilities import RandomSource, d20_check, proficiency_bonus
 from dnd5e.character import ABILITIES, CharacterRules, ability_bonus
@@ -37,6 +42,7 @@ SPELL_SCHOOLS: tuple[SpellSchool, ...] = (
     "transmutation",
 )
 SPELL_COMPONENTS: tuple[SpellComponent, ...] = ("verbal", "somatic", "material")
+T = TypeVar("T")
 
 
 @dataclass(frozen=True)
@@ -76,6 +82,13 @@ class SpellDefinition:
             raise ValueError("material detail requires a material component")
         if self.material == "":
             raise ValueError("material detail cannot be empty")
+
+
+@dataclass(frozen=True)
+class SpellPack:
+    """Loaded spell content grouped into a spell-definition catalog."""
+
+    spells: dict[str, SpellDefinition]
 
 
 @dataclass(frozen=True)
@@ -182,6 +195,138 @@ class SpellConditionResult:
 def _validate_non_empty(name: str, value: str) -> None:
     if not value:
         raise ValueError(f"{name} is required")
+
+
+def load_spell_pack(path: str | Path) -> SpellPack:
+    """Load spell definitions from a spell content-pack JSON file."""
+
+    with Path(path).open(encoding="utf-8") as file:
+        data = json.load(file)
+    if not isinstance(data, Mapping):
+        raise ValueError("spell content pack must be a JSON object")
+    return load_spell_pack_data(data)
+
+
+def load_builtin_spell_pack() -> SpellPack:
+    """Load the packaged SRD-style spell content pack."""
+
+    data_resource = files("dnd5e.data").joinpath("spells.json")
+    with data_resource.open(encoding="utf-8") as file:
+        data = json.load(file)
+    if not isinstance(data, Mapping):
+        raise ValueError("built-in spell content pack must be a JSON object")
+    return load_spell_pack_data(data)
+
+
+def load_spell_pack_data(data: Mapping[str, Any]) -> SpellPack:
+    """Validate and construct a spell pack from decoded JSON-style data."""
+
+    _validate_pack_keys(data)
+    return SpellPack(spells=_load_spell_entries(data["spells"]))
+
+
+def _validate_pack_keys(data: Mapping[str, Any]) -> None:
+    expected = {"spells"}
+    missing = expected - set(data)
+    if missing:
+        raise ValueError(f"spell content pack missing sections: {', '.join(sorted(missing))}")
+    extra = set(data) - expected
+    if extra:
+        raise ValueError(f"spell content pack has unknown sections: {', '.join(sorted(extra))}")
+
+
+def _load_spell_entries(entries: Any) -> dict[str, SpellDefinition]:
+    return _catalog_by_id(
+        [
+            SpellDefinition(
+                id=_field(entry, "id", str, "spell"),
+                name=_field(entry, "name", str, "spell"),
+                level=_field(entry, "level", int, "spell"),
+                school=_field(entry, "school", str, "spell"),  # type: ignore[arg-type]
+                casting_time=_field(entry, "casting_time", str, "spell"),
+                range=_field(entry, "range", str, "spell"),
+                duration=_field(entry, "duration", str, "spell"),
+                components=tuple(_string_list_field(entry, "components", "spell")),  # type: ignore[arg-type]
+                concentration=_field(entry, "concentration", bool, "spell"),
+                ritual=_field(entry, "ritual", bool, "spell"),
+                material=_optional_field(entry, "material", str, "spell"),
+            )
+            for entry in _validated_entries(
+                entries,
+                {
+                    "id",
+                    "name",
+                    "level",
+                    "school",
+                    "casting_time",
+                    "range",
+                    "duration",
+                    "components",
+                    "concentration",
+                    "ritual",
+                    "material",
+                },
+            )
+        ]
+    )
+
+
+def _validated_entries(entries: Any, expected_fields: set[str]) -> tuple[Mapping[str, Any], ...]:
+    if not isinstance(entries, list):
+        raise ValueError("spell content section spells must be a list")
+    for entry in entries:
+        if not isinstance(entry, Mapping):
+            raise ValueError("spell content section spells entries must be objects")
+        extra = set(entry) - expected_fields
+        if extra:
+            raise ValueError(f"spell entry has unknown fields: {', '.join(sorted(extra))}")
+    return tuple(entries)
+
+
+def _catalog_by_id(entries: list[SpellDefinition]) -> dict[str, SpellDefinition]:
+    catalog: dict[str, SpellDefinition] = {}
+    for entry in entries:
+        if entry.id in catalog:
+            raise ValueError(f"duplicate spell id: {entry.id}")
+        catalog[entry.id] = entry
+    return catalog
+
+
+def _field(entry: Mapping[str, Any], name: str, expected_type: type[T], section: str) -> T:
+    if name not in entry:
+        raise ValueError(f"{section} entry missing field: {name}")
+    value = entry[name]
+    if not isinstance(value, expected_type):
+        raise ValueError(f"{section}.{name} must be {expected_type.__name__}")
+    return value
+
+
+def _optional_field(
+    entry: Mapping[str, Any],
+    name: str,
+    expected_type: type[T],
+    section: str,
+) -> T | None:
+    if name not in entry:
+        raise ValueError(f"{section} entry missing field: {name}")
+    value = entry[name]
+    if value is None:
+        return None
+    if not isinstance(value, expected_type):
+        raise ValueError(f"{section}.{name} must be {expected_type.__name__} or null")
+    return value
+
+
+def _string_list_field(entry: Mapping[str, Any], name: str, section: str) -> tuple[str, ...]:
+    if name not in entry:
+        raise ValueError(f"{section} entry missing field: {name}")
+    value = entry[name]
+    if not isinstance(value, list):
+        raise ValueError(f"{section}.{name} must be a list")
+    for item in value:
+        if not isinstance(item, str):
+            raise ValueError(f"{section}.{name} entries must be strings")
+    return tuple(value)
 
 
 def create_spell_slots(maximums: dict[int, int]) -> SpellSlotState:
@@ -480,69 +625,5 @@ def _validate_positive(name: str, value: int) -> None:
         raise ValueError(f"{name} must be positive")
 
 
-SPELLS: dict[str, SpellDefinition] = {
-    "cure_wounds": SpellDefinition(
-        id="cure_wounds",
-        name="Cure Wounds",
-        level=1,
-        school="evocation",
-        casting_time="1 action",
-        range="touch",
-        duration="instantaneous",
-        components=("verbal", "somatic"),
-    ),
-    "detect_magic": SpellDefinition(
-        id="detect_magic",
-        name="Detect Magic",
-        level=1,
-        school="divination",
-        casting_time="1 action",
-        range="self",
-        duration="10 minutes",
-        components=("verbal", "somatic"),
-        concentration=True,
-        ritual=True,
-    ),
-    "fire_bolt": SpellDefinition(
-        id="fire_bolt",
-        name="Fire Bolt",
-        level=0,
-        school="evocation",
-        casting_time="1 action",
-        range="120 feet",
-        duration="instantaneous",
-        components=("verbal", "somatic"),
-    ),
-    "light": SpellDefinition(
-        id="light",
-        name="Light",
-        level=0,
-        school="evocation",
-        casting_time="1 action",
-        range="touch",
-        duration="1 hour",
-        components=("verbal", "material"),
-        material="phosphorescent moss or firefly",
-    ),
-    "mage_armor": SpellDefinition(
-        id="mage_armor",
-        name="Mage Armor",
-        level=1,
-        school="abjuration",
-        casting_time="1 action",
-        range="touch",
-        duration="8 hours",
-        components=("verbal", "somatic", "material"),
-        material="cured leather",
-    ),
-    "sacred_flame": SpellDefinition(
-        id="sacred_flame",
-        name="Sacred Flame",
-        level=0,
-        school="evocation",
-        casting_time="1 action",
-        range="60 feet",
-        duration="instantaneous",
-        components=("verbal", "somatic"),
-    ),
-}
+_BUILTIN_SPELLS = load_builtin_spell_pack()
+SPELLS: dict[str, SpellDefinition] = _BUILTIN_SPELLS.spells

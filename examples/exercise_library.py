@@ -64,6 +64,7 @@ from dnd5e import (
     initiative_bonus,
     load_builtin_class_pack,
     load_builtin_equipment_pack,
+    load_builtin_spell_pack,
     long_rest,
     modified_armor_class,
     recharge_feature,
@@ -432,6 +433,7 @@ def show_resource_features() -> None:
 def show_spell_catalog() -> None:
     print_section("Spells")
 
+    spell_pack = load_builtin_spell_pack()
     wizard = CharacterRules(
         level=5,
         abilities={
@@ -444,6 +446,7 @@ def show_spell_catalog() -> None:
         },
     )
 
+    print(f"Built-in spell pack: {len(spell_pack.spells)} spells")
     for spell_id in ["fire_bolt", "cure_wounds", "detect_magic", "mage_armor"]:
         spell = SPELLS[spell_id]
         flags = []

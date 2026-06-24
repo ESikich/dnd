@@ -64,6 +64,7 @@ from dnd5e import (
     encounter_monster,
     load_builtin_class_pack,
     load_builtin_equipment_pack,
+    load_builtin_spell_pack,
     modified_armor_class,
     summarize_encounter,
     roll_dice,
@@ -156,6 +157,7 @@ second_wind_healing = apply_second_wind(
     roll=6,
 )
 equipment_pack = load_builtin_equipment_pack()
+spell_pack = load_builtin_spell_pack()
 sneak_attack_dice = sneak_attack_damage_dice(5)
 recharge_feature_state = create_feature_state(FEATURES["recharge_5_6"], remaining=0)
 recharged_feature, recharge_roll = recharge_feature(recharge_feature_state, roll=5)
@@ -268,6 +270,7 @@ print(pact_magic.remaining)  # 2
 print(rested_second_wind.resource.remaining)  # 1
 print(second_wind_healing.healing.applied)  # 8
 print(len(equipment_pack.weapons))  # 37
+print(len(spell_pack.spells))  # 6
 print(sneak_attack_dice)  # "3d6"
 print(recharge_roll.recharged)  # True
 print(web_recharge_roll.recharged)  # True
@@ -288,6 +291,7 @@ print(encounter.difficulty)  # "hard"
 print(roll_dice("2d6+3").total)
 print(SRD_CLASSES["fighter"].hit_die)  # 10
 print(len(load_builtin_class_pack().classes))  # 12
+print(len(load_builtin_spell_pack().spells))  # 6
 ```
 
 ## Scope
@@ -304,7 +308,7 @@ Included now:
 - Character rules validation for levels, ability scores, proficiencies, and bonus keys
 - Equipment, armor, shields, weapons, AC, and weapon attack profiles
 - Equipment definition validation for impossible AC, costs, weights, damage, ranges, and metadata
-- Packaged JSON equipment and class content with public loaders for user content packs
+- Packaged JSON equipment, class, and spell content with public loaders for user content packs
 - HP, healing, temporary HP, hit dice, rests, death saves, and validation for impossible HP states
 - A small SRD-style creature/stat block catalog with validation for HP, AC, abilities,
   dice, movement, senses, XP, feature metadata, rechargeable action metadata, and
@@ -313,7 +317,8 @@ Included now:
 - SRD-style base class metadata loaded from packaged JSON, with validation for
   impossible hit dice, proficiencies, and skill choices
 - Condition metadata as validated mechanical tags
-- Spell definitions with level, school, casting time, range, duration, components, concentration, and ritual metadata
+- Spell definitions loaded from packaged JSON with level, school, casting time, range,
+  duration, components, concentration, and ritual metadata
 - Spell attack bonus and spell save DC helpers
 - Spell slot and pact magic state with spend and restore helpers
 - Basic spell-effect helpers for spell attacks, saving throw damage, rolled healing, and conditions
@@ -326,7 +331,7 @@ Included now:
 
 Good next modules:
 
-- Data files and content loading for creatures, spells, and features
+- Data files and content loading for creatures and features
 - Character advancement and multiclassing
 
 See [ROADMAP.md](./ROADMAP.md) for phased development guidance. Future coding
