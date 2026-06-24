@@ -38,6 +38,7 @@ from dnd5e import (
     creature_runtime_combatant,
     d20_check,
     damage_roll,
+    encounter_monster,
     initiative_bonus,
     long_rest,
     next_turn,
@@ -51,6 +52,7 @@ from dnd5e import (
     saving_throw_bonus,
     short_rest,
     skill_bonus,
+    summarize_encounter,
     weapon_attack_profile,
 )
 
@@ -68,6 +70,7 @@ def main() -> None:
     show_equipment(hero)
     show_class_and_condition_data()
     show_creature_catalog()
+    show_encounter_summary()
     show_combat(rng, hero)
 
 
@@ -295,6 +298,28 @@ def show_creature_catalog() -> None:
         f"immune {', '.join(skeleton.damage_immunities)}, "
         f"condition immune {', '.join(skeleton.condition_immunities)}"
     )
+
+
+def show_encounter_summary() -> None:
+    print_section("Encounter Summary")
+
+    encounter = summarize_encounter(
+        [
+            encounter_monster("goblin", count=3),
+            encounter_monster("wolf"),
+        ],
+        party_levels=[1, 1, 1, 1],
+    )
+
+    print(
+        f"Monsters {encounter.monster_count}, raw XP {encounter.total_xp}, "
+        f"adjusted XP {encounter.adjusted_xp:g} (x{encounter.xp_multiplier:g})"
+    )
+    print(
+        f"Party thresholds: easy {encounter.thresholds.easy}, medium {encounter.thresholds.medium}, "
+        f"hard {encounter.thresholds.hard}, deadly {encounter.thresholds.deadly}"
+    )
+    print(f"Difficulty: {encounter.difficulty}")
 
 
 def show_combat(rng: Random, hero: CharacterRules) -> None:

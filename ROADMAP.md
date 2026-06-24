@@ -118,12 +118,12 @@ Progress:
 - Done: add creature damage vulnerability, resistance, immunity, and condition
   immunity metadata with validation.
 - Done: add another SRD-style creature entry to exercise creature metadata.
+- Done: add CR/XP helpers, party encounter thresholds, adjusted XP, and summary
+  objects.
 
 Todo:
 
 - Continue adding SRD-style creatures.
-- Add CR/XP helpers and party encounter difficulty calculations.
-- Add encounter summary objects.
 
 Done when:
 

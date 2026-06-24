@@ -34,6 +34,8 @@ from dnd5e import (
     d20_check,
     creature_runtime_combatant,
     resolve_attack_action,
+    encounter_monster,
+    summarize_encounter,
     roll_dice,
 )
 
@@ -93,6 +95,10 @@ kara_combatant = character_sheet_combatant(kara, roll=14)
 goblin = create_creature_instance(CREATURES["goblin"])
 goblin_combatant = creature_runtime_combatant(goblin, roll=12)
 skeleton = CREATURES["skeleton"]
+encounter = summarize_encounter(
+    [encounter_monster("goblin", count=3), encounter_monster("wolf")],
+    party_levels=[1, 1, 1, 1],
+)
 
 result = resolve_attack_action(
     combat,
@@ -116,6 +122,8 @@ print(kara_combatant.hit_points.maximum)  # 44
 print(goblin_combatant.armor_class)  # 15
 print(skeleton.damage_immunities)  # ("poison",)
 print(CREATURES["wolf"].traits[0].name)  # "Keen Hearing and Smell"
+print(encounter.adjusted_xp)  # 400
+print(encounter.difficulty)  # "deadly"
 print(roll_dice("2d6+3").total)
 print(SRD_CLASSES["fighter"].hit_die)  # 10
 ```
@@ -137,12 +145,12 @@ Included now:
 - HP, healing, temporary HP, hit dice, rests, death saves, and validation for impossible HP states
 - Basic creature/stat block definitions with validation for HP, AC, abilities,
   dice, movement, senses, XP, feature metadata, and immunity/resistance metadata
+- Encounter helpers for challenge-rating XP, party thresholds, adjusted XP, and difficulty summaries
 - SRD-style base class metadata with validation for impossible hit dice, proficiencies, and skill choices
 - Condition metadata as validated mechanical tags
 
 Good next modules:
 
-- Encounter difficulty
 - Spell definitions and spellcasting rules
 - Resources and feature recharge
 - Character advancement and multiclassing
