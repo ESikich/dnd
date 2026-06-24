@@ -47,6 +47,7 @@ from dnd5e import (
     character_sheet_weapon_profile,
     combatant_by_id,
     combatant_defeated,
+    concentration_check,
     condition_attack_modifier,
     create_combat,
     create_combatant,
@@ -356,6 +357,7 @@ def show_effects_and_conditions() -> None:
     )
     scorched = apply_turn_effects(poisoned, target_id="hero", timing="start", effects=turn_effects)
     recovered = apply_turn_effects(scorched.state, target_id="hero", timing="end", effects=turn_effects)
+    concentration = concentration_check(save_bonus=5, damage_taken=22, roll=7)
 
     adjustment = bludgeoning.damage_adjustment
     assert adjustment is not None
@@ -370,6 +372,7 @@ def show_effects_and_conditions() -> None:
         f"Turn hooks: start damage {scorched.applications[0].damage_applied}, "
         f"end conditions {combatant_by_id(recovered.state, 'hero').conditions}"
     )
+    print(f"Concentration check: DC {concentration.dc}, total {concentration.total}, broken={concentration.broken}")
 
 
 def show_resource_features() -> None:

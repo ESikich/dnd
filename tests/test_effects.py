@@ -2,6 +2,7 @@ import pytest
 
 from dnd5e import (
     ArmorClassModifier,
+    ConcentrationCheckResult,
     DamageAdjustmentResult,
     HitPointState,
     RollModifier,
@@ -11,6 +12,8 @@ from dnd5e import (
     apply_combat_damage,
     apply_condition,
     combatant_by_id,
+    concentration_check,
+    concentration_save_dc,
     condition_ability_check_modifier,
     condition_attack_modifier,
     create_combat,
@@ -27,11 +30,44 @@ from dnd5e import (
 def test_public_effect_imports_and_condition_modifiers() -> None:
     assert RollModifier.__doc__
     assert DamageAdjustmentResult.__doc__
+    assert ConcentrationCheckResult.__doc__
     assert ArmorClassModifier.__doc__
     assert TurnEffect.__doc__
     assert condition_ability_check_modifier(("poisoned",)).advantage == "disadvantage"
     assert condition_attack_modifier(attacker_conditions=("restrained",)).advantage == "disadvantage"
     assert condition_attack_modifier(target_conditions=("restrained",)).advantage == "advantage"
+
+
+def test_concentration_save_dc_uses_half_damage_or_minimum_ten() -> None:
+    assert concentration_save_dc(1) == 10
+    assert concentration_save_dc(20) == 10
+    assert concentration_save_dc(22) == 11
+
+
+def test_concentration_check_reports_success_and_broken_state() -> None:
+    maintained = concentration_check(save_bonus=4, damage_taken=12, roll=6)
+    broken = concentration_check(save_bonus=3, damage_taken=30, roll=10)
+
+    assert maintained.dc == 10
+    assert maintained.total == 10
+    assert maintained.success is True
+    assert maintained.broken is False
+    assert broken.dc == 15
+    assert broken.success is False
+    assert broken.broken is True
+
+
+def test_concentration_check_supports_advantage_and_conditions() -> None:
+    result = concentration_check(
+        save_bonus=0,
+        damage_taken=8,
+        advantage="advantage",
+        rng=fixed_rolls(0.1, 0.9),
+    )
+
+    assert result.roll == 19
+    assert result.discarded_roll == 3
+    assert result.success is True
 
 
 def test_poisoned_attacker_has_disadvantage_on_attack_rolls() -> None:
@@ -260,6 +296,9 @@ def test_turn_start_and_end_effect_hooks_apply_state_changes() -> None:
 def test_damage_adjustment_rejects_negative_amounts() -> None:
     with pytest.raises(ValueError, match="damage amount cannot be negative"):
         adjust_damage_for_target(amount=-1, damage_type="fire")
+
+    with pytest.raises(ValueError, match="concentration damage taken cannot be negative"):
+        concentration_save_dc(-1)
 
 
 def test_turn_effects_validate_impossible_values() -> None:

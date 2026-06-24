@@ -45,6 +45,7 @@ from dnd5e import (
     character_sheet_rules,
     character_sheet_weapon_profile,
     combatant_by_id,
+    concentration_check,
     condition_attack_modifier,
     create_combat,
     create_combatant,
@@ -160,6 +161,7 @@ recharged_web, web_recharge_roll = recharge_feature(web_recharge_state, roll=5)
 poisoned_attack_modifier = condition_attack_modifier(attacker_conditions=("poisoned",))
 shield_modifier = ArmorClassModifier(bonus=5, reason="shield")
 shielded_ac = modified_armor_class(15, (shield_modifier,))
+concentration = concentration_check(save_bonus=5, damage_taken=22, roll=7)
 encounter = summarize_encounter(
     [encounter_monster("ogre"), encounter_monster("bandit", count=2)],
     party_levels=[3, 3, 3, 3],
@@ -267,6 +269,8 @@ print(recharge_roll.recharged)  # True
 print(web_recharge_roll.recharged)  # True
 print(poisoned_attack_modifier.advantage)  # "disadvantage"
 print(shielded_ac.total)  # 20
+print(concentration.dc)  # 11
+print(concentration.broken)  # False
 print(combatant_by_id(restrained_combat, "goblin").conditions)  # ("restrained",)
 print(bludgeoned_skeleton.damage_adjustment.adjusted)  # 8
 print(turn_hook_result.changed)  # False
@@ -309,12 +313,13 @@ Included now:
 - Generic limited-use resources for fixed charges, rests, proficiency-based uses, and recharge rolls
 - Feature definitions and runtime feature state, with examples such as Second Wind, Rage, Sneak Attack,
   Pack Tactics, Recharge 5-6, and creature action recharge state
-- Structured effect helpers for condition-based roll modifiers, condition immunity,
-  and damage vulnerability/resistance/immunity adjustment
+- Structured effect helpers for condition-based roll modifiers, AC modifiers,
+  condition immunity, turn start/end hooks, concentration checks, and damage
+  vulnerability/resistance/immunity adjustment
 
 Good next modules:
 
-- Remaining effect hooks for AC, turn start/end, and concentration
+- Data files and content loading
 - Character advancement and multiclassing
 
 See [ROADMAP.md](./ROADMAP.md) for phased development guidance. Future coding

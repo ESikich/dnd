@@ -30,7 +30,7 @@ Implemented:
 - Basic spell definitions with validated metadata and a small SRD-style catalog
 - Basic spell-effect helpers for spell attacks, saving throw damage, healing, and conditions
 - Effects runtime hooks for roll modifiers, AC modifiers, damage adjustment,
-  and start/end turn effects
+  start/end turn effects, and concentration checks
 
 ## Phase 1: Rules Foundation Polish
 
@@ -194,7 +194,7 @@ Done when:
 
 Goal: make conditions, features, and spells affect mechanics in a reusable way.
 
-Status: In progress.
+Status: Complete.
 
 Todo:
 
@@ -206,13 +206,14 @@ Todo:
 - Done: add resistance, vulnerability, and immunity damage pipeline using
   creature source metadata.
 - Done: add AC, turn start, and turn end effect hooks.
-- Add concentration hooks.
+- Done: add concentration save DC and check hooks for damage-triggered concentration saves.
 
 Done when:
 
 - Done: poisoned, restrained, prone, and unconscious have mechanical consequences in tests.
 - Done: AC modifiers and start/end turn effects have mechanical consequences
   in tests.
+- Done: concentration checks have mechanical consequences in tests.
 
 ## Phase 8: Data Files And Content Pipeline
 

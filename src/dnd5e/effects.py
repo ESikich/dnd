@@ -1,8 +1,10 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
+from random import random
 from typing import Any, Literal
 
+from dnd5e.abilities import RandomSource, d20_check
 from dnd5e.types import Ability, AdvantageState, ConditionName, DamageType
 
 TurnTiming = Literal["start", "end"]
@@ -30,6 +32,33 @@ class DamageAdjustmentResult:
             raise ValueError("original damage cannot be negative")
         if self.adjusted < 0:
             raise ValueError("adjusted damage cannot be negative")
+
+
+@dataclass(frozen=True)
+class ConcentrationCheckResult:
+    """Resolved Constitution save to maintain concentration after taking damage."""
+
+    damage_taken: int
+    dc: int
+    roll: int
+    total: int
+    success: bool
+    discarded_roll: int | None = None
+
+    def __post_init__(self) -> None:
+        if self.damage_taken < 0:
+            raise ValueError("concentration damage taken cannot be negative")
+        if self.dc < 1:
+            raise ValueError("concentration save DC must be positive")
+        _validate_d20(self.roll, "concentration save roll")
+        if self.discarded_roll is not None:
+            _validate_d20(self.discarded_roll, "discarded concentration save roll")
+
+    @property
+    def broken(self) -> bool:
+        """Return whether concentration ends because the saving throw failed."""
+
+        return not self.success
 
 
 @dataclass(frozen=True)
@@ -122,6 +151,45 @@ def modified_armor_class(
 
     total = base + sum(modifier.bonus for modifier in modifiers)
     return ArmorClassEffectResult(base=base, total=total, modifiers=modifiers)
+
+
+def concentration_save_dc(damage_taken: int) -> int:
+    """Return the Constitution save DC to maintain concentration after damage."""
+
+    if damage_taken < 0:
+        raise ValueError("concentration damage taken cannot be negative")
+    return max(10, damage_taken // 2)
+
+
+def concentration_check(
+    *,
+    save_bonus: int,
+    damage_taken: int,
+    roll: int | None = None,
+    advantage: AdvantageState = "normal",
+    conditions: tuple[ConditionName, ...] = (),
+    rng: RandomSource = random,
+) -> ConcentrationCheckResult:
+    """Resolve whether concentration survives damage."""
+
+    dc = concentration_save_dc(damage_taken)
+    condition_modifier = condition_saving_throw_modifier(conditions, "con")
+    check = d20_check(
+        ability_score=10,
+        bonus=save_bonus,
+        roll=roll,
+        advantage=combine_advantage(advantage, condition_modifier.advantage),
+        rng=rng,
+    )
+
+    return ConcentrationCheckResult(
+        damage_taken=damage_taken,
+        dc=dc,
+        roll=check.roll,
+        discarded_roll=check.discarded_roll,
+        total=check.total,
+        success=check.total >= dc and not condition_auto_fails_save(conditions, "con"),
+    )
 
 
 def condition_attack_modifier(
@@ -242,3 +310,8 @@ def _damage_types(source: Any | None, attribute: str) -> tuple[DamageType, ...]:
 
 def _has_any(conditions: tuple[ConditionName, ...], names: tuple[ConditionName, ...]) -> bool:
     return any(name in conditions for name in names)
+
+
+def _validate_d20(value: int, context: str) -> None:
+    if not 1 <= value <= 20:
+        raise ValueError(f"{context} must be from 1 to 20")
