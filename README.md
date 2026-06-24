@@ -122,6 +122,7 @@ Included now:
 - Attack rolls, critical hit/miss handling, and damage rolling
 - Combat runtime state with AC, HP, conditions, attack resolution, and healing
 - Character sheets with class levels, validated proficiencies/loadouts, derived stats, HP, and combatants
+- Character rules validation for levels, ability scores, proficiencies, and bonus keys
 - Equipment, armor, shields, weapons, AC, and weapon attack profiles
 - HP, healing, temporary HP, hit dice, rests, death saves, and validation for impossible HP states
 - Basic creature/stat block definitions

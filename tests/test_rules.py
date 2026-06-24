@@ -1,3 +1,5 @@
+import pytest
+
 from dnd5e import (
     SRD_CLASSES,
     CharacterRules,
@@ -71,6 +73,35 @@ def test_character_helpers() -> None:
     assert initiative_bonus(character) == 4
 
 
+def test_character_rules_validates_core_inputs() -> None:
+    with pytest.raises(ValueError, match="level must be from 1 to 20"):
+        CharacterRules(level=0, abilities=abilities())
+
+    with pytest.raises(ValueError, match="missing ability scores"):
+        CharacterRules(
+            level=1,
+            abilities={
+                "str": 10,
+                "dex": 10,
+                "con": 10,
+                "int": 10,
+                "wis": 10,
+            },
+        )
+
+    with pytest.raises(ValueError, match="cha score must be from 1 to 30"):
+        CharacterRules(level=1, abilities=abilities(charisma=31))
+
+    with pytest.raises(ValueError, match="unknown skill proficiency: tactics"):
+        CharacterRules(level=1, abilities=abilities(), skill_proficiencies={"tactics": "proficient"})
+
+    with pytest.raises(ValueError, match="unknown skill proficiency for stealth: trained"):
+        CharacterRules(level=1, abilities=abilities(), skill_proficiencies={"stealth": "trained"})
+
+    with pytest.raises(ValueError, match="unknown saving throw bonus: luck"):
+        CharacterRules(level=1, abilities=abilities(), saving_throw_bonuses={"luck": 1})
+
+
 def test_combat() -> None:
     combat = create_combat(
         [
@@ -98,3 +129,22 @@ def test_critical_damage_doubles_dice() -> None:
 def test_class_metadata() -> None:
     assert SRD_CLASSES["fighter"].hit_die == 10
     assert SRD_CLASSES["wizard"].saving_throws == ("int", "wis")
+
+
+def abilities(
+    *,
+    strength: int = 10,
+    dexterity: int = 10,
+    constitution: int = 10,
+    intelligence: int = 10,
+    wisdom: int = 10,
+    charisma: int = 10,
+) -> dict:
+    return {
+        "str": strength,
+        "dex": dexterity,
+        "con": constitution,
+        "int": intelligence,
+        "wis": wisdom,
+        "cha": charisma,
+    }
