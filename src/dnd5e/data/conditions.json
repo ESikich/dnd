@@ -1,0 +1,82 @@
+{
+  "conditions": [
+    {
+      "name": "blinded",
+      "tags": ["cannot_see", "attack_rolls_affected"]
+    },
+    {
+      "name": "charmed",
+      "tags": ["ability_checks_affected"]
+    },
+    {
+      "name": "deafened",
+      "tags": ["cannot_hear"]
+    },
+    {
+      "name": "frightened",
+      "tags": ["attack_rolls_affected", "ability_checks_affected"]
+    },
+    {
+      "name": "grappled",
+      "tags": ["speed_zero"]
+    },
+    {
+      "name": "incapacitated",
+      "tags": ["cannot_act"]
+    },
+    {
+      "name": "invisible",
+      "tags": ["attack_rolls_affected"]
+    },
+    {
+      "name": "paralyzed",
+      "tags": [
+        "cannot_act",
+        "cannot_move",
+        "auto_fail_strength_dexterity_saves",
+        "attack_rolls_affected",
+        "critical_hits_from_nearby_attackers"
+      ]
+    },
+    {
+      "name": "petrified",
+      "tags": [
+        "cannot_act",
+        "cannot_move",
+        "auto_fail_strength_dexterity_saves",
+        "attack_rolls_affected"
+      ]
+    },
+    {
+      "name": "poisoned",
+      "tags": ["attack_rolls_affected", "ability_checks_affected"]
+    },
+    {
+      "name": "prone",
+      "tags": ["attack_rolls_affected", "melee_attackers_affected"]
+    },
+    {
+      "name": "restrained",
+      "tags": ["speed_zero", "attack_rolls_affected", "saving_throws_affected"]
+    },
+    {
+      "name": "stunned",
+      "tags": [
+        "cannot_act",
+        "cannot_move",
+        "auto_fail_strength_dexterity_saves",
+        "attack_rolls_affected"
+      ]
+    },
+    {
+      "name": "unconscious",
+      "tags": [
+        "cannot_act",
+        "cannot_move",
+        "attack_rolls_affected",
+        "auto_fail_strength_dexterity_saves",
+        "critical_hits_from_nearby_attackers"
+      ]
+    }
+  ]
+}

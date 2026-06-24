@@ -48,7 +48,14 @@ from dnd5e.combat import (
     remove_condition,
     resolve_attack_action,
 )
-from dnd5e.conditions import CONDITIONS, ConditionDefinition
+from dnd5e.conditions import (
+    CONDITIONS,
+    ConditionDefinition,
+    ConditionPack,
+    load_builtin_condition_pack,
+    load_condition_pack,
+    load_condition_pack_data,
+)
 from dnd5e.creatures import (
     CREATURES,
     CreatureAction,
@@ -278,6 +285,7 @@ __all__ = [
     "ConcentrationCheckResult",
     "ConditionDefinition",
     "ConditionName",
+    "ConditionPack",
     "ConditionTag",
     "CreatureAction",
     "CreatureDefinition",
@@ -415,11 +423,14 @@ __all__ = [
     "long_rest_feature",
     "long_rest_resource",
     "load_builtin_creature_pack",
+    "load_builtin_condition_pack",
     "load_builtin_equipment_pack",
     "load_builtin_feature_pack",
     "load_builtin_class_pack",
     "load_class_pack",
     "load_class_pack_data",
+    "load_condition_pack",
+    "load_condition_pack_data",
     "load_creature_pack",
     "load_creature_pack_data",
     "load_equipment_pack",

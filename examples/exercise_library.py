@@ -63,6 +63,7 @@ from dnd5e import (
     encounter_monster,
     initiative_bonus,
     load_builtin_class_pack,
+    load_builtin_condition_pack,
     load_builtin_creature_pack,
     load_builtin_equipment_pack,
     load_builtin_feature_pack,
@@ -318,9 +319,11 @@ def show_class_and_condition_data() -> None:
     print_section("Class And Condition Data")
 
     class_pack = load_builtin_class_pack()
+    condition_pack = load_builtin_condition_pack()
     fighter = SRD_CLASSES["fighter"]
     wizard = SRD_CLASSES["wizard"]
     print(f"Built-in class pack: {len(class_pack.classes)} classes")
+    print(f"Built-in condition pack: {len(condition_pack.conditions)} conditions")
     print(
         f"Fighter: d{fighter.hit_die} hit die, saves {join_upper(fighter.saving_throws)}, "
         f"armor {', '.join(fighter.armor_training)}"

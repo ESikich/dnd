@@ -21,7 +21,7 @@ Implemented:
 - Creature metadata for traits, bonus actions, reactions, damage
   vulnerabilities/resistances/immunities, and condition immunities
 - SRD-style class metadata with validation for impossible hit dice, proficiencies, and skill choices
-- Condition metadata as validated tags
+- Condition metadata as validated tags loaded from JSON content packs
 - Character sheets with class levels, loadouts, validation, derived HP, AC, skills, saves, attacks, and combatants
 - HP state, hit dice pool, and death save state validation for impossible values
 - Core character rules validation for impossible levels, missing or invalid ability scores, invalid proficiency choices, and invalid skill/save bonus keys
@@ -241,12 +241,15 @@ Progress:
   and user-provided creature/stat block metadata.
 - Done: load built-in SRD-style creature metadata through the same creature
   content-pack path exposed to users.
+- Done: add JSON condition content-pack schema checks and loaders for packaged
+  and user-provided condition metadata.
+- Done: load built-in condition metadata through the same condition content-pack
+  path exposed to users.
 
 Todo:
 
-- Keep remaining built-in SRD content loadable as package data.
 - Broaden user/homebrew content pack support beyond equipment, classes, spells,
-  features, and creatures.
+  features, creatures, and conditions.
 
 Done when:
 

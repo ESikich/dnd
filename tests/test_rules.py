@@ -12,6 +12,7 @@ from dnd5e import (
     ClassDefinition,
     ClassPack,
     ConditionDefinition,
+    ConditionPack,
     CharacterRules,
     ConditionName,
     ConditionTag,
@@ -26,8 +27,11 @@ from dnd5e import (
     damage_roll,
     initiative_bonus,
     load_builtin_class_pack,
+    load_builtin_condition_pack,
     load_class_pack,
     load_class_pack_data,
+    load_condition_pack,
+    load_condition_pack_data,
     passive_skill,
     parse_dice_notation,
     proficiency_bonus,
@@ -358,6 +362,84 @@ def test_class_metadata_validates_impossible_values() -> None:
 def test_condition_metadata() -> None:
     assert CONDITIONS["poisoned"].tags == ("attack_rolls_affected", "ability_checks_affected")
     assert "cannot_act" in CONDITIONS["unconscious"].tags
+    assert isinstance(load_builtin_condition_pack(), ConditionPack)
+    assert load_builtin_condition_pack().conditions["poisoned"] == CONDITIONS["poisoned"]
+
+
+def test_condition_pack_data_loads_user_content() -> None:
+    pack = load_condition_pack_data(
+        {
+            "conditions": [
+                {
+                    "name": "poisoned",
+                    "tags": ["attack_rolls_affected", "ability_checks_affected"],
+                }
+            ]
+        }
+    )
+
+    assert pack.conditions["poisoned"].tags == (
+        "attack_rolls_affected",
+        "ability_checks_affected",
+    )
+
+
+def test_condition_pack_loads_json_file(tmp_path: Path) -> None:
+    path = tmp_path / "conditions.json"
+    path.write_text(
+        """
+        {
+          "conditions": [
+            {
+              "name": "grappled",
+              "tags": ["speed_zero"]
+            }
+          ]
+        }
+        """,
+        encoding="utf-8",
+    )
+
+    pack = load_condition_pack(path)
+
+    assert pack.conditions["grappled"].tags == ("speed_zero",)
+
+
+def test_condition_pack_rejects_invalid_shape() -> None:
+    with pytest.raises(ValueError, match="missing sections"):
+        load_condition_pack_data({})
+
+    with pytest.raises(ValueError, match="unknown sections"):
+        load_condition_pack_data({"conditions": [], "diseases": []})
+
+    with pytest.raises(ValueError, match="content section conditions must be a list"):
+        load_condition_pack_data({"conditions": {}})
+
+    with pytest.raises(ValueError, match="entries must be objects"):
+        load_condition_pack_data({"conditions": ["poisoned"]})
+
+    with pytest.raises(ValueError, match="unknown fields"):
+        load_condition_pack_data(
+            {
+                "conditions": [
+                    {
+                        "name": "poisoned",
+                        "tags": ["attack_rolls_affected"],
+                        "description": "",
+                    }
+                ]
+            }
+        )
+
+    with pytest.raises(ValueError, match="duplicate condition name"):
+        load_condition_pack_data(
+            {
+                "conditions": [
+                    {"name": "poisoned", "tags": ["attack_rolls_affected"]},
+                    {"name": "poisoned", "tags": ["ability_checks_affected"]},
+                ]
+            }
+        )
 
 
 def test_condition_metadata_validates_impossible_values() -> None:

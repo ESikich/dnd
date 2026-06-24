@@ -63,6 +63,7 @@ from dnd5e import (
     restore_pact_magic,
     encounter_monster,
     load_builtin_class_pack,
+    load_builtin_condition_pack,
     load_builtin_creature_pack,
     load_builtin_equipment_pack,
     load_builtin_feature_pack,
@@ -162,6 +163,7 @@ equipment_pack = load_builtin_equipment_pack()
 creature_pack = load_builtin_creature_pack()
 spell_pack = load_builtin_spell_pack()
 feature_pack = load_builtin_feature_pack()
+condition_pack = load_builtin_condition_pack()
 sneak_attack_dice = sneak_attack_damage_dice(5)
 recharge_feature_state = create_feature_state(FEATURES["recharge_5_6"], remaining=0)
 recharged_feature, recharge_roll = recharge_feature(recharge_feature_state, roll=5)
@@ -299,6 +301,7 @@ print(SRD_CLASSES["fighter"].hit_die)  # 10
 print(len(load_builtin_class_pack().classes))  # 12
 print(len(load_builtin_spell_pack().spells))  # 6
 print(len(load_builtin_feature_pack().features))  # 6
+print(len(load_builtin_condition_pack().conditions))  # 14
 ```
 
 ## Scope
@@ -315,8 +318,8 @@ Included now:
 - Character rules validation for levels, ability scores, proficiencies, and bonus keys
 - Equipment, armor, shields, weapons, AC, and weapon attack profiles
 - Equipment definition validation for impossible AC, costs, weights, damage, ranges, and metadata
-- Packaged JSON equipment, class, creature, spell, and feature content with public
-  loaders for user content packs
+- Packaged JSON equipment, class, creature, spell, feature, and condition content
+  with public loaders for user content packs
 - HP, healing, temporary HP, hit dice, rests, death saves, and validation for impossible HP states
 - A small SRD-style creature/stat block catalog loaded from packaged JSON, with
   validation for HP, AC, abilities, dice, movement, senses, XP, feature metadata,
@@ -324,7 +327,7 @@ Included now:
 - Encounter helpers for challenge-rating XP, party thresholds, adjusted XP, and difficulty summaries
 - SRD-style base class metadata loaded from packaged JSON, with validation for
   impossible hit dice, proficiencies, and skill choices
-- Condition metadata as validated mechanical tags
+- Condition metadata loaded from packaged JSON as validated mechanical tags
 - Spell definitions loaded from packaged JSON with level, school, casting time, range,
   duration, components, concentration, and ritual metadata
 - Spell attack bonus and spell save DC helpers
