@@ -76,6 +76,7 @@ kara = CharacterSheet(
         "wis": 12,
         "cha": 8,
     },
+    skill_proficiencies={"athletics": "expertise"},
     saving_throw_proficiencies={"str": "proficient", "con": "proficient"},
     loadout=CharacterLoadout(
         armor="chain_mail",
@@ -120,7 +121,7 @@ Included now:
 - Initiative ordering and turn advancement
 - Attack rolls, critical hit/miss handling, and damage rolling
 - Combat runtime state with AC, HP, conditions, attack resolution, and healing
-- Character sheets with class levels, loadouts, derived stats, HP, and combatants
+- Character sheets with class levels, validated proficiencies/loadouts, derived stats, HP, and combatants
 - Equipment, armor, shields, weapons, AC, and weapon attack profiles
 - HP, healing, temporary HP, hit dice, rests, and death saves
 - Basic creature/stat block definitions
@@ -129,7 +130,7 @@ Included now:
 
 Good next modules:
 
-- Character sheet validation polish
+- Foundation naming and docstring polish
 - Spell definitions and spellcasting rules
 - Encounter difficulty
 - Resources and feature recharge

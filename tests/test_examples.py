@@ -12,6 +12,8 @@ def test_exercise_library_example_runs(capsys) -> None:
     output = capsys.readouterr().out
     assert "D&D 5E Rules Library Demo" in output
     assert "Core Math" in output
+    assert "Sheet Validation" in output
+    assert "Invalid sheet rejected: unknown skill proficiency: tactics" in output
     assert "Combat" in output
     assert "A Tiny Battle" in output
     assert "Result: Kara wins." in output

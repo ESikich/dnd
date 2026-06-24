@@ -13,18 +13,23 @@ from dnd5e.character import (
 )
 from dnd5e.classes import SRD_CLASSES
 from dnd5e.equipment import (
+    ARMOR,
+    SHIELDS,
+    WEAPONS,
     ArmorClassResult,
     WeaponAttackProfile,
     armor_class,
     weapon_attack_profile,
 )
 from dnd5e.hit_points import HitPointState
+from dnd5e.skills import SKILL_ABILITIES
 from dnd5e.types import Ability, CharacterClassName, ConditionName, ProficiencyLevel, Skill
 
 if TYPE_CHECKING:
     from dnd5e.combat import Combatant
 
 ABILITIES: tuple[Ability, ...] = ("str", "dex", "con", "int", "wis", "cha")
+PROFICIENCY_LEVELS: tuple[ProficiencyLevel, ...] = ("none", "half", "proficient", "expertise")
 
 
 @dataclass(frozen=True)
@@ -86,6 +91,12 @@ class CharacterSheet:
                 raise ValueError(f"unknown ability: {ability}")
             if not 1 <= score <= 30:
                 raise ValueError(f"{ability} score must be from 1 to 30")
+
+        _validate_skill_proficiencies(self.skill_proficiencies)
+        _validate_ability_proficiencies(self.saving_throw_proficiencies)
+        _validate_skill_bonus_keys(self.skill_bonuses)
+        _validate_ability_bonus_keys(self.saving_throw_bonuses)
+        _validate_loadout(self.loadout)
 
         if self.maximum_hit_points is not None and self.maximum_hit_points < 1:
             raise ValueError("maximum hit points must be positive")
@@ -207,8 +218,6 @@ def character_sheet_combatant(
 
 
 def _is_weapon_proficient(sheet: CharacterSheet, weapon: str) -> bool:
-    from dnd5e.equipment import WEAPONS
-
     weapon_definition = WEAPONS[weapon]
     training = {
         trained
@@ -220,3 +229,52 @@ def _is_weapon_proficient(sheet: CharacterSheet, weapon: str) -> bool:
 
 def _average_hit_die(hit_die: int) -> int:
     return (hit_die // 2) + 1
+
+
+def _validate_skill_proficiencies(proficiencies: dict[Skill, ProficiencyLevel]) -> None:
+    for skill, proficiency in proficiencies.items():
+        if skill not in SKILL_ABILITIES:
+            raise ValueError(f"unknown skill proficiency: {skill}")
+        _validate_proficiency_level(proficiency, f"skill proficiency for {skill}")
+
+
+def _validate_ability_proficiencies(proficiencies: dict[Ability, ProficiencyLevel]) -> None:
+    for ability, proficiency in proficiencies.items():
+        if ability not in ABILITIES:
+            raise ValueError(f"unknown saving throw proficiency: {ability}")
+        _validate_proficiency_level(proficiency, f"saving throw proficiency for {ability}")
+
+
+def _validate_skill_bonus_keys(bonuses: dict[Skill, int]) -> None:
+    for skill in bonuses:
+        if skill not in SKILL_ABILITIES:
+            raise ValueError(f"unknown skill bonus: {skill}")
+
+
+def _validate_ability_bonus_keys(bonuses: dict[Ability, int]) -> None:
+    for ability in bonuses:
+        if ability not in ABILITIES:
+            raise ValueError(f"unknown saving throw bonus: {ability}")
+
+
+def _validate_proficiency_level(proficiency: ProficiencyLevel, context: str) -> None:
+    if proficiency not in PROFICIENCY_LEVELS:
+        raise ValueError(f"unknown {context}: {proficiency}")
+
+
+def _validate_loadout(loadout: CharacterLoadout) -> None:
+    if loadout.armor is not None and loadout.armor not in ARMOR:
+        raise ValueError(f"unknown armor: {loadout.armor}")
+    if loadout.shield is not None and loadout.shield not in SHIELDS:
+        raise ValueError(f"unknown shield: {loadout.shield}")
+
+    for weapon in loadout.weapons:
+        if weapon not in WEAPONS:
+            raise ValueError(f"unknown weapon: {weapon}")
+
+    equipped_weapons = set(loadout.weapons)
+    for weapon in loadout.two_handed_weapons:
+        if weapon not in WEAPONS:
+            raise ValueError(f"unknown two-handed weapon: {weapon}")
+        if weapon not in equipped_weapons:
+            raise ValueError(f"two-handed weapon is not equipped: {weapon}")

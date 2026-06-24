@@ -85,6 +85,93 @@ def test_character_sheet_validates_total_level() -> None:
         )
 
 
+def test_character_sheet_validates_proficiency_choices() -> None:
+    with pytest.raises(ValueError, match="unknown skill proficiency: tactics"):
+        CharacterSheet(
+            id="bad-skill",
+            name="Bad Skill",
+            classes=(CharacterClassLevel("fighter", 1),),
+            abilities=abilities(),
+            skill_proficiencies={"tactics": "proficient"},
+        )
+
+    with pytest.raises(ValueError, match="unknown skill proficiency for stealth: trained"):
+        CharacterSheet(
+            id="bad-proficiency",
+            name="Bad Proficiency",
+            classes=(CharacterClassLevel("fighter", 1),),
+            abilities=abilities(),
+            skill_proficiencies={"stealth": "trained"},
+        )
+
+    with pytest.raises(ValueError, match="unknown saving throw proficiency: luck"):
+        CharacterSheet(
+            id="bad-save",
+            name="Bad Save",
+            classes=(CharacterClassLevel("fighter", 1),),
+            abilities=abilities(),
+            saving_throw_proficiencies={"luck": "proficient"},
+        )
+
+
+def test_character_sheet_validates_bonus_keys() -> None:
+    with pytest.raises(ValueError, match="unknown skill bonus: tactics"):
+        CharacterSheet(
+            id="bad-skill-bonus",
+            name="Bad Skill Bonus",
+            classes=(CharacterClassLevel("fighter", 1),),
+            abilities=abilities(),
+            skill_bonuses={"tactics": 1},
+        )
+
+    with pytest.raises(ValueError, match="unknown saving throw bonus: luck"):
+        CharacterSheet(
+            id="bad-save-bonus",
+            name="Bad Save Bonus",
+            classes=(CharacterClassLevel("fighter", 1),),
+            abilities=abilities(),
+            saving_throw_bonuses={"luck": 1},
+        )
+
+
+def test_character_sheet_validates_loadout_ids() -> None:
+    with pytest.raises(ValueError, match="unknown armor: enchanted_pajamas"):
+        CharacterSheet(
+            id="bad-armor",
+            name="Bad Armor",
+            classes=(CharacterClassLevel("fighter", 1),),
+            abilities=abilities(),
+            loadout=CharacterLoadout(armor="enchanted_pajamas"),
+        )
+
+    with pytest.raises(ValueError, match="unknown shield: buckler"):
+        CharacterSheet(
+            id="bad-shield",
+            name="Bad Shield",
+            classes=(CharacterClassLevel("fighter", 1),),
+            abilities=abilities(),
+            loadout=CharacterLoadout(shield="buckler"),
+        )
+
+    with pytest.raises(ValueError, match="unknown weapon: spoon"):
+        CharacterSheet(
+            id="bad-weapon",
+            name="Bad Weapon",
+            classes=(CharacterClassLevel("fighter", 1),),
+            abilities=abilities(),
+            loadout=CharacterLoadout(weapons=("spoon",)),
+        )
+
+    with pytest.raises(ValueError, match="two-handed weapon is not equipped: longsword"):
+        CharacterSheet(
+            id="bad-two-handed",
+            name="Bad Two-Handed",
+            classes=(CharacterClassLevel("fighter", 1),),
+            abilities=abilities(),
+            loadout=CharacterLoadout(weapons=("shortbow",), two_handed_weapons=("longsword",)),
+        )
+
+
 def fighter_sheet() -> CharacterSheet:
     return CharacterSheet(
         id="kara",

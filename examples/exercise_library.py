@@ -66,6 +66,7 @@ def main() -> None:
     hero = build_hero()
     show_character(hero)
     show_character_sheet(build_hero_sheet())
+    show_sheet_validation()
     show_equipment(hero)
     show_class_and_condition_data()
     show_combat(rng, hero)
@@ -205,6 +206,29 @@ def show_character_sheet(sheet: CharacterSheet) -> None:
         f"{weapon.weapon.name}: attack {weapon.attack_bonus:+d}, "
         f"damage {weapon.damage_dice}{weapon.damage_bonus:+d} {weapon.damage_type}"
     )
+
+
+def show_sheet_validation() -> None:
+    print_section("Sheet Validation")
+
+    try:
+        CharacterSheet(
+            id="invalid",
+            name="Invalid Hero",
+            classes=(CharacterClassLevel("fighter", 1),),
+            abilities={
+                "str": 10,
+                "dex": 10,
+                "con": 10,
+                "int": 10,
+                "wis": 10,
+                "cha": 10,
+            },
+            skill_proficiencies={"tactics": "proficient"},
+            loadout=CharacterLoadout(armor="chain_mail", weapons=("spoon",)),
+        )
+    except ValueError as error:
+        print(f"Invalid sheet rejected: {error}")
 
 
 def show_equipment(hero: CharacterRules) -> None:

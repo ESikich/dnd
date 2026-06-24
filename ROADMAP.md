@@ -18,7 +18,7 @@ Implemented:
 - Basic creature/stat block definitions for a small SRD-style catalog
 - SRD-style class metadata
 - Condition metadata as tags
-- Character sheets with class levels, loadouts, derived HP, AC, skills, saves, attacks, and combatants
+- Character sheets with class levels, loadouts, validation, derived HP, AC, skills, saves, attacks, and combatants
 - A deterministic example program with a tiny battle
 - Combat runtime state with HP, AC, conditions, healing, and attack action resolution
 
@@ -34,6 +34,10 @@ Todo:
 - Add richer docstrings for public dataclasses and functions.
 - Refresh `README.md` examples so they show current features.
 - Consider adding `ruff` and `mypy` commands once the public shapes settle.
+
+Progress:
+
+- Done: character sheets validate loadout equipment IDs before derived AC or attack helpers run.
 
 Done when:
 
@@ -76,16 +80,13 @@ Progress:
 - Done: add class-level structures and multiclass placeholders.
 - Done: add equipment loadout support.
 - Done: add validation for missing abilities, invalid ability scores, invalid total level, and impossible HP.
-
-Remaining:
-
-- Add validation for invalid proficiency choices.
-- Add broader tests for common invalid sheets.
+- Done: add validation for invalid skill and saving throw proficiency choices.
+- Done: add broader tests for common invalid sheets.
 
 Done when:
 
 - A character sheet can produce the values currently assembled manually in the demo.
-- Tests cover derived stats and common invalid sheets.
+- Tests cover derived stats and common invalid sheets. Complete.
 
 ## Phase 4: Expanded Creatures And Encounters
 
@@ -201,3 +202,4 @@ Done when:
 - Prefer deterministic tests and demos.
 - Add focused tests with every public API addition.
 - Keep examples readable; they are both documentation and smoke tests.
+- Update the runnable example and user-facing docs when public behavior changes.

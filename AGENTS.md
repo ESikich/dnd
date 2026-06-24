@@ -31,7 +31,8 @@ Current modules cover:
   mutating inputs.
 - Keep public imports explicit in `src/dnd5e/__init__.py`.
 - Add tests for every new public behavior.
-- Update `examples/exercise_library.py` when a feature is useful to demonstrate.
+- Update `examples/exercise_library.py` and relevant docs when public behavior
+  changes or a feature is useful to demonstrate.
 - Do not copy long-form rulebook prose. Model mechanics and metadata only.
 - Use SRD-compatible content only unless the user explicitly supplies compatible
   homebrew content.
@@ -66,7 +67,7 @@ For a new rules area:
 2. Add a focused module in `src/dnd5e`.
 3. Export public symbols from `__init__.py`.
 4. Add focused tests in `tests/test_<feature>.py`.
-5. Update the demo if it makes the feature clearer.
+5. Update the demo and docs when they can show or explain the new behavior.
 6. Run `python3 -m pytest`.
 
 ## Preferred Next Work
