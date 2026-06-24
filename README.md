@@ -33,14 +33,20 @@ from dnd5e import (
     create_combat,
     create_combatant,
     create_creature_instance,
+    create_pact_magic,
+    create_spell_slots,
     d20_check,
     creature_runtime_combatant,
     resolve_attack_action,
+    restore_pact_magic,
     encounter_monster,
     summarize_encounter,
     roll_dice,
     spell_attack_bonus,
     spell_save_dc,
+    spell_slots_remaining,
+    spend_pact_slot,
+    spend_spell_slot,
 )
 
 athletics = d20_check(
@@ -111,6 +117,8 @@ fire_bolt = SPELLS["fire_bolt"]
 detect_magic = SPELLS["detect_magic"]
 spell_attack = spell_attack_bonus(character_sheet_rules(kara), "int")
 spell_dc = spell_save_dc(character_sheet_rules(kara), "int")
+spell_slots = spend_spell_slot(create_spell_slots({1: 4, 2: 3}), 2)
+pact_magic = restore_pact_magic(spend_pact_slot(create_pact_magic(slot_level=2, maximum=2)))
 encounter = summarize_encounter(
     [encounter_monster("ogre"), encounter_monster("bandit", count=2)],
     party_levels=[3, 3, 3, 3],
@@ -149,6 +157,8 @@ print(fire_bolt.range)  # "120 feet"
 print(detect_magic.ritual)  # True
 print(spell_attack)  # 3
 print(spell_dc)  # 11
+print(spell_slots_remaining(spell_slots, 2))  # 2
+print(pact_magic.remaining)  # 2
 print(CREATURES["wolf"].traits[0].name)  # "Keen Hearing and Smell"
 print(encounter.adjusted_xp)  # 1000
 print(encounter.difficulty)  # "hard"
@@ -178,10 +188,11 @@ Included now:
 - Condition metadata as validated mechanical tags
 - Spell definitions with level, school, casting time, range, duration, components, concentration, and ritual metadata
 - Spell attack bonus and spell save DC helpers
+- Spell slot and pact magic state with spend and restore helpers
 
 Good next modules:
 
-- Spell slots, pact magic, and simple spell effects
+- Simple spell effects
 - Resources and feature recharge
 - Character advancement and multiclassing
 

@@ -148,10 +148,11 @@ Progress:
 - Done: add a small SRD-style spell catalog.
 - Done: add spell attack bonus and spell save DC helpers for character rules
   and character sheets.
+- Done: add spell slot and pact magic runtime state with spend and restore
+  helpers.
 
 Todo:
 
-- Add spell slot and pact magic state.
 - Add basic spell effects for attack, save, damage, healing, and conditions.
 
 Done when:

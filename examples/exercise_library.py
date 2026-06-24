@@ -33,9 +33,11 @@ from dnd5e import (
     character_sheet_weapon_profile,
     combatant_by_id,
     combatant_defeated,
-    create_hit_dice_pool,
     create_combat,
     create_creature_instance,
+    create_hit_dice_pool,
+    create_pact_magic,
+    create_spell_slots,
     creature_runtime_combatant,
     d20_check,
     damage_roll,
@@ -49,12 +51,16 @@ from dnd5e import (
     proficiency_bonus,
     proficiency_value,
     resolve_attack_action,
+    restore_pact_magic,
     roll_dice,
     saving_throw_bonus,
     short_rest,
     skill_bonus,
     spell_attack_bonus,
     spell_save_dc,
+    spell_slots_remaining,
+    spend_pact_slot,
+    spend_spell_slot,
     summarize_encounter,
     weapon_attack_profile,
 )
@@ -315,6 +321,15 @@ def show_spell_catalog() -> None:
     print(
         f"Level {wizard.level} wizard spell attack {spell_attack_bonus(wizard, 'int'):+d}, "
         f"spell save DC {spell_save_dc(wizard, 'int')}"
+    )
+
+    slots = create_spell_slots({1: 4, 2: 3, 3: 2})
+    slots = spend_spell_slot(slots, 3)
+    pact_magic = spend_pact_slot(create_pact_magic(slot_level=2, maximum=2))
+    pact_magic = restore_pact_magic(pact_magic)
+    print(
+        f"After casting a 3rd-level spell: {spell_slots_remaining(slots, 3)} level-3 slots remain; "
+        f"rested pact slots at level {pact_magic.slot_level}: {pact_magic.remaining}/{pact_magic.maximum}"
     )
 
 
