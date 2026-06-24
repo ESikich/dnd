@@ -121,6 +121,7 @@ from dnd5e.sheets import (
     character_sheet_weapon_profile,
     character_sheet_weapon_profiles,
 )
+from dnd5e.spells import SPELLS, SPELL_COMPONENTS, SPELL_SCHOOLS, SpellDefinition
 from dnd5e.types import (
     Ability,
     AdvantageState,
@@ -135,6 +136,8 @@ from dnd5e.types import (
     DamageType,
     ProficiencyLevel,
     Skill,
+    SpellComponent,
+    SpellSchool,
     WeaponCategory,
     WeaponProperty,
     WeaponRangeType,
@@ -191,8 +194,14 @@ __all__ = [
     "SKILL_ABILITIES",
     "SHIELDS",
     "SRD_CLASSES",
+    "SPELLS",
+    "SPELL_COMPONENTS",
+    "SPELL_SCHOOLS",
     "ShieldDefinition",
     "Skill",
+    "SpellComponent",
+    "SpellDefinition",
+    "SpellSchool",
     "WEAPONS",
     "WeaponAttackProfile",
     "WeaponCategory",

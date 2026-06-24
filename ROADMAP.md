@@ -27,6 +27,7 @@ Implemented:
 - Core character rules validation for impossible levels, missing or invalid ability scores, invalid proficiency choices, and invalid skill/save bonus keys
 - A deterministic example program with a tiny battle
 - Combat runtime state with validated HP, AC, conditions, healing, and attack action resolution
+- Basic spell definitions with validated metadata and a small SRD-style catalog
 
 ## Phase 1: Rules Foundation Polish
 
@@ -112,6 +113,8 @@ Done when:
 
 Goal: make creature data and encounter math useful for DM-facing tools.
 
+Status: Complete.
+
 Progress:
 
 - Done: expand creature definitions with named trait, bonus action, and reaction metadata.
@@ -126,27 +129,29 @@ Progress:
   entries to broaden low- and mid-CR encounter coverage.
 - Done: add black bear, giant spider, and gray ooze SRD-style creature entries
   to broaden beast, ooze, trait, resistance, and condition-immunity coverage.
-
-Todo:
-
-- Continue adding SRD-style creatures.
+- Done: the representative SRD-style creature catalog is broad enough for this
+  phase; further catalog growth is ongoing content work rather than a blocker.
 
 Done when:
 
-- An encounter can summarize monsters, XP, adjusted difficulty, and basic combat-ready stats.
+- Done: an encounter can summarize monsters, XP, adjusted difficulty, and basic combat-ready stats.
 
 ## Phase 5: Spells And Spellcasting
 
 Goal: add spell definitions and spellcasting math without building the full
 effect engine yet.
 
+Progress:
+
+- Done: add spell definitions for level, school, casting time, range, duration,
+  components, concentration, and ritual metadata.
+- Done: add a small SRD-style spell catalog.
+
 Todo:
 
-- Add spell definitions: level, school, casting time, range, duration, components, concentration, ritual.
 - Add spell attack bonus and spell save DC helpers.
 - Add spell slot and pact magic state.
 - Add basic spell effects for attack, save, damage, healing, and conditions.
-- Add a small SRD-style spell catalog.
 
 Done when:
 

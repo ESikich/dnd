@@ -9,6 +9,7 @@ from dnd5e import (
     CONDITIONS,
     CREATURES,
     SKILL_ABILITIES,
+    SPELLS,
     SRD_CLASSES,
     SHIELDS,
     CharacterClassLevel,
@@ -69,6 +70,7 @@ def main() -> None:
     show_sheet_validation()
     show_equipment(hero)
     show_class_and_condition_data()
+    show_spell_catalog()
     show_creature_catalog()
     show_encounter_summary()
     show_combat(rng, hero)
@@ -279,6 +281,23 @@ def show_class_and_condition_data() -> None:
     for name in ["blinded", "grappled", "poisoned", "unconscious"]:
         condition = CONDITIONS[name]
         print(f"Condition {name}: {', '.join(condition.tags)}")
+
+
+def show_spell_catalog() -> None:
+    print_section("Spells")
+
+    for spell_id in ["fire_bolt", "cure_wounds", "detect_magic", "mage_armor"]:
+        spell = SPELLS[spell_id]
+        flags = []
+        if spell.concentration:
+            flags.append("concentration")
+        if spell.ritual:
+            flags.append("ritual")
+        suffix = f" ({', '.join(flags)})" if flags else ""
+        print(
+            f"{spell.name}: level {spell.level} {spell.school}, "
+            f"{spell.casting_time}, range {spell.range}, duration {spell.duration}{suffix}"
+        )
 
 
 def show_creature_catalog() -> None:

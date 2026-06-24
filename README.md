@@ -21,6 +21,7 @@ from dnd5e import (
     CharacterLoadout,
     CharacterSheet,
     HitPointState,
+    SPELLS,
     SRD_CLASSES,
     ability_modifier,
     attack_roll,
@@ -103,6 +104,8 @@ ghoul = CREATURES["ghoul"]
 giant_spider = CREATURES["giant_spider"]
 gray_ooze = CREATURES["gray_ooze"]
 ogre = CREATURES["ogre"]
+fire_bolt = SPELLS["fire_bolt"]
+detect_magic = SPELLS["detect_magic"]
 encounter = summarize_encounter(
     [encounter_monster("ogre"), encounter_monster("bandit", count=2)],
     party_levels=[3, 3, 3, 3],
@@ -137,6 +140,8 @@ print(ghoul.condition_immunities)  # ("charmed", "poisoned")
 print(giant_spider.traits[0].name)  # "Spider Climb"
 print(gray_ooze.damage_resistances)  # ("acid", "cold", "fire")
 print(ogre.actions[0].damage_dice)  # "2d8+4"
+print(fire_bolt.range)  # "120 feet"
+print(detect_magic.ritual)  # True
 print(CREATURES["wolf"].traits[0].name)  # "Keen Hearing and Smell"
 print(encounter.adjusted_xp)  # 1000
 print(encounter.difficulty)  # "hard"
@@ -164,10 +169,11 @@ Included now:
 - Encounter helpers for challenge-rating XP, party thresholds, adjusted XP, and difficulty summaries
 - SRD-style base class metadata with validation for impossible hit dice, proficiencies, and skill choices
 - Condition metadata as validated mechanical tags
+- Spell definitions with level, school, casting time, range, duration, components, concentration, and ritual metadata
 
 Good next modules:
 
-- Spell definitions and spellcasting rules
+- Spellcasting attack/DC helpers, slots, and simple spell effects
 - Resources and feature recharge
 - Character advancement and multiclassing
 

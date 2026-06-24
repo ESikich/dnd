@@ -128,3 +128,16 @@ ConditionTag = Literal[
     "auto_fail_strength_dexterity_saves",
     "critical_hits_from_nearby_attackers",
 ]
+
+SpellSchool = Literal[
+    "abjuration",
+    "conjuration",
+    "divination",
+    "enchantment",
+    "evocation",
+    "illusion",
+    "necromancy",
+    "transmutation",
+]
+
+SpellComponent = Literal["verbal", "somatic", "material"]
