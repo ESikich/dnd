@@ -64,11 +64,13 @@ from dnd5e import (
     encounter_monster,
     load_builtin_class_pack,
     load_builtin_condition_pack,
+    load_builtin_content_pack,
     load_builtin_creature_pack,
     load_builtin_encounter_rules_pack,
     load_builtin_equipment_pack,
     load_builtin_feature_pack,
     load_builtin_spell_pack,
+    load_content_pack_data,
     modified_armor_class,
     summarize_encounter,
     roll_dice,
@@ -166,6 +168,38 @@ spell_pack = load_builtin_spell_pack()
 feature_pack = load_builtin_feature_pack()
 condition_pack = load_builtin_condition_pack()
 encounter_rules_pack = load_builtin_encounter_rules_pack()
+content_pack = load_builtin_content_pack()
+homebrew_pack = load_content_pack_data(
+    {
+        "features": {
+            "features": [
+                {
+                    "id": "battle_focus",
+                    "name": "Battle Focus",
+                    "tags": ["concentration"],
+                    "resource": None,
+                }
+            ]
+        },
+        "spells": {
+            "spells": [
+                {
+                    "id": "spark",
+                    "name": "Spark",
+                    "level": 0,
+                    "school": "evocation",
+                    "casting_time": "1 action",
+                    "range": "30 feet",
+                    "duration": "instantaneous",
+                    "components": ["somatic"],
+                    "concentration": False,
+                    "ritual": False,
+                    "material": None,
+                }
+            ]
+        },
+    }
+)
 sneak_attack_dice = sneak_attack_damage_dice(5)
 recharge_feature_state = create_feature_state(FEATURES["recharge_5_6"], remaining=0)
 recharged_feature, recharge_roll = recharge_feature(recharge_feature_state, roll=5)
@@ -305,6 +339,8 @@ print(len(load_builtin_spell_pack().spells))  # 6
 print(len(load_builtin_feature_pack().features))  # 6
 print(len(load_builtin_condition_pack().conditions))  # 14
 print(len(encounter_rules_pack.party_thresholds))  # 20
+print(len(content_pack.creatures.creatures))  # 15
+print(len(homebrew_pack.spells.spells))  # 1
 ```
 
 ## Scope
@@ -323,6 +359,8 @@ Included now:
 - Equipment definition validation for impossible AC, costs, weights, damage, ranges, and metadata
 - Packaged JSON equipment, class, creature, encounter-rules, spell, feature, and
   condition content with public loaders for user content packs
+- Bundled JSON content packs that can include any subset of supported content
+  domains while reusing each domain's validation
 - HP, healing, temporary HP, hit dice, rests, death saves, and validation for impossible HP states
 - A small SRD-style creature/stat block catalog loaded from packaged JSON, with
   validation for HP, AC, abilities, dice, movement, senses, XP, feature metadata,
@@ -345,7 +383,7 @@ Included now:
 
 Good next modules:
 
-- Broader homebrew content-pack support
+- JSON serialization and validation result objects
 - Character advancement and multiclassing
 
 See [ROADMAP.md](./ROADMAP.md) for phased development guidance. Future coding

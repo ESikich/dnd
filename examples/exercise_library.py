@@ -64,11 +64,13 @@ from dnd5e import (
     initiative_bonus,
     load_builtin_class_pack,
     load_builtin_condition_pack,
+    load_builtin_content_pack,
     load_builtin_creature_pack,
     load_builtin_encounter_rules_pack,
     load_builtin_equipment_pack,
     load_builtin_feature_pack,
     load_builtin_spell_pack,
+    load_content_pack_data,
     long_rest,
     modified_armor_class,
     recharge_feature,
@@ -112,6 +114,7 @@ def main() -> None:
     show_sheet_validation()
     show_equipment(hero)
     show_class_and_condition_data()
+    show_content_packs()
     show_effects_and_conditions()
     show_resource_features()
     show_spell_catalog()
@@ -338,6 +341,56 @@ def show_class_and_condition_data() -> None:
     for name in condition_names:
         condition = CONDITIONS[name]
         print(f"Condition {name}: {', '.join(condition.tags)}")
+
+
+def show_content_packs() -> None:
+    print_section("Bundled Content Packs")
+
+    built_in = load_builtin_content_pack()
+    homebrew = load_content_pack_data(
+        {
+            "features": {
+                "features": [
+                    {
+                        "id": "battle_focus",
+                        "name": "Battle Focus",
+                        "tags": ["concentration"],
+                        "resource": None,
+                    }
+                ]
+            },
+            "spells": {
+                "spells": [
+                    {
+                        "id": "spark",
+                        "name": "Spark",
+                        "level": 0,
+                        "school": "evocation",
+                        "casting_time": "1 action",
+                        "range": "30 feet",
+                        "duration": "instantaneous",
+                        "components": ["somatic"],
+                        "concentration": False,
+                        "ritual": False,
+                        "material": None,
+                    }
+                ]
+            },
+        }
+    )
+
+    assert built_in.equipment is not None
+    assert built_in.creatures is not None
+    assert homebrew.features is not None
+    assert homebrew.spells is not None
+    print(
+        f"Built-in bundle: {len(built_in.equipment.weapons)} weapons, "
+        f"{len(built_in.creatures.creatures)} creatures"
+    )
+    print(
+        f"Homebrew bundle: {len(homebrew.features.features)} feature, "
+        f"{len(homebrew.spells.spells)} spell"
+    )
 
 
 def show_effects_and_conditions() -> None:

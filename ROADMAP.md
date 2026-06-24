@@ -219,6 +219,8 @@ Done when:
 
 Goal: move scalable content out of Python constants.
 
+Status: Complete.
+
 Progress:
 
 - Done: add JSON equipment content-pack schema checks and loaders for packaged
@@ -249,15 +251,13 @@ Progress:
   packaged and user-provided CR XP and party threshold tables.
 - Done: load built-in encounter math through the same encounter-rules
   content-pack path exposed to users.
-
-Todo:
-
-- Broaden user/homebrew content pack support beyond equipment, classes, spells,
-  features, creatures, conditions, and encounter rules.
+- Done: add bundled JSON content-pack loaders that accept any subset of
+  equipment, classes, spells, features, creatures, conditions, and encounter
+  rules while delegating each section to its domain validator.
 
 Done when:
 
-- Built-in content is loaded through the same path a user content pack would use.
+- Done: built-in content is loaded through the same path a user content pack would use.
 
 ## Phase 9: Serialization And Validation
 

@@ -56,6 +56,13 @@ from dnd5e.conditions import (
     load_condition_pack,
     load_condition_pack_data,
 )
+from dnd5e.content import (
+    CONTENT_PACK_SECTIONS as CONTENT_PACK_SECTIONS,
+    ContentPack as ContentPack,
+    load_builtin_content_pack as load_builtin_content_pack,
+    load_content_pack as load_content_pack,
+    load_content_pack_data as load_content_pack_data,
+)
 from dnd5e.creatures import (
     CREATURES,
     CreatureAction,
