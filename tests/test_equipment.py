@@ -1,3 +1,4 @@
+from pathlib import Path
 from typing import cast
 
 import pytest
@@ -18,6 +19,9 @@ from dnd5e import (
     WeaponProperty,
     WeaponRangeType,
     armor_class,
+    load_builtin_equipment_pack,
+    load_equipment_pack,
+    load_equipment_pack_data,
     weapon_attack_bonus,
     weapon_attack_profile,
     weapon_damage_bonus,
@@ -226,6 +230,164 @@ def test_weapon_definition_allows_flat_non_negative_damage() -> None:
     weapon = WeaponDefinition("net", "Net", "martial", "ranged", "0", "bludgeoning", 100, 3, normal_range=5, long_range=15)
 
     assert weapon.damage_dice == "0"
+
+
+def test_builtin_equipment_loads_from_packaged_content() -> None:
+    pack = load_builtin_equipment_pack()
+
+    assert pack.armor["chain_mail"] == ARMOR["chain_mail"]
+    assert pack.shields["shield"] == SHIELDS["shield"]
+    assert pack.weapons["longsword"] == WEAPONS["longsword"]
+
+
+def test_equipment_pack_data_loads_user_content() -> None:
+    pack = load_equipment_pack_data(
+        {
+            "armor": [
+                {
+                    "id": "training_leather",
+                    "name": "Training Leather",
+                    "category": "light",
+                    "base_ac": 11,
+                    "cost_cp": 0,
+                    "weight_lb": 8,
+                    "max_dex_bonus": None,
+                    "strength_requirement": None,
+                    "stealth_disadvantage": False,
+                }
+            ],
+            "shields": [
+                {
+                    "id": "practice_shield",
+                    "name": "Practice Shield",
+                    "ac_bonus": 1,
+                    "cost_cp": 0,
+                    "weight_lb": 3,
+                }
+            ],
+            "weapons": [
+                {
+                    "id": "practice_sword",
+                    "name": "Practice Sword",
+                    "category": "simple",
+                    "range_type": "melee",
+                    "damage_dice": "1d4",
+                    "damage_type": "bludgeoning",
+                    "cost_cp": 0,
+                    "weight_lb": 2,
+                    "properties": [],
+                    "versatile_damage_dice": None,
+                    "normal_range": None,
+                    "long_range": None,
+                }
+            ],
+        }
+    )
+
+    assert pack.armor["training_leather"].base_ac == 11
+    assert pack.shields["practice_shield"].ac_bonus == 1
+    assert pack.weapons["practice_sword"].damage_type == "bludgeoning"
+
+
+def test_equipment_pack_loads_json_file(tmp_path: Path) -> None:
+    path = tmp_path / "equipment.json"
+    path.write_text(
+        """
+        {
+          "armor": [],
+          "shields": [],
+          "weapons": [
+            {
+              "id": "wand",
+              "name": "Wand",
+              "category": "simple",
+              "range_type": "ranged",
+              "damage_dice": "1d4",
+              "damage_type": "force",
+              "cost_cp": 100,
+              "weight_lb": 1,
+              "properties": [],
+              "versatile_damage_dice": null,
+              "normal_range": 20,
+              "long_range": 60
+            }
+          ]
+        }
+        """,
+        encoding="utf-8",
+    )
+
+    pack = load_equipment_pack(path)
+
+    assert pack.weapons["wand"].normal_range == 20
+
+
+def test_equipment_pack_rejects_invalid_shape() -> None:
+    with pytest.raises(ValueError, match="missing sections"):
+        load_equipment_pack_data({"armor": [], "weapons": []})
+
+    with pytest.raises(ValueError, match="unknown sections"):
+        load_equipment_pack_data({"armor": [], "shields": [], "weapons": [], "treasure": []})
+
+    with pytest.raises(ValueError, match="unknown fields"):
+        load_equipment_pack_data(
+            {
+                "armor": [
+                    {
+                        "id": "leather_plus",
+                        "name": "Leather Plus",
+                        "category": "light",
+                        "base_ac": 12,
+                        "cost_cp": 0,
+                        "weight_lb": 10,
+                        "max_dex_bonus": None,
+                        "strength_requirement": None,
+                        "stealth_disadvantage": False,
+                        "rarity": "common",
+                    }
+                ],
+                "shields": [],
+                "weapons": [],
+            }
+        )
+
+    with pytest.raises(ValueError, match="duplicate weapon id"):
+        load_equipment_pack_data(
+            {
+                "armor": [],
+                "shields": [],
+                "weapons": [
+                    {
+                        "id": "club",
+                        "name": "Club",
+                        "category": "simple",
+                        "range_type": "melee",
+                        "damage_dice": "1d4",
+                        "damage_type": "bludgeoning",
+                        "cost_cp": 0,
+                        "weight_lb": 1,
+                        "properties": [],
+                        "versatile_damage_dice": None,
+                        "normal_range": None,
+                        "long_range": None,
+                    },
+                    {
+                        "id": "club",
+                        "name": "Club Copy",
+                        "category": "simple",
+                        "range_type": "melee",
+                        "damage_dice": "1d4",
+                        "damage_type": "bludgeoning",
+                        "cost_cp": 0,
+                        "weight_lb": 1,
+                        "properties": [],
+                        "versatile_damage_dice": None,
+                        "normal_range": None,
+                        "long_range": None,
+                    },
+                ],
+            }
+        )
 
 
 def character_with(strength: int, dexterity: int, level: int = 1) -> CharacterRules:

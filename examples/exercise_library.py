@@ -62,6 +62,7 @@ from dnd5e import (
     damage_roll,
     encounter_monster,
     initiative_bonus,
+    load_builtin_equipment_pack,
     long_rest,
     modified_armor_class,
     recharge_feature,
@@ -278,9 +279,14 @@ def show_sheet_validation() -> None:
 def show_equipment(hero: CharacterRules) -> None:
     print_section("Equipment")
 
+    equipment_pack = load_builtin_equipment_pack()
     armor = ARMOR["chain_mail"]
     shield = SHIELDS["shield"]
     ac = armor_class(hero, armor=armor, shield=shield)
+    print(
+        f"Built-in equipment pack: {len(equipment_pack.armor)} armor, "
+        f"{len(equipment_pack.shields)} shields, {len(equipment_pack.weapons)} weapons"
+    )
     print(
         f"{armor.name} and {shield.name}: AC {ac.total} "
         f"(base {ac.base}, dex {ac.dexterity_bonus:+d}, shield {ac.shield_bonus:+d})"

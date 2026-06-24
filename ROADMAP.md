@@ -219,12 +219,19 @@ Done when:
 
 Goal: move scalable content out of Python constants.
 
+Progress:
+
+- Done: add JSON equipment content-pack schema checks and loaders for packaged
+  and user-provided armor, shield, and weapon data.
+- Done: load built-in armor, shield, and weapon catalogs through the same
+  equipment content-pack path exposed to users.
+
 Todo:
 
-- Define JSON or YAML schemas for equipment, creatures, spells, classes, and features.
-- Add loaders and validators.
-- Keep built-in SRD content loadable as package data.
-- Support user/homebrew content packs.
+- Define JSON or YAML schemas for creatures, spells, classes, and features.
+- Add loaders and validators for creatures, spells, classes, and features.
+- Keep remaining built-in SRD content loadable as package data.
+- Broaden user/homebrew content pack support beyond equipment.
 
 Done when:
 

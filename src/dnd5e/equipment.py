@@ -1,6 +1,11 @@
 from __future__ import annotations
 
+import json
+from collections.abc import Mapping
 from dataclasses import dataclass
+from importlib.resources import files
+from pathlib import Path
+from typing import Any, TypeVar
 
 from dnd5e.character import CharacterRules, ability_bonus
 from dnd5e.abilities import proficiency_bonus
@@ -45,6 +50,7 @@ WEAPON_PROPERTIES: tuple[WeaponProperty, ...] = (
     "two_handed",
     "versatile",
 )
+T = TypeVar("T")
 
 
 @dataclass(frozen=True)
@@ -161,6 +167,15 @@ class WeaponAttackProfile:
     two_handed: bool = False
 
 
+@dataclass(frozen=True)
+class EquipmentPack:
+    """Loaded equipment content grouped into armor, shield, and weapon catalogs."""
+
+    armor: dict[str, ArmorDefinition]
+    shields: dict[str, ShieldDefinition]
+    weapons: dict[str, WeaponDefinition]
+
+
 def _validate_id(value: str, context: str) -> None:
     if not value:
         raise ValueError(f"{context} is required")
@@ -198,341 +213,208 @@ def _validate_weapon_ranges(normal_range: int | None, long_range: int | None) ->
         raise ValueError("weapon long range must be at least normal range")
 
 
-ARMOR: dict[str, ArmorDefinition] = {
-    "padded": ArmorDefinition("padded", "Padded", "light", 11, 500, 8, stealth_disadvantage=True),
-    "leather": ArmorDefinition("leather", "Leather", "light", 11, 1000, 10),
-    "studded_leather": ArmorDefinition("studded_leather", "Studded Leather", "light", 12, 4500, 13),
-    "hide": ArmorDefinition("hide", "Hide", "medium", 12, 1000, 12, max_dex_bonus=2),
-    "chain_shirt": ArmorDefinition("chain_shirt", "Chain Shirt", "medium", 13, 5000, 20, max_dex_bonus=2),
-    "scale_mail": ArmorDefinition(
-        "scale_mail",
-        "Scale Mail",
-        "medium",
-        14,
-        5000,
-        45,
-        max_dex_bonus=2,
-        stealth_disadvantage=True,
-    ),
-    "breastplate": ArmorDefinition("breastplate", "Breastplate", "medium", 14, 40000, 20, max_dex_bonus=2),
-    "half_plate": ArmorDefinition(
-        "half_plate",
-        "Half Plate",
-        "medium",
-        15,
-        75000,
-        40,
-        max_dex_bonus=2,
-        stealth_disadvantage=True,
-    ),
-    "ring_mail": ArmorDefinition(
-        "ring_mail",
-        "Ring Mail",
-        "heavy",
-        14,
-        3000,
-        40,
-        stealth_disadvantage=True,
-    ),
-    "chain_mail": ArmorDefinition(
-        "chain_mail",
-        "Chain Mail",
-        "heavy",
-        16,
-        7500,
-        55,
-        strength_requirement=13,
-        stealth_disadvantage=True,
-    ),
-    "splint": ArmorDefinition(
-        "splint",
-        "Splint",
-        "heavy",
-        17,
-        20000,
-        60,
-        strength_requirement=15,
-        stealth_disadvantage=True,
-    ),
-    "plate": ArmorDefinition(
-        "plate",
-        "Plate",
-        "heavy",
-        18,
-        150000,
-        65,
-        strength_requirement=15,
-        stealth_disadvantage=True,
-    ),
-}
+def load_equipment_pack(path: str | Path) -> EquipmentPack:
+    """Load armor, shields, and weapons from an equipment content-pack JSON file."""
 
-SHIELDS: dict[str, ShieldDefinition] = {
-    "shield": ShieldDefinition("shield", "Shield", 2, 1000, 6),
-}
+    with Path(path).open(encoding="utf-8") as file:
+        data = json.load(file)
+    if not isinstance(data, Mapping):
+        raise ValueError("equipment content pack must be a JSON object")
+    return load_equipment_pack_data(data)
 
-WEAPONS: dict[str, WeaponDefinition] = {
-    "club": WeaponDefinition("club", "Club", "simple", "melee", "1d4", "bludgeoning", 10, 2, ("light",)),
-    "dagger": WeaponDefinition(
-        "dagger",
-        "Dagger",
-        "simple",
-        "melee",
-        "1d4",
-        "piercing",
-        200,
-        1,
-        ("finesse", "light", "thrown"),
-        normal_range=20,
-        long_range=60,
-    ),
-    "greatclub": WeaponDefinition(
-        "greatclub", "Greatclub", "simple", "melee", "1d8", "bludgeoning", 20, 10, ("two_handed",)
-    ),
-    "handaxe": WeaponDefinition(
-        "handaxe",
-        "Handaxe",
-        "simple",
-        "melee",
-        "1d6",
-        "slashing",
-        500,
-        2,
-        ("light", "thrown"),
-        normal_range=20,
-        long_range=60,
-    ),
-    "javelin": WeaponDefinition(
-        "javelin", "Javelin", "simple", "melee", "1d6", "piercing", 50, 2, ("thrown",), normal_range=30, long_range=120
-    ),
-    "light_hammer": WeaponDefinition(
-        "light_hammer",
-        "Light Hammer",
-        "simple",
-        "melee",
-        "1d4",
-        "bludgeoning",
-        200,
-        2,
-        ("light", "thrown"),
-        normal_range=20,
-        long_range=60,
-    ),
-    "mace": WeaponDefinition("mace", "Mace", "simple", "melee", "1d6", "bludgeoning", 500, 4),
-    "quarterstaff": WeaponDefinition(
-        "quarterstaff",
-        "Quarterstaff",
-        "simple",
-        "melee",
-        "1d6",
-        "bludgeoning",
-        20,
-        4,
-        ("versatile",),
-        versatile_damage_dice="1d8",
-    ),
-    "sickle": WeaponDefinition("sickle", "Sickle", "simple", "melee", "1d4", "slashing", 100, 2, ("light",)),
-    "spear": WeaponDefinition(
-        "spear",
-        "Spear",
-        "simple",
-        "melee",
-        "1d6",
-        "piercing",
-        100,
-        3,
-        ("thrown", "versatile"),
-        versatile_damage_dice="1d8",
-        normal_range=20,
-        long_range=60,
-    ),
-    "light_crossbow": WeaponDefinition(
-        "light_crossbow",
-        "Light Crossbow",
-        "simple",
-        "ranged",
-        "1d8",
-        "piercing",
-        2500,
-        5,
-        ("ammunition", "loading", "two_handed"),
-        normal_range=80,
-        long_range=320,
-    ),
-    "dart": WeaponDefinition(
-        "dart",
-        "Dart",
-        "simple",
-        "ranged",
-        "1d4",
-        "piercing",
-        5,
-        0.25,
-        ("finesse", "thrown"),
-        normal_range=20,
-        long_range=60,
-    ),
-    "shortbow": WeaponDefinition(
-        "shortbow",
-        "Shortbow",
-        "simple",
-        "ranged",
-        "1d6",
-        "piercing",
-        2500,
-        2,
-        ("ammunition", "two_handed"),
-        normal_range=80,
-        long_range=320,
-    ),
-    "sling": WeaponDefinition(
-        "sling", "Sling", "simple", "ranged", "1d4", "bludgeoning", 10, 0, ("ammunition",), normal_range=30, long_range=120
-    ),
-    "battleaxe": WeaponDefinition(
-        "battleaxe",
-        "Battleaxe",
-        "martial",
-        "melee",
-        "1d8",
-        "slashing",
-        1000,
-        4,
-        ("versatile",),
-        versatile_damage_dice="1d10",
-    ),
-    "flail": WeaponDefinition("flail", "Flail", "martial", "melee", "1d8", "bludgeoning", 1000, 2),
-    "glaive": WeaponDefinition(
-        "glaive", "Glaive", "martial", "melee", "1d10", "slashing", 2000, 6, ("heavy", "reach", "two_handed")
-    ),
-    "greataxe": WeaponDefinition(
-        "greataxe", "Greataxe", "martial", "melee", "1d12", "slashing", 3000, 7, ("heavy", "two_handed")
-    ),
-    "greatsword": WeaponDefinition(
-        "greatsword", "Greatsword", "martial", "melee", "2d6", "slashing", 5000, 6, ("heavy", "two_handed")
-    ),
-    "halberd": WeaponDefinition(
-        "halberd", "Halberd", "martial", "melee", "1d10", "slashing", 2000, 6, ("heavy", "reach", "two_handed")
-    ),
-    "lance": WeaponDefinition("lance", "Lance", "martial", "melee", "1d12", "piercing", 1000, 6, ("reach", "special")),
-    "longsword": WeaponDefinition(
-        "longsword",
-        "Longsword",
-        "martial",
-        "melee",
-        "1d8",
-        "slashing",
-        1500,
-        3,
-        ("versatile",),
-        versatile_damage_dice="1d10",
-    ),
-    "maul": WeaponDefinition(
-        "maul", "Maul", "martial", "melee", "2d6", "bludgeoning", 1000, 10, ("heavy", "two_handed")
-    ),
-    "morningstar": WeaponDefinition("morningstar", "Morningstar", "martial", "melee", "1d8", "piercing", 1500, 4),
-    "pike": WeaponDefinition(
-        "pike", "Pike", "martial", "melee", "1d10", "piercing", 500, 18, ("heavy", "reach", "two_handed")
-    ),
-    "rapier": WeaponDefinition("rapier", "Rapier", "martial", "melee", "1d8", "piercing", 2500, 2, ("finesse",)),
-    "scimitar": WeaponDefinition(
-        "scimitar", "Scimitar", "martial", "melee", "1d6", "slashing", 2500, 3, ("finesse", "light")
-    ),
-    "shortsword": WeaponDefinition(
-        "shortsword", "Shortsword", "martial", "melee", "1d6", "piercing", 1000, 2, ("finesse", "light")
-    ),
-    "trident": WeaponDefinition(
-        "trident",
-        "Trident",
-        "martial",
-        "melee",
-        "1d6",
-        "piercing",
-        500,
-        4,
-        ("thrown", "versatile"),
-        versatile_damage_dice="1d8",
-        normal_range=20,
-        long_range=60,
-    ),
-    "war_pick": WeaponDefinition("war_pick", "War Pick", "martial", "melee", "1d8", "piercing", 500, 2),
-    "warhammer": WeaponDefinition(
-        "warhammer",
-        "Warhammer",
-        "martial",
-        "melee",
-        "1d8",
-        "bludgeoning",
-        1500,
-        2,
-        ("versatile",),
-        versatile_damage_dice="1d10",
-    ),
-    "whip": WeaponDefinition("whip", "Whip", "martial", "melee", "1d4", "slashing", 200, 3, ("finesse", "reach")),
-    "blowgun": WeaponDefinition(
-        "blowgun",
-        "Blowgun",
-        "martial",
-        "ranged",
-        "1",
-        "piercing",
-        1000,
-        1,
-        ("ammunition", "loading"),
-        normal_range=25,
-        long_range=100,
-    ),
-    "hand_crossbow": WeaponDefinition(
-        "hand_crossbow",
-        "Hand Crossbow",
-        "martial",
-        "ranged",
-        "1d6",
-        "piercing",
-        7500,
-        3,
-        ("ammunition", "light", "loading"),
-        normal_range=30,
-        long_range=120,
-    ),
-    "heavy_crossbow": WeaponDefinition(
-        "heavy_crossbow",
-        "Heavy Crossbow",
-        "martial",
-        "ranged",
-        "1d10",
-        "piercing",
-        5000,
-        18,
-        ("ammunition", "heavy", "loading", "two_handed"),
-        normal_range=100,
-        long_range=400,
-    ),
-    "longbow": WeaponDefinition(
-        "longbow",
-        "Longbow",
-        "martial",
-        "ranged",
-        "1d8",
-        "piercing",
-        5000,
-        2,
-        ("ammunition", "heavy", "two_handed"),
-        normal_range=150,
-        long_range=600,
-    ),
-    "net": WeaponDefinition(
-        "net",
-        "Net",
-        "martial",
-        "ranged",
-        "0",
-        "bludgeoning",
-        100,
-        3,
-        ("special", "thrown"),
-        normal_range=5,
-        long_range=15,
-    ),
-}
+
+def load_builtin_equipment_pack() -> EquipmentPack:
+    """Load the packaged SRD-style equipment content pack."""
+
+    data_resource = files("dnd5e.data").joinpath("equipment.json")
+    with data_resource.open(encoding="utf-8") as file:
+        data = json.load(file)
+    if not isinstance(data, Mapping):
+        raise ValueError("built-in equipment content pack must be a JSON object")
+    return load_equipment_pack_data(data)
+
+
+def load_equipment_pack_data(data: Mapping[str, Any]) -> EquipmentPack:
+    """Validate and construct an equipment pack from decoded JSON-style data."""
+
+    _validate_pack_keys(data)
+    armor = _load_armor_entries(data["armor"])
+    shields = _load_shield_entries(data["shields"])
+    weapons = _load_weapon_entries(data["weapons"])
+    return EquipmentPack(armor=armor, shields=shields, weapons=weapons)
+
+
+def _validate_pack_keys(data: Mapping[str, Any]) -> None:
+    expected = {"armor", "shields", "weapons"}
+    missing = expected - set(data)
+    if missing:
+        raise ValueError(f"equipment content pack missing sections: {', '.join(sorted(missing))}")
+    extra = set(data) - expected
+    if extra:
+        raise ValueError(f"equipment content pack has unknown sections: {', '.join(sorted(extra))}")
+
+
+def _load_armor_entries(entries: Any) -> dict[str, ArmorDefinition]:
+    return _catalog_by_id(
+        "armor",
+        [
+            ArmorDefinition(
+                id=_field(entry, "id", str, "armor"),
+                name=_field(entry, "name", str, "armor"),
+                category=_field(entry, "category", str, "armor"),  # type: ignore[arg-type]
+                base_ac=_field(entry, "base_ac", int, "armor"),
+                cost_cp=_field(entry, "cost_cp", int, "armor"),
+                weight_lb=_number_field(entry, "weight_lb", "armor"),
+                max_dex_bonus=_optional_field(entry, "max_dex_bonus", int, "armor"),
+                strength_requirement=_optional_field(entry, "strength_requirement", int, "armor"),
+                stealth_disadvantage=_field(entry, "stealth_disadvantage", bool, "armor"),
+            )
+            for entry in _validated_entries(
+                entries,
+                "armor",
+                {
+                    "id",
+                    "name",
+                    "category",
+                    "base_ac",
+                    "cost_cp",
+                    "weight_lb",
+                    "max_dex_bonus",
+                    "strength_requirement",
+                    "stealth_disadvantage",
+                },
+            )
+        ],
+    )
+
+
+def _load_shield_entries(entries: Any) -> dict[str, ShieldDefinition]:
+    return _catalog_by_id(
+        "shield",
+        [
+            ShieldDefinition(
+                id=_field(entry, "id", str, "shield"),
+                name=_field(entry, "name", str, "shield"),
+                ac_bonus=_field(entry, "ac_bonus", int, "shield"),
+                cost_cp=_field(entry, "cost_cp", int, "shield"),
+                weight_lb=_number_field(entry, "weight_lb", "shield"),
+            )
+            for entry in _validated_entries(
+                entries,
+                "shields",
+                {"id", "name", "ac_bonus", "cost_cp", "weight_lb"},
+            )
+        ],
+    )
+
+
+def _load_weapon_entries(entries: Any) -> dict[str, WeaponDefinition]:
+    return _catalog_by_id(
+        "weapon",
+        [
+            WeaponDefinition(
+                id=_field(entry, "id", str, "weapon"),
+                name=_field(entry, "name", str, "weapon"),
+                category=_field(entry, "category", str, "weapon"),  # type: ignore[arg-type]
+                range_type=_field(entry, "range_type", str, "weapon"),  # type: ignore[arg-type]
+                damage_dice=_field(entry, "damage_dice", str, "weapon"),
+                damage_type=_field(entry, "damage_type", str, "weapon"),  # type: ignore[arg-type]
+                cost_cp=_field(entry, "cost_cp", int, "weapon"),
+                weight_lb=_number_field(entry, "weight_lb", "weapon"),
+                properties=tuple(_string_list_field(entry, "properties", "weapon")),  # type: ignore[arg-type]
+                versatile_damage_dice=_optional_field(entry, "versatile_damage_dice", str, "weapon"),
+                normal_range=_optional_field(entry, "normal_range", int, "weapon"),
+                long_range=_optional_field(entry, "long_range", int, "weapon"),
+            )
+            for entry in _validated_entries(
+                entries,
+                "weapons",
+                {
+                    "id",
+                    "name",
+                    "category",
+                    "range_type",
+                    "damage_dice",
+                    "damage_type",
+                    "cost_cp",
+                    "weight_lb",
+                    "properties",
+                    "versatile_damage_dice",
+                    "normal_range",
+                    "long_range",
+                },
+            )
+        ],
+    )
+
+
+def _validated_entries(
+    entries: Any, section: str, expected_fields: set[str]
+) -> tuple[Mapping[str, Any], ...]:
+    if not isinstance(entries, list):
+        raise ValueError(f"equipment content section {section} must be a list")
+    for entry in entries:
+        if not isinstance(entry, Mapping):
+            raise ValueError(f"equipment content section {section} entries must be objects")
+        extra = set(entry) - expected_fields
+        if extra:
+            raise ValueError(f"{section} entry has unknown fields: {', '.join(sorted(extra))}")
+    return tuple(entries)
+
+
+def _catalog_by_id(section: str, entries: list[T]) -> dict[str, T]:
+    catalog: dict[str, T] = {}
+    for entry in entries:
+        entry_id = getattr(entry, "id")
+        if entry_id in catalog:
+            raise ValueError(f"duplicate {section} id: {entry_id}")
+        catalog[entry_id] = entry
+    return catalog
+
+
+def _field(entry: Mapping[str, Any], name: str, expected_type: type[T] | Any, section: str) -> T:
+    if name not in entry:
+        raise ValueError(f"{section} entry missing field: {name}")
+    value = entry[name]
+    if not isinstance(value, expected_type):
+        raise ValueError(f"{section}.{name} must be {expected_type.__name__}")
+    return value
+
+
+def _optional_field(
+    entry: Mapping[str, Any], name: str, expected_type: type[T], section: str
+) -> T | None:
+    if name not in entry:
+        raise ValueError(f"{section} entry missing field: {name}")
+    value = entry[name]
+    if value is None:
+        return None
+    if not isinstance(value, expected_type):
+        raise ValueError(f"{section}.{name} must be {expected_type.__name__} or null")
+    return value
+
+
+def _number_field(entry: Mapping[str, Any], name: str, section: str) -> float:
+    value = _field(entry, name, int | float, section)
+    return float(value)
+
+
+def _string_list_field(entry: Mapping[str, Any], name: str, section: str) -> tuple[str, ...]:
+    if name not in entry:
+        raise ValueError(f"{section} entry missing field: {name}")
+    value = entry[name]
+    if not isinstance(value, list):
+        raise ValueError(f"{section}.{name} must be a list")
+    for item in value:
+        if not isinstance(item, str):
+            raise ValueError(f"{section}.{name} entries must be strings")
+    return tuple(value)
+
+
+_BUILTIN_EQUIPMENT = load_builtin_equipment_pack()
+ARMOR: dict[str, ArmorDefinition] = _BUILTIN_EQUIPMENT.armor
+SHIELDS: dict[str, ShieldDefinition] = _BUILTIN_EQUIPMENT.shields
+WEAPONS: dict[str, WeaponDefinition] = _BUILTIN_EQUIPMENT.weapons
 
 
 def armor_class(
