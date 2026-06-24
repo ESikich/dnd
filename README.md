@@ -125,13 +125,13 @@ Included now:
 - Character rules validation for levels, ability scores, proficiencies, and bonus keys
 - Equipment, armor, shields, weapons, AC, and weapon attack profiles
 - HP, healing, temporary HP, hit dice, rests, death saves, and validation for impossible HP states
-- Basic creature/stat block definitions
+- Basic creature/stat block definitions with validation for HP, AC, abilities, dice, movement, senses, and XP
 - SRD-style base class metadata
 - Condition metadata as mechanical tags
 
 Good next modules:
 
-- Foundation naming and docstring polish
+- Foundation naming and README example polish
 - Spell definitions and spellcasting rules
 - Encounter difficulty
 - Resources and feature recharge

@@ -12,12 +12,23 @@ from dnd5e.combat import (
     create_combatant,
     damage_roll,
 )
+from dnd5e.dice import parse_dice_notation
 from dnd5e.hit_points import HitPointState
+from dnd5e.skills import SKILL_ABILITIES
 from dnd5e.types import Ability, CreatureSize, CreatureType, DamageType, Skill
+
+_ABILITIES: tuple[Ability, ...] = ("str", "dex", "con", "int", "wis", "cha")
+_SKILLS: tuple[Skill, ...] = tuple(SKILL_ABILITIES)
 
 
 @dataclass(frozen=True)
 class CreatureAction:
+    """A combat action from a creature stat block.
+
+    Actions model attack bonus, damage dice, damage type, and basic reach/range
+    metadata without long-form rule text.
+    """
+
     name: str
     attack_bonus: int
     damage_dice: str
@@ -27,9 +38,19 @@ class CreatureAction:
     long_range: int | None = None
     target: str = "one target"
 
+    def __post_init__(self) -> None:
+        parse_dice_notation(self.damage_dice)
+        _validate_positive_optional("reach", self.reach)
+        _validate_positive_optional("normal_range", self.normal_range)
+        _validate_positive_optional("long_range", self.long_range)
+        if self.normal_range is not None and self.long_range is not None and self.long_range < self.normal_range:
+            raise ValueError("long_range must be greater than or equal to normal_range")
+
 
 @dataclass(frozen=True)
 class CreatureDefinition:
+    """A compact, mechanics-first creature stat block."""
+
     id: str
     name: str
     size: CreatureSize
@@ -48,12 +69,57 @@ class CreatureDefinition:
     xp: int
     actions: tuple[CreatureAction, ...]
 
+    def __post_init__(self) -> None:
+        if self.armor_class < 1:
+            raise ValueError("armor_class must be positive")
+        if self.hit_points < 1:
+            raise ValueError("hit_points must be positive")
+        parse_dice_notation(self.hit_dice)
+        _validate_ability_scores(self.abilities)
+        _validate_known_keys("saving_throws", self.saving_throws, _ABILITIES)
+        _validate_known_keys("skills", self.skills, _SKILLS)
+        _validate_non_negative_values("speed", self.speed)
+        _validate_non_negative_values("senses", self.senses)
+        if self.xp < 0:
+            raise ValueError("xp cannot be negative")
+
 
 @dataclass(frozen=True)
 class CreatureInstance:
+    """A creature definition paired with runtime hit point state."""
+
     id: str
     definition: CreatureDefinition
     hit_points: HitPointState
+
+
+def _validate_positive_optional(name: str, value: int | None) -> None:
+    if value is not None and value < 1:
+        raise ValueError(f"{name} must be positive")
+
+
+def _validate_ability_scores(abilities: dict[Ability, int]) -> None:
+    missing = set(_ABILITIES) - set(abilities)
+    if missing:
+        raise ValueError(f"missing ability scores: {', '.join(sorted(missing))}")
+
+    _validate_known_keys("abilities", abilities, _ABILITIES)
+
+    for ability, score in abilities.items():
+        if not 1 <= score <= 30:
+            raise ValueError(f"{ability} ability score must be between 1 and 30")
+
+
+def _validate_known_keys(name: str, values: dict[str, int], allowed: tuple[str, ...]) -> None:
+    invalid = set(values) - set(allowed)
+    if invalid:
+        raise ValueError(f"invalid {name}: {', '.join(sorted(invalid))}")
+
+
+def _validate_non_negative_values(name: str, values: dict[str, int]) -> None:
+    for key, value in values.items():
+        if value < 0:
+            raise ValueError(f"{name}.{key} cannot be negative")
 
 
 CREATURES: dict[str, CreatureDefinition] = {

@@ -16,6 +16,7 @@ Implemented:
 - Equipment, armor, shields, weapons, AC, weapon attack profiles
 - HP, healing, temporary HP, hit dice, rests, death saves
 - Basic creature/stat block definitions for a small SRD-style catalog
+- Creature stat block validation for impossible HP, AC, ability scores, dice, movement, senses, and XP
 - SRD-style class metadata
 - Condition metadata as tags
 - Character sheets with class levels, loadouts, validation, derived HP, AC, skills, saves, attacks, and combatants
@@ -43,6 +44,8 @@ Progress:
 - Done: HP state, hit dice pool, and death save state objects validate impossible values at construction.
 - Done: public HP dataclasses have docstrings describing their mechanics role.
 - Done: `CharacterRules` validates level, ability score maps, proficiency choices, and skill/save bonus keys at construction.
+- Done: creature actions and definitions validate impossible dice, HP, AC, ability scores, ranges, movement, senses, and XP at construction.
+- Done: public creature dataclasses have docstrings describing their mechanics role.
 
 Done when:
 
