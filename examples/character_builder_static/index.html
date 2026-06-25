@@ -1,0 +1,144 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>D&D Character Builder</title>
+    <link rel="stylesheet" href="/styles.css" />
+  </head>
+  <body>
+    <main class="app">
+      <section class="builder">
+        <div class="topbar">
+          <div>
+            <p class="eyebrow">D&D 5E Rules Library</p>
+            <h1>Character Builder</h1>
+          </div>
+          <button id="downloadJson" class="icon-button" title="Download character JSON">Save</button>
+        </div>
+
+        <div class="form-grid">
+          <label>
+            Name
+            <input id="name" type="text" value="Kara" />
+          </label>
+          <label>
+            Class
+            <select id="class"></select>
+          </label>
+          <label>
+            Level
+            <input id="level" type="number" min="1" max="20" value="5" />
+          </label>
+          <label>
+            Race
+            <select id="race"></select>
+          </label>
+          <label>
+            Subrace
+            <select id="subrace"></select>
+          </label>
+        </div>
+
+        <div class="panel">
+          <div class="panel-header">
+            <h2>Ability Scores</h2>
+            <button id="standardArray" type="button">Standard Array</button>
+          </div>
+          <div id="abilities" class="ability-grid"></div>
+          <div id="abilityChoices" class="choice-row"></div>
+          <div id="languageChoices" class="choice-row"></div>
+        </div>
+
+        <div class="panel">
+          <div class="panel-header">
+            <h2>Class Skills</h2>
+            <span id="skillHint"></span>
+          </div>
+          <div id="skills" class="check-grid"></div>
+        </div>
+
+        <div class="panel">
+          <div class="panel-header">
+            <h2>Loadout</h2>
+            <span>Equipment-backed AC and attacks</span>
+          </div>
+          <div class="form-grid">
+            <label>
+              Armor
+              <select id="armor"></select>
+            </label>
+            <label>
+              Shield
+              <select id="shield"></select>
+            </label>
+            <label>
+              Max HP
+              <input id="maximumHitPoints" type="number" min="1" placeholder="derived" />
+            </label>
+            <label>
+              Current HP
+              <input id="currentHitPoints" type="number" min="0" placeholder="max" />
+            </label>
+          </div>
+          <div id="weapons" class="check-grid compact"></div>
+        </div>
+
+        <p id="error" class="error" role="alert"></p>
+      </section>
+
+      <aside class="sheet">
+        <div class="summary-head">
+          <div>
+            <p id="summaryLine" class="eyebrow"></p>
+            <h2 id="summaryName">Kara</h2>
+          </div>
+          <div class="stat-large">
+            <span>AC</span>
+            <strong id="armorClass">10</strong>
+          </div>
+        </div>
+
+        <div class="score-strip">
+          <div><span>HP</span><strong id="hitPoints">0</strong></div>
+          <div><span>Init</span><strong id="initiative">+0</strong></div>
+          <div><span>Prof</span><strong id="proficiency">+2</strong></div>
+        </div>
+
+        <div id="abilitySummary" class="mini-grid"></div>
+
+        <section>
+          <h3>Attacks</h3>
+          <div id="attacks" class="list"></div>
+        </section>
+
+        <section>
+          <h3>Class Features</h3>
+          <div id="features" class="list dense"></div>
+        </section>
+
+        <section>
+          <h3>Spellcasting</h3>
+          <div id="spellcasting" class="list dense"></div>
+        </section>
+
+        <section>
+          <h3>Saving Throws</h3>
+          <div id="saves" class="mini-grid"></div>
+        </section>
+
+        <section>
+          <h3>Skills</h3>
+          <div id="skillSummary" class="list dense"></div>
+        </section>
+
+        <section>
+          <h3>Lineage</h3>
+          <p id="lineage"></p>
+        </section>
+      </aside>
+    </main>
+
+    <script src="/app.js"></script>
+  </body>
+</html>

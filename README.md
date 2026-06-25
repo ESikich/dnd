@@ -26,8 +26,10 @@ from dnd5e import (
     FEATURES,
     ArmorClassModifier,
     CharacterClassLevel,
+    CharacterClassProgression,
     CharacterLoadout,
     CharacterSheet,
+    CharacterSpellcastingProgression,
     HitPointState,
     SPELLS,
     SRD_CLASSES,
@@ -41,7 +43,10 @@ from dnd5e import (
     apply_turn_effects,
     attack_roll,
     character_sheet_armor_class,
+    character_sheet_class_features,
+    character_sheet_class_progression,
     character_sheet_combatant,
+    character_sheet_spellcasting_progression,
     character_sheet_from_data,
     character_sheet_rules,
     character_sheet_to_data,
@@ -139,6 +144,9 @@ kara = CharacterSheet(
 kara_ac = character_sheet_armor_class(kara)
 kara_weapon = character_sheet_weapon_profile(kara, "longsword")
 kara_combatant = character_sheet_combatant(kara, roll=14)
+kara_progression = character_sheet_class_progression(kara)
+kara_features = character_sheet_class_features(kara)
+kara_spellcasting = character_sheet_spellcasting_progression(kara)
 kara_data = character_sheet_to_data(kara)
 restored_kara = character_sheet_from_data(kara_data)
 goblin = create_creature_instance(CREATURES["goblin"])
@@ -297,6 +305,9 @@ print(combatant_by_id(result.state, "goblin").hit_points.current)  # 3
 print(kara_ac.total)  # 18
 print(kara_weapon.attack_bonus)  # 6
 print(kara_combatant.hit_points.maximum)  # 44
+print(kara_progression.class_specific["extra_attacks"])  # 1
+print(kara_features[1].name)  # "Second Wind"
+print(kara_spellcasting)  # None
 print(goblin_combatant.armor_class)  # 15
 print(skeleton.damage_immunities)  # ("poison",)
 print(zombie.traits[0].name)  # "Undead Fortitude"
@@ -358,6 +369,8 @@ Included now:
 - Attack rolls, critical hit/miss handling, and damage rolling
 - Combat runtime state with validated AC, HP, conditions, attack resolution, and healing
 - Character sheets with class levels, validated proficiencies/loadouts, documented derived stats, HP, and combatants
+- Class progression helpers that project sheet class levels into granted
+  features, class-specific table values, and spellcasting slots
 - Character rules validation for levels, ability scores, proficiencies, and bonus keys
 - Equipment, armor, shields, weapons, AC, and weapon attack profiles
 - Equipment definition validation for impossible AC, costs, weights, damage, ranges, and metadata
@@ -384,6 +397,8 @@ Included now:
 - Structured effect helpers for condition-based roll modifiers, AC modifiers,
   condition immunity, turn start/end hooks, concentration checks, and damage
   vulnerability/resistance/immunity adjustment
+- A web-based character builder example backed by the packaged content and
+  character sheet derivation helpers
 
 Good next modules:
 
@@ -406,6 +421,12 @@ deferred until the public typing shapes settle further.
 
 ```sh
 PYTHONPATH=src python3 examples/exercise_library.py
+```
+
+Run the web character builder:
+
+```sh
+PYTHONPATH=src python3 examples/character_builder.py
 ```
 
 ## Legal

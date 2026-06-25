@@ -202,6 +202,13 @@ from dnd5e.magic_items import (
     recharge_magic_item,
     spend_magic_item_charges,
 )
+from dnd5e.progression import (
+    CharacterClassProgression,
+    CharacterSpellcastingProgression,
+    character_sheet_class_features,
+    character_sheet_class_progression,
+    character_sheet_spellcasting_progression,
+)
 from dnd5e.resources import (
     BreathWeaponProfile,
     FEATURES,
@@ -385,9 +392,11 @@ __all__ = [
     "ArmorClassModifier",
     "CharacterClassName",
     "CharacterClassLevel",
+    "CharacterClassProgression",
     "CharacterLoadout",
     "CharacterRules",
     "CharacterSheet",
+    "CharacterSpellcastingProgression",
     "ClassDefinition",
     "ClassLevelDefinition",
     "ClassPack",
@@ -523,6 +532,8 @@ __all__ = [
     "character_runtime_combatant",
     "character_sheet_from_data",
     "character_sheet_armor_class",
+    "character_sheet_class_features",
+    "character_sheet_class_progression",
     "character_sheet_combatant",
     "character_sheet_hit_points",
     "character_sheet_initiative_bonus",
@@ -534,6 +545,7 @@ __all__ = [
     "character_sheet_skill_bonus",
     "character_sheet_spell_attack_bonus",
     "character_sheet_spell_save_dc",
+    "character_sheet_spellcasting_progression",
     "character_sheet_weapon_profile",
     "character_sheet_weapon_profiles",
     "character_sheet_to_data",
