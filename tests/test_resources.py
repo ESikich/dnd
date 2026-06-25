@@ -6,6 +6,7 @@ import pytest
 from dnd5e import (
     FEATURES,
     RESOURCE_REFRESHES,
+    BreathWeaponProfile,
     FeatureDefinition,
     FeaturePack,
     FeatureState,
@@ -16,8 +17,17 @@ from dnd5e import (
     SecondWindResult,
     HitPointState,
     apply_second_wind,
+    breath_weapon_profile,
     create_feature_state,
     create_resource_state,
+    feature_ability_check_modifier,
+    feature_armor_class_bonus,
+    feature_attack_modifier,
+    feature_damage_resistances,
+    feature_has_darkvision,
+    feature_prerequisites_met,
+    feature_rage_damage_bonus,
+    feature_saving_throw_modifier,
     load_builtin_feature_pack,
     load_feature_pack,
     load_feature_pack_data,
@@ -46,14 +56,22 @@ def test_public_resource_imports_and_docstrings() -> None:
     assert FeaturePack.__doc__
     assert FeatureState.__doc__
     assert SecondWindResult.__doc__
+    assert BreathWeaponProfile.__doc__
 
 
 def test_builtin_feature_pack_loads_current_catalog() -> None:
     pack = load_builtin_feature_pack()
 
     assert pack.features == FEATURES
+    assert len(pack.features) == 449
     assert pack.features["second_wind"].resource is not None
     assert pack.features["second_wind"].resource.refresh == "short_rest"
+    assert pack.features["second_wind"].class_id == "fighter"
+    assert pack.features["second_wind"].level == 1
+    assert pack.features["breath_weapon"].source_type == "trait"
+    assert pack.features["breath_weapon"].race_ids == ("dragonborn",)
+    assert pack.features["grappler"].source_type == "feat"
+    assert pack.features["grappler"].prerequisite_abilities == {"str": 13}
     assert pack.features["sneak_attack"].resource is None
 
 
@@ -87,6 +105,7 @@ def test_feature_pack_loads_from_decoded_data() -> None:
 
     assert pack.features["spark"].tags == ("fire",)
     assert pack.features["spark"].resource is None
+    assert pack.features["spark"].source_type == "feature"
     assert pack.features["breath"].resource is not None
     assert pack.features["breath"].resource.recharge_minimum == 5
 
@@ -231,6 +250,31 @@ def test_feature_state_wraps_optional_resource_state() -> None:
 
     assert sneak_attack.resource is None
     assert long_rest_feature(sneak_attack) == sneak_attack
+
+
+def test_feature_effect_helpers_read_loaded_metadata() -> None:
+    rage_features = ("rage",)
+
+    assert feature_armor_class_bonus(("fighting_style_defense",), wearing_armor=True) == 1
+    assert feature_armor_class_bonus(("fighting_style_defense",), wearing_armor=False) == 0
+    assert feature_rage_damage_bonus(rage_features, barbarian_level=8) == 2
+    assert feature_rage_damage_bonus(rage_features, barbarian_level=12) == 3
+    assert feature_rage_damage_bonus(rage_features, barbarian_level=16) == 4
+    assert feature_rage_damage_bonus(rage_features, barbarian_level=8, using_strength=False) == 0
+    assert feature_damage_resistances(rage_features) == ("bludgeoning", "piercing", "slashing")
+    assert feature_ability_check_modifier(rage_features, "str").advantage == "advantage"
+    assert feature_saving_throw_modifier(rage_features, "str").advantage == "advantage"
+    assert feature_ability_check_modifier(rage_features, "dex").advantage == "normal"
+    assert feature_attack_modifier(("grappler",), target_grappled_by_you=True).advantage == "advantage"
+    assert feature_attack_modifier(("grappler",), target_grappled_by_you=False).advantage == "normal"
+    assert feature_has_darkvision(("darkvision",)) is True
+    assert feature_has_darkvision(("second_wind",)) is False
+    assert breath_weapon_profile(level=11, constitution_modifier=3, proficiency=4) == BreathWeaponProfile(
+        damage_dice="4d6",
+        save_dc=15,
+    )
+    assert feature_prerequisites_met("grappler", abilities={"str": 13}) is True
+    assert feature_prerequisites_met("grappler", abilities={"str": 12}) is False
 
 
 def test_recharge_feature_returns_updated_feature_and_roll_result() -> None:

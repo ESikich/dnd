@@ -33,7 +33,20 @@ def test_character_sheet_round_trips_through_json_compatible_data() -> None:
     assert data["version"] == 1
     assert data["classes"] == [{"name": "fighter", "level": 5}]
     assert data["loadout"]["weapons"] == ["longsword", "shortbow"]
+    assert data["loadout"]["magic_items"] == ["ring_of_protection"]
+    assert data["loadout"]["attuned_magic_items"] == ["ring_of_protection"]
     assert restored == sheet
+
+
+def test_character_sheet_from_data_accepts_legacy_loadout_without_magic_items() -> None:
+    data = character_sheet_to_data(sample_sheet())
+    del data["loadout"]["magic_items"]
+    del data["loadout"]["attuned_magic_items"]
+
+    restored = character_sheet_from_data(data)
+
+    assert restored.loadout.magic_items == ()
+    assert restored.loadout.attuned_magic_items == ()
 
 
 def test_character_sheet_round_trips_through_json_file(tmp_path: Path) -> None:
@@ -100,6 +113,8 @@ def sample_sheet() -> CharacterSheet:
             shield="shield",
             weapons=("longsword", "shortbow"),
             two_handed_weapons=("longsword",),
+            magic_items=("ring_of_protection",),
+            attuned_magic_items=("ring_of_protection",),
         ),
         current_hit_points=28,
         temporary_hit_points=3,

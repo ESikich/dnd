@@ -1,0 +1,1873 @@
+{
+  "races": [
+    {
+      "id": "dragonborn",
+      "name": "Dragonborn",
+      "speed": 30,
+      "size": "medium",
+      "ability_bonuses": [
+        {
+          "ability": "str",
+          "bonus": 2
+        },
+        {
+          "ability": "cha",
+          "bonus": 1
+        }
+      ],
+      "ability_bonus_options": [],
+      "ability_bonus_choice_count": 0,
+      "languages": [
+        "common",
+        "draconic"
+      ],
+      "language_options": [],
+      "language_choice_count": 0,
+      "traits": [
+        "draconic-ancestry",
+        "breath-weapon",
+        "damage-resistance"
+      ],
+      "subraces": [],
+      "source_url": "/api/2014/races/dragonborn"
+    },
+    {
+      "id": "dwarf",
+      "name": "Dwarf",
+      "speed": 25,
+      "size": "medium",
+      "ability_bonuses": [
+        {
+          "ability": "con",
+          "bonus": 2
+        }
+      ],
+      "ability_bonus_options": [],
+      "ability_bonus_choice_count": 0,
+      "languages": [
+        "common",
+        "dwarvish"
+      ],
+      "language_options": [],
+      "language_choice_count": 0,
+      "traits": [
+        "darkvision",
+        "dwarven-resilience",
+        "stonecunning",
+        "dwarven-combat-training",
+        "tool-proficiency"
+      ],
+      "subraces": [
+        "hill-dwarf"
+      ],
+      "source_url": "/api/2014/races/dwarf"
+    },
+    {
+      "id": "elf",
+      "name": "Elf",
+      "speed": 30,
+      "size": "medium",
+      "ability_bonuses": [
+        {
+          "ability": "dex",
+          "bonus": 2
+        }
+      ],
+      "ability_bonus_options": [],
+      "ability_bonus_choice_count": 0,
+      "languages": [
+        "common",
+        "elvish"
+      ],
+      "language_options": [],
+      "language_choice_count": 0,
+      "traits": [
+        "darkvision",
+        "fey-ancestry",
+        "trance",
+        "keen-senses"
+      ],
+      "subraces": [
+        "high-elf"
+      ],
+      "source_url": "/api/2014/races/elf"
+    },
+    {
+      "id": "gnome",
+      "name": "Gnome",
+      "speed": 25,
+      "size": "small",
+      "ability_bonuses": [
+        {
+          "ability": "int",
+          "bonus": 2
+        }
+      ],
+      "ability_bonus_options": [],
+      "ability_bonus_choice_count": 0,
+      "languages": [
+        "common",
+        "gnomish"
+      ],
+      "language_options": [],
+      "language_choice_count": 0,
+      "traits": [
+        "darkvision",
+        "gnome-cunning"
+      ],
+      "subraces": [
+        "rock-gnome"
+      ],
+      "source_url": "/api/2014/races/gnome"
+    },
+    {
+      "id": "half-elf",
+      "name": "Half-Elf",
+      "speed": 30,
+      "size": "medium",
+      "ability_bonuses": [
+        {
+          "ability": "cha",
+          "bonus": 2
+        }
+      ],
+      "ability_bonus_options": [
+        {
+          "ability": "str",
+          "bonus": 1
+        },
+        {
+          "ability": "dex",
+          "bonus": 1
+        },
+        {
+          "ability": "con",
+          "bonus": 1
+        },
+        {
+          "ability": "int",
+          "bonus": 1
+        },
+        {
+          "ability": "wis",
+          "bonus": 1
+        }
+      ],
+      "ability_bonus_choice_count": 2,
+      "languages": [
+        "common",
+        "elvish"
+      ],
+      "language_options": [
+        "dwarvish",
+        "giant",
+        "gnomish",
+        "goblin",
+        "halfling",
+        "orc",
+        "abyssal",
+        "celestial",
+        "draconic",
+        "deep-speech",
+        "infernal",
+        "primordial",
+        "sylvan",
+        "undercommon"
+      ],
+      "language_choice_count": 1,
+      "traits": [
+        "darkvision",
+        "fey-ancestry",
+        "skill-versatility"
+      ],
+      "subraces": [],
+      "source_url": "/api/2014/races/half-elf"
+    },
+    {
+      "id": "half-orc",
+      "name": "Half-Orc",
+      "speed": 30,
+      "size": "medium",
+      "ability_bonuses": [
+        {
+          "ability": "str",
+          "bonus": 2
+        },
+        {
+          "ability": "con",
+          "bonus": 1
+        }
+      ],
+      "ability_bonus_options": [],
+      "ability_bonus_choice_count": 0,
+      "languages": [
+        "common",
+        "orc"
+      ],
+      "language_options": [],
+      "language_choice_count": 0,
+      "traits": [
+        "darkvision",
+        "savage-attacks",
+        "relentless-endurance",
+        "menacing"
+      ],
+      "subraces": [],
+      "source_url": "/api/2014/races/half-orc"
+    },
+    {
+      "id": "halfling",
+      "name": "Halfling",
+      "speed": 25,
+      "size": "small",
+      "ability_bonuses": [
+        {
+          "ability": "dex",
+          "bonus": 2
+        }
+      ],
+      "ability_bonus_options": [],
+      "ability_bonus_choice_count": 0,
+      "languages": [
+        "common",
+        "halfling"
+      ],
+      "language_options": [],
+      "language_choice_count": 0,
+      "traits": [
+        "brave",
+        "halfling-nimbleness",
+        "lucky"
+      ],
+      "subraces": [
+        "lightfoot-halfling"
+      ],
+      "source_url": "/api/2014/races/halfling"
+    },
+    {
+      "id": "human",
+      "name": "Human",
+      "speed": 30,
+      "size": "medium",
+      "ability_bonuses": [
+        {
+          "ability": "str",
+          "bonus": 1
+        },
+        {
+          "ability": "dex",
+          "bonus": 1
+        },
+        {
+          "ability": "con",
+          "bonus": 1
+        },
+        {
+          "ability": "int",
+          "bonus": 1
+        },
+        {
+          "ability": "wis",
+          "bonus": 1
+        },
+        {
+          "ability": "cha",
+          "bonus": 1
+        }
+      ],
+      "ability_bonus_options": [],
+      "ability_bonus_choice_count": 0,
+      "languages": [
+        "common"
+      ],
+      "language_options": [
+        "dwarvish",
+        "elvish",
+        "giant",
+        "gnomish",
+        "goblin",
+        "halfling",
+        "orc",
+        "abyssal",
+        "celestial",
+        "draconic",
+        "deep-speech",
+        "infernal",
+        "primordial",
+        "sylvan",
+        "undercommon"
+      ],
+      "language_choice_count": 1,
+      "traits": [],
+      "subraces": [],
+      "source_url": "/api/2014/races/human"
+    },
+    {
+      "id": "tiefling",
+      "name": "Tiefling",
+      "speed": 30,
+      "size": "medium",
+      "ability_bonuses": [
+        {
+          "ability": "int",
+          "bonus": 1
+        },
+        {
+          "ability": "cha",
+          "bonus": 2
+        }
+      ],
+      "ability_bonus_options": [],
+      "ability_bonus_choice_count": 0,
+      "languages": [
+        "common",
+        "infernal"
+      ],
+      "language_options": [],
+      "language_choice_count": 0,
+      "traits": [
+        "darkvision",
+        "hellish-resistance",
+        "infernal-legacy"
+      ],
+      "subraces": [],
+      "source_url": "/api/2014/races/tiefling"
+    }
+  ],
+  "subraces": [
+    {
+      "id": "high-elf",
+      "name": "High Elf",
+      "race_id": "elf",
+      "ability_bonuses": [
+        {
+          "ability": "int",
+          "bonus": 1
+        }
+      ],
+      "traits": [
+        "elf-weapon-training",
+        "high-elf-cantrip",
+        "extra-language"
+      ],
+      "source_url": "/api/2014/subraces/high-elf"
+    },
+    {
+      "id": "hill-dwarf",
+      "name": "Hill Dwarf",
+      "race_id": "dwarf",
+      "ability_bonuses": [
+        {
+          "ability": "wis",
+          "bonus": 1
+        }
+      ],
+      "traits": [
+        "dwarven-toughness"
+      ],
+      "source_url": "/api/2014/subraces/hill-dwarf"
+    },
+    {
+      "id": "lightfoot-halfling",
+      "name": "Lightfoot Halfling",
+      "race_id": "halfling",
+      "ability_bonuses": [
+        {
+          "ability": "cha",
+          "bonus": 1
+        }
+      ],
+      "traits": [
+        "naturally-stealthy"
+      ],
+      "source_url": "/api/2014/subraces/lightfoot-halfling"
+    },
+    {
+      "id": "rock-gnome",
+      "name": "Rock Gnome",
+      "race_id": "gnome",
+      "ability_bonuses": [
+        {
+          "ability": "con",
+          "bonus": 1
+        }
+      ],
+      "traits": [
+        "artificers-lore",
+        "tinker"
+      ],
+      "source_url": "/api/2014/subraces/rock-gnome"
+    }
+  ],
+  "languages": [
+    {
+      "id": "abyssal",
+      "name": "Abyssal",
+      "type": "Exotic",
+      "script": "Infernal",
+      "typical_speakers": [
+        "Demons"
+      ],
+      "source_url": "/api/2014/languages/abyssal"
+    },
+    {
+      "id": "celestial",
+      "name": "Celestial",
+      "type": "Exotic",
+      "script": "Celestial",
+      "typical_speakers": [
+        "Celestials"
+      ],
+      "source_url": "/api/2014/languages/celestial"
+    },
+    {
+      "id": "common",
+      "name": "Common",
+      "type": "Standard",
+      "script": "Common",
+      "typical_speakers": [
+        "Humans"
+      ],
+      "source_url": "/api/2014/languages/common"
+    },
+    {
+      "id": "deep-speech",
+      "name": "Deep Speech",
+      "type": "Exotic",
+      "script": null,
+      "typical_speakers": [
+        "Aboleths",
+        "Cloakers"
+      ],
+      "source_url": "/api/2014/languages/deep-speech"
+    },
+    {
+      "id": "draconic",
+      "name": "Draconic",
+      "type": "Exotic",
+      "script": "Draconic",
+      "typical_speakers": [
+        "Dragons",
+        "Dragonborn"
+      ],
+      "source_url": "/api/2014/languages/draconic"
+    },
+    {
+      "id": "dwarvish",
+      "name": "Dwarvish",
+      "type": "Standard",
+      "script": "Dwarvish",
+      "typical_speakers": [
+        "Dwarves"
+      ],
+      "source_url": "/api/2014/languages/dwarvish"
+    },
+    {
+      "id": "elvish",
+      "name": "Elvish",
+      "type": "Standard",
+      "script": "Elvish",
+      "typical_speakers": [
+        "Elves"
+      ],
+      "source_url": "/api/2014/languages/elvish"
+    },
+    {
+      "id": "giant",
+      "name": "Giant",
+      "type": "Standard",
+      "script": "Dwarvish",
+      "typical_speakers": [
+        "Ogres",
+        "Giants"
+      ],
+      "source_url": "/api/2014/languages/giant"
+    },
+    {
+      "id": "gnomish",
+      "name": "Gnomish",
+      "type": "Standard",
+      "script": "Dwarvish",
+      "typical_speakers": [
+        "Gnomes"
+      ],
+      "source_url": "/api/2014/languages/gnomish"
+    },
+    {
+      "id": "goblin",
+      "name": "Goblin",
+      "type": "Standard",
+      "script": "Dwarvish",
+      "typical_speakers": [
+        "Goblinoids"
+      ],
+      "source_url": "/api/2014/languages/goblin"
+    },
+    {
+      "id": "halfling",
+      "name": "Halfling",
+      "type": "Standard",
+      "script": "Common",
+      "typical_speakers": [
+        "Halflings"
+      ],
+      "source_url": "/api/2014/languages/halfling"
+    },
+    {
+      "id": "infernal",
+      "name": "Infernal",
+      "type": "Exotic",
+      "script": "Infernal",
+      "typical_speakers": [
+        "Devils"
+      ],
+      "source_url": "/api/2014/languages/infernal"
+    },
+    {
+      "id": "orc",
+      "name": "Orc",
+      "type": "Standard",
+      "script": "Dwarvish",
+      "typical_speakers": [
+        "Orcs"
+      ],
+      "source_url": "/api/2014/languages/orc"
+    },
+    {
+      "id": "primordial",
+      "name": "Primordial",
+      "type": "Exotic",
+      "script": "Dwarvish",
+      "typical_speakers": [
+        "Elementals"
+      ],
+      "source_url": "/api/2014/languages/primordial"
+    },
+    {
+      "id": "sylvan",
+      "name": "Sylvan",
+      "type": "Exotic",
+      "script": "Elvish",
+      "typical_speakers": [
+        "Fey creatures"
+      ],
+      "source_url": "/api/2014/languages/sylvan"
+    },
+    {
+      "id": "undercommon",
+      "name": "Undercommon",
+      "type": "Exotic",
+      "script": "Elvish",
+      "typical_speakers": [
+        "Underdark traders"
+      ],
+      "source_url": "/api/2014/languages/undercommon"
+    }
+  ],
+  "proficiencies": [
+    {
+      "id": "alchemists-supplies",
+      "name": "Alchemist's Supplies",
+      "type": "Artisan's Tools",
+      "reference_id": "alchemists-supplies",
+      "reference_url": "/api/2014/equipment/alchemists-supplies",
+      "class_ids": [],
+      "race_ids": [],
+      "source_url": "/api/2014/proficiencies/alchemists-supplies"
+    },
+    {
+      "id": "all-armor",
+      "name": "All armor",
+      "type": "Armor",
+      "reference_id": "armor",
+      "reference_url": "/api/2014/equipment-categories/armor",
+      "class_ids": [
+        "fighter",
+        "paladin"
+      ],
+      "race_ids": [],
+      "source_url": "/api/2014/proficiencies/all-armor"
+    },
+    {
+      "id": "bagpipes",
+      "name": "Bagpipes",
+      "type": "Musical Instruments",
+      "reference_id": "bagpipes",
+      "reference_url": "/api/2014/equipment/bagpipes",
+      "class_ids": [],
+      "race_ids": [],
+      "source_url": "/api/2014/proficiencies/bagpipes"
+    },
+    {
+      "id": "battleaxes",
+      "name": "Battleaxes",
+      "type": "Weapons",
+      "reference_id": "battleaxe",
+      "reference_url": "/api/2014/equipment/battleaxe",
+      "class_ids": [],
+      "race_ids": [
+        "dwarf"
+      ],
+      "source_url": "/api/2014/proficiencies/battleaxes"
+    },
+    {
+      "id": "blowguns",
+      "name": "Blowguns",
+      "type": "Weapons",
+      "reference_id": "blowgun",
+      "reference_url": "/api/2014/equipment/blowgun",
+      "class_ids": [],
+      "race_ids": [],
+      "source_url": "/api/2014/proficiencies/blowguns"
+    },
+    {
+      "id": "breastplate",
+      "name": "Breastplate",
+      "type": "Armor",
+      "reference_id": "breastplate",
+      "reference_url": "/api/2014/equipment/breastplate",
+      "class_ids": [],
+      "race_ids": [],
+      "source_url": "/api/2014/proficiencies/breastplate"
+    },
+    {
+      "id": "brewers-supplies",
+      "name": "Brewer's Supplies",
+      "type": "Artisan's Tools",
+      "reference_id": "brewers-supplies",
+      "reference_url": "/api/2014/equipment/brewers-supplies",
+      "class_ids": [],
+      "race_ids": [],
+      "source_url": "/api/2014/proficiencies/brewers-supplies"
+    },
+    {
+      "id": "calligraphers-supplies",
+      "name": "Calligrapher's Supplies",
+      "type": "Artisan's Tools",
+      "reference_id": "calligraphers-supplies",
+      "reference_url": "/api/2014/equipment/calligraphers-supplies",
+      "class_ids": [],
+      "race_ids": [],
+      "source_url": "/api/2014/proficiencies/calligraphers-supplies"
+    },
+    {
+      "id": "carpenters-tools",
+      "name": "Carpenter's Tools",
+      "type": "Artisan's Tools",
+      "reference_id": "carpenters-tools",
+      "reference_url": "/api/2014/equipment/carpenters-tools",
+      "class_ids": [],
+      "race_ids": [],
+      "source_url": "/api/2014/proficiencies/carpenters-tools"
+    },
+    {
+      "id": "cartographers-tools",
+      "name": "Cartographer's Tools",
+      "type": "Artisan's Tools",
+      "reference_id": "cartographers-tools",
+      "reference_url": "/api/2014/equipment/cartographers-tools",
+      "class_ids": [],
+      "race_ids": [],
+      "source_url": "/api/2014/proficiencies/cartographers-tools"
+    },
+    {
+      "id": "chain-mail",
+      "name": "Chain Mail",
+      "type": "Armor",
+      "reference_id": "chain-mail",
+      "reference_url": "/api/2014/equipment/chain-mail",
+      "class_ids": [],
+      "race_ids": [],
+      "source_url": "/api/2014/proficiencies/chain-mail"
+    },
+    {
+      "id": "chain-shirt",
+      "name": "Chain Shirt",
+      "type": "Armor",
+      "reference_id": "chain-shirt",
+      "reference_url": "/api/2014/equipment/chain-shirt",
+      "class_ids": [],
+      "race_ids": [],
+      "source_url": "/api/2014/proficiencies/chain-shirt"
+    },
+    {
+      "id": "clubs",
+      "name": "Clubs",
+      "type": "Weapons",
+      "reference_id": "club",
+      "reference_url": "/api/2014/equipment/club",
+      "class_ids": [
+        "druid"
+      ],
+      "race_ids": [],
+      "source_url": "/api/2014/proficiencies/clubs"
+    },
+    {
+      "id": "cobblers-tools",
+      "name": "Cobbler's Tools",
+      "type": "Artisan's Tools",
+      "reference_id": "cobblers-tools",
+      "reference_url": "/api/2014/equipment/cobblers-tools",
+      "class_ids": [],
+      "race_ids": [],
+      "source_url": "/api/2014/proficiencies/cobblers-tools"
+    },
+    {
+      "id": "cooks-utensils",
+      "name": "Cook's utensils",
+      "type": "Artisan's Tools",
+      "reference_id": "cooks-utensils",
+      "reference_url": "/api/2014/equipment/cooks-utensils",
+      "class_ids": [],
+      "race_ids": [],
+      "source_url": "/api/2014/proficiencies/cooks-utensils"
+    },
+    {
+      "id": "crossbows-heavy",
+      "name": "Crossbows, heavy",
+      "type": "Weapons",
+      "reference_id": "crossbow-heavy",
+      "reference_url": "/api/2014/equipment/crossbow-heavy",
+      "class_ids": [],
+      "race_ids": [],
+      "source_url": "/api/2014/proficiencies/crossbows-heavy"
+    },
+    {
+      "id": "crossbows-light",
+      "name": "Crossbows, light",
+      "type": "Weapons",
+      "reference_id": "crossbow-light",
+      "reference_url": "/api/2014/equipment/crossbow-light",
+      "class_ids": [
+        "sorcerer",
+        "wizard"
+      ],
+      "race_ids": [],
+      "source_url": "/api/2014/proficiencies/crossbows-light"
+    },
+    {
+      "id": "daggers",
+      "name": "Daggers",
+      "type": "Weapons",
+      "reference_id": "dagger",
+      "reference_url": "/api/2014/equipment/dagger",
+      "class_ids": [
+        "druid",
+        "sorcerer",
+        "wizard"
+      ],
+      "race_ids": [],
+      "source_url": "/api/2014/proficiencies/daggers"
+    },
+    {
+      "id": "darts",
+      "name": "Darts",
+      "type": "Weapons",
+      "reference_id": "dart",
+      "reference_url": "/api/2014/equipment/dart",
+      "class_ids": [
+        "druid",
+        "sorcerer",
+        "wizard"
+      ],
+      "race_ids": [],
+      "source_url": "/api/2014/proficiencies/darts"
+    },
+    {
+      "id": "dice-set",
+      "name": "Dice Set",
+      "type": "Gaming Sets",
+      "reference_id": "dice-set",
+      "reference_url": "/api/2014/equipment/dice-set",
+      "class_ids": [],
+      "race_ids": [],
+      "source_url": "/api/2014/proficiencies/dice-set"
+    },
+    {
+      "id": "disguise-kit",
+      "name": "Disguise Kit",
+      "type": "Artisan's Tools",
+      "reference_id": "disguise-kit",
+      "reference_url": "/api/2014/equipment/disguise-kit",
+      "class_ids": [],
+      "race_ids": [],
+      "source_url": "/api/2014/proficiencies/disguise-kit"
+    },
+    {
+      "id": "drum",
+      "name": "Drum",
+      "type": "Musical Instruments",
+      "reference_id": "drum",
+      "reference_url": "/api/2014/equipment/drum",
+      "class_ids": [],
+      "race_ids": [],
+      "source_url": "/api/2014/proficiencies/drum"
+    },
+    {
+      "id": "dulcimer",
+      "name": "Dulcimer",
+      "type": "Musical Instruments",
+      "reference_id": "dulcimer",
+      "reference_url": "/api/2014/equipment/dulcimer",
+      "class_ids": [],
+      "race_ids": [],
+      "source_url": "/api/2014/proficiencies/dulcimer"
+    },
+    {
+      "id": "flails",
+      "name": "Flails",
+      "type": "Weapons",
+      "reference_id": "flail",
+      "reference_url": "/api/2014/equipment/flail",
+      "class_ids": [],
+      "race_ids": [],
+      "source_url": "/api/2014/proficiencies/flails"
+    },
+    {
+      "id": "flute",
+      "name": "Flute",
+      "type": "Musical Instruments",
+      "reference_id": "flute",
+      "reference_url": "/api/2014/equipment/flute",
+      "class_ids": [],
+      "race_ids": [],
+      "source_url": "/api/2014/proficiencies/flute"
+    },
+    {
+      "id": "forgery-kit",
+      "name": "Forgery Kit",
+      "type": "Artisan's Tools",
+      "reference_id": "forgery-kit",
+      "reference_url": "/api/2014/equipment/forgery-kit",
+      "class_ids": [],
+      "race_ids": [],
+      "source_url": "/api/2014/proficiencies/forgery-kit"
+    },
+    {
+      "id": "glaives",
+      "name": "Glaives",
+      "type": "Weapons",
+      "reference_id": "glaive",
+      "reference_url": "/api/2014/equipment/glaive",
+      "class_ids": [],
+      "race_ids": [],
+      "source_url": "/api/2014/proficiencies/glaives"
+    },
+    {
+      "id": "glassblowers-tools",
+      "name": "Glassblower's Tools",
+      "type": "Artisan's Tools",
+      "reference_id": "glassblowers-tools",
+      "reference_url": "/api/2014/equipment/glassblowers-tools",
+      "class_ids": [],
+      "race_ids": [],
+      "source_url": "/api/2014/proficiencies/glassblowers-tools"
+    },
+    {
+      "id": "greataxes",
+      "name": "Greataxes",
+      "type": "Weapons",
+      "reference_id": "greataxe",
+      "reference_url": "/api/2014/equipment/greataxe",
+      "class_ids": [],
+      "race_ids": [],
+      "source_url": "/api/2014/proficiencies/greataxes"
+    },
+    {
+      "id": "greatclubs",
+      "name": "Greatclubs",
+      "type": "Weapons",
+      "reference_id": "greatclub",
+      "reference_url": "/api/2014/equipment/greatclub",
+      "class_ids": [],
+      "race_ids": [],
+      "source_url": "/api/2014/proficiencies/greatclubs"
+    },
+    {
+      "id": "greatswords",
+      "name": "Greatswords",
+      "type": "Weapons",
+      "reference_id": "greatsword",
+      "reference_url": "/api/2014/equipment/greatsword",
+      "class_ids": [],
+      "race_ids": [],
+      "source_url": "/api/2014/proficiencies/greatswords"
+    },
+    {
+      "id": "halberds",
+      "name": "Halberds",
+      "type": "Weapons",
+      "reference_id": "halberd",
+      "reference_url": "/api/2014/equipment/halberd",
+      "class_ids": [],
+      "race_ids": [],
+      "source_url": "/api/2014/proficiencies/halberds"
+    },
+    {
+      "id": "half-plate-armor",
+      "name": "Half Plate Armor",
+      "type": "Armor",
+      "reference_id": "half-plate-armor",
+      "reference_url": "/api/2014/equipment/half-plate-armor",
+      "class_ids": [],
+      "race_ids": [],
+      "source_url": "/api/2014/proficiencies/half-plate-armor"
+    },
+    {
+      "id": "hand-crossbows",
+      "name": "Hand crossbows",
+      "type": "Weapons",
+      "reference_id": "crossbow-hand",
+      "reference_url": "/api/2014/equipment/crossbow-hand",
+      "class_ids": [
+        "bard",
+        "rogue"
+      ],
+      "race_ids": [],
+      "source_url": "/api/2014/proficiencies/hand-crossbows"
+    },
+    {
+      "id": "handaxes",
+      "name": "Handaxes",
+      "type": "Weapons",
+      "reference_id": "handaxe",
+      "reference_url": "/api/2014/equipment/handaxe",
+      "class_ids": [],
+      "race_ids": [
+        "dwarf"
+      ],
+      "source_url": "/api/2014/proficiencies/handaxes"
+    },
+    {
+      "id": "heavy-armor",
+      "name": "Heavy Armor",
+      "type": "Armor",
+      "reference_id": "heavy-armor",
+      "reference_url": "/api/2014/equipment-categories/heavy-armor",
+      "class_ids": [],
+      "race_ids": [],
+      "source_url": "/api/2014/proficiencies/heavy-armor"
+    },
+    {
+      "id": "herbalism-kit",
+      "name": "Herbalism Kit",
+      "type": "Other",
+      "reference_id": "herbalism-kit",
+      "reference_url": "/api/2014/equipment/herbalism-kit",
+      "class_ids": [
+        "druid"
+      ],
+      "race_ids": [],
+      "source_url": "/api/2014/proficiencies/herbalism-kit"
+    },
+    {
+      "id": "hide-armor",
+      "name": "Hide Armor",
+      "type": "Armor",
+      "reference_id": "hide-armor",
+      "reference_url": "/api/2014/equipment/hide-armor",
+      "class_ids": [],
+      "race_ids": [],
+      "source_url": "/api/2014/proficiencies/hide-armor"
+    },
+    {
+      "id": "horn",
+      "name": "Horn",
+      "type": "Musical Instruments",
+      "reference_id": "horn",
+      "reference_url": "/api/2014/equipment/horn",
+      "class_ids": [],
+      "race_ids": [],
+      "source_url": "/api/2014/proficiencies/horn"
+    },
+    {
+      "id": "javelins",
+      "name": "Javelins",
+      "type": "Weapons",
+      "reference_id": "javelin",
+      "reference_url": "/api/2014/equipment/javelin",
+      "class_ids": [
+        "druid"
+      ],
+      "race_ids": [],
+      "source_url": "/api/2014/proficiencies/javelins"
+    },
+    {
+      "id": "jewelers-tools",
+      "name": "Jeweler's Tools",
+      "type": "Artisan's Tools",
+      "reference_id": "jewelers-tools",
+      "reference_url": "/api/2014/equipment/jewelers-tools",
+      "class_ids": [],
+      "race_ids": [],
+      "source_url": "/api/2014/proficiencies/jewelers-tools"
+    },
+    {
+      "id": "lances",
+      "name": "Lances",
+      "type": "Weapons",
+      "reference_id": "lance",
+      "reference_url": "/api/2014/equipment/lance",
+      "class_ids": [],
+      "race_ids": [],
+      "source_url": "/api/2014/proficiencies/lances"
+    },
+    {
+      "id": "land-vehicles",
+      "name": "Land Vehicles",
+      "type": "Vehicles",
+      "reference_id": "land-vehicles",
+      "reference_url": "/api/2014/equipment-categories/land-vehicles",
+      "class_ids": [],
+      "race_ids": [],
+      "source_url": "/api/2014/proficiencies/land-vehicles"
+    },
+    {
+      "id": "leather-armor",
+      "name": "Leather Armor",
+      "type": "Armor",
+      "reference_id": "leather-armor",
+      "reference_url": "/api/2014/equipment/leather-armor",
+      "class_ids": [],
+      "race_ids": [],
+      "source_url": "/api/2014/proficiencies/leather-armor"
+    },
+    {
+      "id": "leatherworkers-tools",
+      "name": "Leatherworker's Tools",
+      "type": "Artisan's Tools",
+      "reference_id": "leatherworkers-tools",
+      "reference_url": "/api/2014/equipment/leatherworkers-tools",
+      "class_ids": [],
+      "race_ids": [],
+      "source_url": "/api/2014/proficiencies/leatherworkers-tools"
+    },
+    {
+      "id": "light-armor",
+      "name": "Light Armor",
+      "type": "Armor",
+      "reference_id": "light-armor",
+      "reference_url": "/api/2014/equipment-categories/light-armor",
+      "class_ids": [
+        "barbarian",
+        "bard",
+        "cleric",
+        "druid",
+        "ranger",
+        "rogue",
+        "warlock"
+      ],
+      "race_ids": [],
+      "source_url": "/api/2014/proficiencies/light-armor"
+    },
+    {
+      "id": "light-hammers",
+      "name": "Light hammers",
+      "type": "Weapons",
+      "reference_id": "light-hammer",
+      "reference_url": "/api/2014/equipment/light-hammer",
+      "class_ids": [],
+      "race_ids": [
+        "dwarf"
+      ],
+      "source_url": "/api/2014/proficiencies/light-hammers"
+    },
+    {
+      "id": "longbows",
+      "name": "Longbows",
+      "type": "Weapons",
+      "reference_id": "longbow",
+      "reference_url": "/api/2014/equipment/longbow",
+      "class_ids": [],
+      "race_ids": [
+        "high-elf"
+      ],
+      "source_url": "/api/2014/proficiencies/longbows"
+    },
+    {
+      "id": "longswords",
+      "name": "Longswords",
+      "type": "Weapons",
+      "reference_id": "longsword",
+      "reference_url": "/api/2014/equipment/longsword",
+      "class_ids": [
+        "bard",
+        "rogue"
+      ],
+      "race_ids": [
+        "high-elf"
+      ],
+      "source_url": "/api/2014/proficiencies/longswords"
+    },
+    {
+      "id": "lute",
+      "name": "Lute",
+      "type": "Musical Instruments",
+      "reference_id": "lute",
+      "reference_url": "/api/2014/equipment/lute",
+      "class_ids": [],
+      "race_ids": [],
+      "source_url": "/api/2014/proficiencies/lute"
+    },
+    {
+      "id": "lyre",
+      "name": "Lyre",
+      "type": "Musical Instruments",
+      "reference_id": "lyre",
+      "reference_url": "/api/2014/equipment/lyre",
+      "class_ids": [],
+      "race_ids": [],
+      "source_url": "/api/2014/proficiencies/lyre"
+    },
+    {
+      "id": "maces",
+      "name": "Maces",
+      "type": "Weapons",
+      "reference_id": "mace",
+      "reference_url": "/api/2014/equipment/mace",
+      "class_ids": [
+        "druid"
+      ],
+      "race_ids": [],
+      "source_url": "/api/2014/proficiencies/maces"
+    },
+    {
+      "id": "martial-weapons",
+      "name": "Martial Weapons",
+      "type": "Weapons",
+      "reference_id": "martial-weapons",
+      "reference_url": "/api/2014/equipment-categories/martial-weapons",
+      "class_ids": [
+        "barbarian",
+        "fighter",
+        "paladin",
+        "ranger"
+      ],
+      "race_ids": [],
+      "source_url": "/api/2014/proficiencies/martial-weapons"
+    },
+    {
+      "id": "masons-tools",
+      "name": "Mason's Tools",
+      "type": "Artisan's Tools",
+      "reference_id": "masons-tools",
+      "reference_url": "/api/2014/equipment/masons-tools",
+      "class_ids": [],
+      "race_ids": [],
+      "source_url": "/api/2014/proficiencies/masons-tools"
+    },
+    {
+      "id": "mauls",
+      "name": "Mauls",
+      "type": "Weapons",
+      "reference_id": "maul",
+      "reference_url": "/api/2014/equipment/maul",
+      "class_ids": [],
+      "race_ids": [],
+      "source_url": "/api/2014/proficiencies/mauls"
+    },
+    {
+      "id": "medium-armor",
+      "name": "Medium Armor",
+      "type": "Armor",
+      "reference_id": "medium-armor",
+      "reference_url": "/api/2014/equipment-categories/medium-armor",
+      "class_ids": [
+        "barbarian",
+        "cleric",
+        "druid",
+        "ranger"
+      ],
+      "race_ids": [],
+      "source_url": "/api/2014/proficiencies/medium-armor"
+    },
+    {
+      "id": "morningstars",
+      "name": "Morningstars",
+      "type": "Weapons",
+      "reference_id": "morningstar",
+      "reference_url": "/api/2014/equipment/morningstar",
+      "class_ids": [],
+      "race_ids": [],
+      "source_url": "/api/2014/proficiencies/morningstars"
+    },
+    {
+      "id": "navigators-tools",
+      "name": "Navigator's Tools",
+      "type": "Other",
+      "reference_id": "navigators-tools",
+      "reference_url": "/api/2014/equipment/navigators-tools",
+      "class_ids": [],
+      "race_ids": [],
+      "source_url": "/api/2014/proficiencies/navigators-tools"
+    },
+    {
+      "id": "nets",
+      "name": "Nets",
+      "type": "Weapons",
+      "reference_id": "net",
+      "reference_url": "/api/2014/equipment/net",
+      "class_ids": [],
+      "race_ids": [],
+      "source_url": "/api/2014/proficiencies/nets"
+    },
+    {
+      "id": "padded-armor",
+      "name": "Padded Armor",
+      "type": "Armor",
+      "reference_id": "padded-armor",
+      "reference_url": "/api/2014/equipment/padded-armor",
+      "class_ids": [],
+      "race_ids": [],
+      "source_url": "/api/2014/proficiencies/padded-armor"
+    },
+    {
+      "id": "painters-supplies",
+      "name": "Painter's Supplies",
+      "type": "Artisan's Tools",
+      "reference_id": "painters-supplies",
+      "reference_url": "/api/2014/equipment/painters-supplies",
+      "class_ids": [],
+      "race_ids": [],
+      "source_url": "/api/2014/proficiencies/painters-supplies"
+    },
+    {
+      "id": "pan-flute",
+      "name": "Pan flute",
+      "type": "Musical Instruments",
+      "reference_id": "pan-flute",
+      "reference_url": "/api/2014/equipment/pan-flute",
+      "class_ids": [],
+      "race_ids": [],
+      "source_url": "/api/2014/proficiencies/pan-flute"
+    },
+    {
+      "id": "pikes",
+      "name": "Pikes",
+      "type": "Weapons",
+      "reference_id": "pike",
+      "reference_url": "/api/2014/equipment/pike",
+      "class_ids": [],
+      "race_ids": [],
+      "source_url": "/api/2014/proficiencies/pikes"
+    },
+    {
+      "id": "plate-armor",
+      "name": "Plate Armor",
+      "type": "Armor",
+      "reference_id": "plate-armor",
+      "reference_url": "/api/2014/equipment/plate-armor",
+      "class_ids": [],
+      "race_ids": [],
+      "source_url": "/api/2014/proficiencies/plate-armor"
+    },
+    {
+      "id": "playing-card-set",
+      "name": "Playing Card Set",
+      "type": "Gaming Sets",
+      "reference_id": "playing-card-set",
+      "reference_url": "/api/2014/equipment/playing-card-set",
+      "class_ids": [],
+      "race_ids": [],
+      "source_url": "/api/2014/proficiencies/playing-card-set"
+    },
+    {
+      "id": "poisoners-kit",
+      "name": "Poisoner's Kit",
+      "type": "Other",
+      "reference_id": "poisoners-kit",
+      "reference_url": "/api/2014/equipment/poisoners-kit",
+      "class_ids": [],
+      "race_ids": [],
+      "source_url": "/api/2014/proficiencies/poisoners-kit"
+    },
+    {
+      "id": "potters-tools",
+      "name": "Potter's Tools",
+      "type": "Artisan's Tools",
+      "reference_id": "potters-tools",
+      "reference_url": "/api/2014/equipment/potters-tools",
+      "class_ids": [],
+      "race_ids": [],
+      "source_url": "/api/2014/proficiencies/potters-tools"
+    },
+    {
+      "id": "quarterstaffs",
+      "name": "Quarterstaffs",
+      "type": "Weapons",
+      "reference_id": "quarterstaff",
+      "reference_url": "/api/2014/equipment/quarterstaff",
+      "class_ids": [
+        "druid",
+        "sorcerer",
+        "wizard"
+      ],
+      "race_ids": [],
+      "source_url": "/api/2014/proficiencies/quarterstaffs"
+    },
+    {
+      "id": "rapiers",
+      "name": "Rapiers",
+      "type": "Weapons",
+      "reference_id": "rapier",
+      "reference_url": "/api/2014/equipment/rapier",
+      "class_ids": [
+        "bard",
+        "rogue"
+      ],
+      "race_ids": [],
+      "source_url": "/api/2014/proficiencies/rapiers"
+    },
+    {
+      "id": "ring-mail",
+      "name": "Ring Mail",
+      "type": "Armor",
+      "reference_id": "ring-mail",
+      "reference_url": "/api/2014/equipment/ring-mail",
+      "class_ids": [],
+      "race_ids": [],
+      "source_url": "/api/2014/proficiencies/ring-mail"
+    },
+    {
+      "id": "saving-throw-cha",
+      "name": "Saving Throw: CHA",
+      "type": "Saving Throws",
+      "reference_id": "cha",
+      "reference_url": "/api/2014/ability-scores/cha",
+      "class_ids": [
+        "bard",
+        "cleric",
+        "paladin",
+        "sorcerer",
+        "warlock"
+      ],
+      "race_ids": [],
+      "source_url": "/api/2014/proficiencies/saving-throw-cha"
+    },
+    {
+      "id": "saving-throw-con",
+      "name": "Saving Throw: CON",
+      "type": "Saving Throws",
+      "reference_id": "con",
+      "reference_url": "/api/2014/ability-scores/con",
+      "class_ids": [
+        "barbarian",
+        "fighter",
+        "sorcerer"
+      ],
+      "race_ids": [],
+      "source_url": "/api/2014/proficiencies/saving-throw-con"
+    },
+    {
+      "id": "saving-throw-dex",
+      "name": "Saving Throw: DEX",
+      "type": "Saving Throws",
+      "reference_id": "dex",
+      "reference_url": "/api/2014/ability-scores/dex",
+      "class_ids": [
+        "bard",
+        "monk",
+        "ranger",
+        "rogue"
+      ],
+      "race_ids": [],
+      "source_url": "/api/2014/proficiencies/saving-throw-dex"
+    },
+    {
+      "id": "saving-throw-int",
+      "name": "Saving Throw: INT",
+      "type": "Saving Throws",
+      "reference_id": "int",
+      "reference_url": "/api/2014/ability-scores/int",
+      "class_ids": [
+        "druid",
+        "rogue",
+        "wizard"
+      ],
+      "race_ids": [],
+      "source_url": "/api/2014/proficiencies/saving-throw-int"
+    },
+    {
+      "id": "saving-throw-str",
+      "name": "Saving Throw: STR",
+      "type": "Saving Throws",
+      "reference_id": "str",
+      "reference_url": "/api/2014/ability-scores/str",
+      "class_ids": [
+        "barbarian",
+        "fighter",
+        "monk",
+        "ranger"
+      ],
+      "race_ids": [],
+      "source_url": "/api/2014/proficiencies/saving-throw-str"
+    },
+    {
+      "id": "saving-throw-wis",
+      "name": "Saving Throw: WIS",
+      "type": "Saving Throws",
+      "reference_id": "wis",
+      "reference_url": "/api/2014/ability-scores/wis",
+      "class_ids": [
+        "cleric",
+        "druid",
+        "paladin",
+        "warlock",
+        "wizard"
+      ],
+      "race_ids": [],
+      "source_url": "/api/2014/proficiencies/saving-throw-wis"
+    },
+    {
+      "id": "scale-mail",
+      "name": "Scale Mail",
+      "type": "Armor",
+      "reference_id": "scale-mail",
+      "reference_url": "/api/2014/equipment/scale-mail",
+      "class_ids": [],
+      "race_ids": [],
+      "source_url": "/api/2014/proficiencies/scale-mail"
+    },
+    {
+      "id": "scimitars",
+      "name": "Scimitars",
+      "type": "Weapons",
+      "reference_id": "scimitar",
+      "reference_url": "/api/2014/equipment/scimitar",
+      "class_ids": [
+        "druid"
+      ],
+      "race_ids": [],
+      "source_url": "/api/2014/proficiencies/scimitars"
+    },
+    {
+      "id": "shawm",
+      "name": "Shawm",
+      "type": "Musical Instruments",
+      "reference_id": "shawm",
+      "reference_url": "/api/2014/equipment/shawm",
+      "class_ids": [],
+      "race_ids": [],
+      "source_url": "/api/2014/proficiencies/shawm"
+    },
+    {
+      "id": "shields",
+      "name": "Shields",
+      "type": "Armor",
+      "reference_id": "shield",
+      "reference_url": "/api/2014/equipment/shield",
+      "class_ids": [
+        "barbarian",
+        "cleric",
+        "druid",
+        "fighter",
+        "paladin",
+        "ranger"
+      ],
+      "race_ids": [],
+      "source_url": "/api/2014/proficiencies/shields"
+    },
+    {
+      "id": "shortbows",
+      "name": "Shortbows",
+      "type": "Weapons",
+      "reference_id": "shortbow",
+      "reference_url": "/api/2014/equipment/shortbow",
+      "class_ids": [],
+      "race_ids": [
+        "high-elf"
+      ],
+      "source_url": "/api/2014/proficiencies/shortbows"
+    },
+    {
+      "id": "shortswords",
+      "name": "Shortswords",
+      "type": "Weapons",
+      "reference_id": "shortsword",
+      "reference_url": "/api/2014/equipment/shortsword",
+      "class_ids": [
+        "bard",
+        "monk",
+        "rogue"
+      ],
+      "race_ids": [
+        "high-elf"
+      ],
+      "source_url": "/api/2014/proficiencies/shortswords"
+    },
+    {
+      "id": "sickles",
+      "name": "Sickles",
+      "type": "Weapons",
+      "reference_id": "sickle",
+      "reference_url": "/api/2014/equipment/sickle",
+      "class_ids": [
+        "druid"
+      ],
+      "race_ids": [],
+      "source_url": "/api/2014/proficiencies/sickles"
+    },
+    {
+      "id": "simple-weapons",
+      "name": "Simple Weapons",
+      "type": "Weapons",
+      "reference_id": "simple-weapons",
+      "reference_url": "/api/2014/equipment-categories/simple-weapons",
+      "class_ids": [
+        "barbarian",
+        "bard",
+        "cleric",
+        "fighter",
+        "monk",
+        "paladin",
+        "ranger",
+        "rogue",
+        "warlock"
+      ],
+      "race_ids": [],
+      "source_url": "/api/2014/proficiencies/simple-weapons"
+    },
+    {
+      "id": "skill-acrobatics",
+      "name": "Skill: Acrobatics",
+      "type": "Skills",
+      "reference_id": "acrobatics",
+      "reference_url": "/api/2014/skills/acrobatics",
+      "class_ids": [],
+      "race_ids": [],
+      "source_url": "/api/2014/proficiencies/skill-acrobatics"
+    },
+    {
+      "id": "skill-animal-handling",
+      "name": "Skill: Animal Handling",
+      "type": "Skills",
+      "reference_id": "animal-handling",
+      "reference_url": "/api/2014/skills/animal-handling",
+      "class_ids": [],
+      "race_ids": [],
+      "source_url": "/api/2014/proficiencies/skill-animal-handling"
+    },
+    {
+      "id": "skill-arcana",
+      "name": "Skill: Arcana",
+      "type": "Skills",
+      "reference_id": "arcana",
+      "reference_url": "/api/2014/skills/arcana",
+      "class_ids": [],
+      "race_ids": [],
+      "source_url": "/api/2014/proficiencies/skill-arcana"
+    },
+    {
+      "id": "skill-athletics",
+      "name": "Skill: Athletics",
+      "type": "Skills",
+      "reference_id": "athletics",
+      "reference_url": "/api/2014/skills/athletics",
+      "class_ids": [],
+      "race_ids": [],
+      "source_url": "/api/2014/proficiencies/skill-athletics"
+    },
+    {
+      "id": "skill-deception",
+      "name": "Skill: Deception",
+      "type": "Skills",
+      "reference_id": "deception",
+      "reference_url": "/api/2014/skills/deception",
+      "class_ids": [],
+      "race_ids": [],
+      "source_url": "/api/2014/proficiencies/skill-deception"
+    },
+    {
+      "id": "skill-history",
+      "name": "Skill: History",
+      "type": "Skills",
+      "reference_id": "history",
+      "reference_url": "/api/2014/skills/history",
+      "class_ids": [],
+      "race_ids": [],
+      "source_url": "/api/2014/proficiencies/skill-history"
+    },
+    {
+      "id": "skill-insight",
+      "name": "Skill: Insight",
+      "type": "Skills",
+      "reference_id": "insight",
+      "reference_url": "/api/2014/skills/insight",
+      "class_ids": [],
+      "race_ids": [],
+      "source_url": "/api/2014/proficiencies/skill-insight"
+    },
+    {
+      "id": "skill-intimidation",
+      "name": "Skill: Intimidation",
+      "type": "Skills",
+      "reference_id": "intimidation",
+      "reference_url": "/api/2014/skills/intimidation",
+      "class_ids": [],
+      "race_ids": [],
+      "source_url": "/api/2014/proficiencies/skill-intimidation"
+    },
+    {
+      "id": "skill-investigation",
+      "name": "Skill: Investigation",
+      "type": "Skills",
+      "reference_id": "investigation",
+      "reference_url": "/api/2014/skills/investigation",
+      "class_ids": [],
+      "race_ids": [],
+      "source_url": "/api/2014/proficiencies/skill-investigation"
+    },
+    {
+      "id": "skill-medicine",
+      "name": "Skill: Medicine",
+      "type": "Skills",
+      "reference_id": "medicine",
+      "reference_url": "/api/2014/skills/medicine",
+      "class_ids": [],
+      "race_ids": [],
+      "source_url": "/api/2014/proficiencies/skill-medicine"
+    },
+    {
+      "id": "skill-nature",
+      "name": "Skill: Nature",
+      "type": "Skills",
+      "reference_id": "nature",
+      "reference_url": "/api/2014/skills/nature",
+      "class_ids": [],
+      "race_ids": [],
+      "source_url": "/api/2014/proficiencies/skill-nature"
+    },
+    {
+      "id": "skill-perception",
+      "name": "Skill: Perception",
+      "type": "Skills",
+      "reference_id": "perception",
+      "reference_url": "/api/2014/skills/perception",
+      "class_ids": [],
+      "race_ids": [
+        "elf"
+      ],
+      "source_url": "/api/2014/proficiencies/skill-perception"
+    },
+    {
+      "id": "skill-performance",
+      "name": "Skill: Performance",
+      "type": "Skills",
+      "reference_id": "performance",
+      "reference_url": "/api/2014/skills/performance",
+      "class_ids": [],
+      "race_ids": [],
+      "source_url": "/api/2014/proficiencies/skill-performance"
+    },
+    {
+      "id": "skill-persuasion",
+      "name": "Skill: Persuasion",
+      "type": "Skills",
+      "reference_id": "persuasion",
+      "reference_url": "/api/2014/skills/persuasion",
+      "class_ids": [],
+      "race_ids": [],
+      "source_url": "/api/2014/proficiencies/skill-persuasion"
+    },
+    {
+      "id": "skill-religion",
+      "name": "Skill: Religion",
+      "type": "Skills",
+      "reference_id": "religion",
+      "reference_url": "/api/2014/skills/religion",
+      "class_ids": [],
+      "race_ids": [],
+      "source_url": "/api/2014/proficiencies/skill-religion"
+    },
+    {
+      "id": "skill-sleight-of-hand",
+      "name": "Skill: Sleight of Hand",
+      "type": "Skills",
+      "reference_id": "sleight-of-hand",
+      "reference_url": "/api/2014/skills/sleight-of-hand",
+      "class_ids": [],
+      "race_ids": [],
+      "source_url": "/api/2014/proficiencies/skill-sleight-of-hand"
+    },
+    {
+      "id": "skill-stealth",
+      "name": "Skill: Stealth",
+      "type": "Skills",
+      "reference_id": "stealth",
+      "reference_url": "/api/2014/skills/stealth",
+      "class_ids": [],
+      "race_ids": [],
+      "source_url": "/api/2014/proficiencies/skill-stealth"
+    },
+    {
+      "id": "skill-survival",
+      "name": "Skill: Survival",
+      "type": "Skills",
+      "reference_id": "survival",
+      "reference_url": "/api/2014/skills/survival",
+      "class_ids": [],
+      "race_ids": [],
+      "source_url": "/api/2014/proficiencies/skill-survival"
+    },
+    {
+      "id": "slings",
+      "name": "Slings",
+      "type": "Weapons",
+      "reference_id": "sling",
+      "reference_url": "/api/2014/equipment/sling",
+      "class_ids": [
+        "druid",
+        "sorcerer",
+        "wizard"
+      ],
+      "race_ids": [],
+      "source_url": "/api/2014/proficiencies/slings"
+    },
+    {
+      "id": "smiths-tools",
+      "name": "Smith's Tools",
+      "type": "Artisan's Tools",
+      "reference_id": "smiths-tools",
+      "reference_url": "/api/2014/equipment/smiths-tools",
+      "class_ids": [],
+      "race_ids": [],
+      "source_url": "/api/2014/proficiencies/smiths-tools"
+    },
+    {
+      "id": "spears",
+      "name": "Spears",
+      "type": "Weapons",
+      "reference_id": "spear",
+      "reference_url": "/api/2014/equipment/spear",
+      "class_ids": [
+        "druid"
+      ],
+      "race_ids": [],
+      "source_url": "/api/2014/proficiencies/spears"
+    },
+    {
+      "id": "splint-armor",
+      "name": "Splint Armor",
+      "type": "Armor",
+      "reference_id": "splint-armor",
+      "reference_url": "/api/2014/equipment/splint-armor",
+      "class_ids": [],
+      "race_ids": [],
+      "source_url": "/api/2014/proficiencies/splint-armor"
+    },
+    {
+      "id": "studded-leather-armor",
+      "name": "Studded Leather Armor",
+      "type": "Armor",
+      "reference_id": "studded-leather-armor",
+      "reference_url": "/api/2014/equipment/studded-leather-armor",
+      "class_ids": [],
+      "race_ids": [],
+      "source_url": "/api/2014/proficiencies/studded-leather-armor"
+    },
+    {
+      "id": "thieves-tools",
+      "name": "Thieves' Tools",
+      "type": "Other",
+      "reference_id": "thieves-tools",
+      "reference_url": "/api/2014/equipment/thieves-tools",
+      "class_ids": [
+        "rogue"
+      ],
+      "race_ids": [],
+      "source_url": "/api/2014/proficiencies/thieves-tools"
+    },
+    {
+      "id": "tinkers-tools",
+      "name": "Tinker's Tools",
+      "type": "Artisan's Tools",
+      "reference_id": "tinkers-tools",
+      "reference_url": "/api/2014/equipment/tinkers-tools",
+      "class_ids": [],
+      "race_ids": [],
+      "source_url": "/api/2014/proficiencies/tinkers-tools"
+    },
+    {
+      "id": "tridents",
+      "name": "Tridents",
+      "type": "Weapons",
+      "reference_id": "trident",
+      "reference_url": "/api/2014/equipment/trident",
+      "class_ids": [],
+      "race_ids": [],
+      "source_url": "/api/2014/proficiencies/tridents"
+    },
+    {
+      "id": "viol",
+      "name": "Viol",
+      "type": "Musical Instruments",
+      "reference_id": "viol",
+      "reference_url": "/api/2014/equipment/viol",
+      "class_ids": [],
+      "race_ids": [],
+      "source_url": "/api/2014/proficiencies/viol"
+    },
+    {
+      "id": "war-picks",
+      "name": "War picks",
+      "type": "Weapons",
+      "reference_id": "war-pick",
+      "reference_url": "/api/2014/equipment/war-pick",
+      "class_ids": [],
+      "race_ids": [],
+      "source_url": "/api/2014/proficiencies/war-picks"
+    },
+    {
+      "id": "warhammers",
+      "name": "Warhammers",
+      "type": "Weapons",
+      "reference_id": "warhammer",
+      "reference_url": "/api/2014/equipment/warhammer",
+      "class_ids": [],
+      "race_ids": [
+        "dwarf"
+      ],
+      "source_url": "/api/2014/proficiencies/warhammers"
+    },
+    {
+      "id": "water-vehicles",
+      "name": "Water Vehicles",
+      "type": "Vehicles",
+      "reference_id": "waterborne-vehicles",
+      "reference_url": "/api/2014/equipment-categories/waterborne-vehicles",
+      "class_ids": [],
+      "race_ids": [],
+      "source_url": "/api/2014/proficiencies/water-vehicles"
+    },
+    {
+      "id": "weavers-tools",
+      "name": "Weaver's Tools",
+      "type": "Artisan's Tools",
+      "reference_id": "weavers-tools",
+      "reference_url": "/api/2014/equipment/weavers-tools",
+      "class_ids": [],
+      "race_ids": [],
+      "source_url": "/api/2014/proficiencies/weavers-tools"
+    },
+    {
+      "id": "whips",
+      "name": "Whips",
+      "type": "Weapons",
+      "reference_id": "whip",
+      "reference_url": "/api/2014/equipment/whip",
+      "class_ids": [],
+      "race_ids": [],
+      "source_url": "/api/2014/proficiencies/whips"
+    },
+    {
+      "id": "woodcarvers-tools",
+      "name": "Woodcarver's Tools",
+      "type": "Artisan's Tools",
+      "reference_id": "woodcarvers-tools",
+      "reference_url": "/api/2014/equipment/woodcarvers-tools",
+      "class_ids": [],
+      "race_ids": [],
+      "source_url": "/api/2014/proficiencies/woodcarvers-tools"
+    }
+  ]
+}

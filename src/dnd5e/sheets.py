@@ -14,6 +14,7 @@ from dnd5e.character import (
 from dnd5e.classes import SRD_CLASSES
 from dnd5e.equipment import (
     ARMOR,
+    MAGIC_ITEMS,
     SHIELDS,
     WEAPONS,
     ArmorClassResult,
@@ -22,6 +23,13 @@ from dnd5e.equipment import (
     weapon_attack_profile,
 )
 from dnd5e.hit_points import HitPointState
+from dnd5e.magic_items import (
+    active_magic_items,
+    magic_item_armor_class_bonus,
+    magic_item_saving_throw_bonus,
+    magic_item_spell_attack_bonus,
+    magic_item_weapon_bonus,
+)
 from dnd5e.skills import SKILL_ABILITIES
 from dnd5e.spells import spell_attack_bonus, spell_save_dc
 from dnd5e.types import Ability, CharacterClassName, ConditionName, ProficiencyLevel, Skill
@@ -55,6 +63,8 @@ class CharacterLoadout:
     shield: str | None = None
     weapons: tuple[str, ...] = ()
     two_handed_weapons: tuple[str, ...] = ()
+    magic_items: tuple[str, ...] = ()
+    attuned_magic_items: tuple[str, ...] = ()
     armor_class_bonus: int = 0
     weapon_attack_bonus: int = 0
 
@@ -174,7 +184,8 @@ def character_sheet_armor_class(sheet: CharacterSheet) -> ArmorClassResult:
         character_sheet_rules(sheet),
         armor=sheet.loadout.armor,
         shield=sheet.loadout.shield,
-        bonuses=sheet.loadout.armor_class_bonus,
+        bonuses=sheet.loadout.armor_class_bonus
+        + magic_item_armor_class_bonus(_active_sheet_magic_items(sheet)),
     )
 
 
@@ -192,7 +203,8 @@ def character_sheet_weapon_profile(
         weapon,
         proficient=_is_weapon_proficient(sheet, weapon),
         two_handed=use_two_handed,
-        bonuses=sheet.loadout.weapon_attack_bonus,
+        bonuses=sheet.loadout.weapon_attack_bonus
+        + magic_item_weapon_bonus(_active_sheet_magic_items(sheet), weapon),
     )
 
 
@@ -217,13 +229,19 @@ def character_sheet_passive_skill(sheet: CharacterSheet, skill: Skill) -> int:
 def character_sheet_saving_throw_bonus(sheet: CharacterSheet, ability: Ability) -> int:
     """Return a saving throw bonus derived from the sheet."""
 
-    return saving_throw_bonus(character_sheet_rules(sheet), ability)
+    return saving_throw_bonus(character_sheet_rules(sheet), ability) + magic_item_saving_throw_bonus(
+        _active_sheet_magic_items(sheet)
+    )
 
 
 def character_sheet_spell_attack_bonus(sheet: CharacterSheet, ability: Ability, bonus: int = 0) -> int:
     """Return spell attack bonus derived from the sheet."""
 
-    return spell_attack_bonus(character_sheet_rules(sheet), ability, bonus)
+    return spell_attack_bonus(
+        character_sheet_rules(sheet),
+        ability,
+        bonus + magic_item_spell_attack_bonus(_active_sheet_magic_items(sheet)),
+    )
 
 
 def character_sheet_spell_save_dc(sheet: CharacterSheet, ability: Ability, bonus: int = 0) -> int:
@@ -321,3 +339,20 @@ def _validate_loadout(loadout: CharacterLoadout) -> None:
             raise ValueError(f"unknown two-handed weapon: {weapon}")
         if weapon not in equipped_weapons:
             raise ValueError(f"two-handed weapon is not equipped: {weapon}")
+
+    equipped_magic_items = set(loadout.magic_items)
+    for item in loadout.magic_items:
+        if item not in MAGIC_ITEMS:
+            raise ValueError(f"unknown magic item: {item}")
+    for item in loadout.attuned_magic_items:
+        if item not in MAGIC_ITEMS:
+            raise ValueError(f"unknown attuned magic item: {item}")
+        if item not in equipped_magic_items:
+            raise ValueError(f"attuned magic item is not equipped: {item}")
+
+
+def _active_sheet_magic_items(sheet: CharacterSheet) -> tuple[str, ...]:
+    return tuple(
+        item.id
+        for item in active_magic_items(sheet.loadout.magic_items, sheet.loadout.attuned_magic_items)
+    )

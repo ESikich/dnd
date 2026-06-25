@@ -55,6 +55,8 @@ def character_sheet_to_data(sheet: CharacterSheet) -> dict[str, Any]:
             "shield": sheet.loadout.shield,
             "weapons": list(sheet.loadout.weapons),
             "two_handed_weapons": list(sheet.loadout.two_handed_weapons),
+            "magic_items": list(sheet.loadout.magic_items),
+            "attuned_magic_items": list(sheet.loadout.attuned_magic_items),
             "armor_class_bonus": sheet.loadout.armor_class_bonus,
             "weapon_attack_bonus": sheet.loadout.weapon_attack_bonus,
         },
@@ -103,6 +105,8 @@ def _character_sheet_from_validated_data(data: Mapping[str, Any]) -> CharacterSh
             shield=loadout["shield"],
             weapons=tuple(loadout["weapons"]),
             two_handed_weapons=tuple(loadout["two_handed_weapons"]),
+            magic_items=tuple(loadout.get("magic_items", ())),
+            attuned_magic_items=tuple(loadout.get("attuned_magic_items", ())),
             armor_class_bonus=loadout["armor_class_bonus"],
             weapon_attack_bonus=loadout["weapon_attack_bonus"],
         ),
@@ -204,6 +208,17 @@ _LOADOUT_KEYS = {
     "shield",
     "weapons",
     "two_handed_weapons",
+    "magic_items",
+    "attuned_magic_items",
+    "armor_class_bonus",
+    "weapon_attack_bonus",
+}
+
+_LOADOUT_REQUIRED_KEYS = {
+    "armor",
+    "shield",
+    "weapons",
+    "two_handed_weapons",
     "armor_class_bonus",
     "weapon_attack_bonus",
 }
@@ -252,7 +267,12 @@ def _validate_loadout(value: Any, errors: list[ValidationErrorDetail]) -> None:
     if not isinstance(value, Mapping):
         errors.append(ValidationErrorDetail("$.loadout", "must be an object"))
         return
-    _validate_required_keys(value, _LOADOUT_KEYS, "$.loadout", errors)
+    missing = _LOADOUT_REQUIRED_KEYS - set(value)
+    for key in sorted(missing):
+        errors.append(ValidationErrorDetail(f"$.loadout.{key}", "is required"))
+    extra = set(value) - _LOADOUT_KEYS
+    for key in sorted(extra):
+        errors.append(ValidationErrorDetail(f"$.loadout.{key}", "is not supported"))
     _expect_optional_string(value.get("armor"), "$.loadout.armor", errors)
     _expect_optional_string(value.get("shield"), "$.loadout.shield", errors)
     _expect_string_list(value.get("weapons"), "$.loadout.weapons", errors)
@@ -261,6 +281,14 @@ def _validate_loadout(value: Any, errors: list[ValidationErrorDetail]) -> None:
         "$.loadout.two_handed_weapons",
         errors,
     )
+    if "magic_items" in value:
+        _expect_string_list(value.get("magic_items"), "$.loadout.magic_items", errors)
+    if "attuned_magic_items" in value:
+        _expect_string_list(
+            value.get("attuned_magic_items"),
+            "$.loadout.attuned_magic_items",
+            errors,
+        )
     _expect_mapping_value_type(value, "armor_class_bonus", int, "$.loadout.armor_class_bonus", errors)
     _expect_mapping_value_type(
         value,

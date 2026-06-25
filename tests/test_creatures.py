@@ -92,6 +92,7 @@ def _creature_pack_entry(**overrides: object) -> dict[str, object]:
         "damage_vulnerabilities": [],
         "damage_immunities": [],
         "condition_immunities": [],
+        "legendary_actions": [],
     }
     values.update(overrides)
     return values
@@ -117,8 +118,13 @@ def test_builtin_creature_pack_loads_current_catalog() -> None:
     pack = load_builtin_creature_pack()
 
     assert pack.creatures == CREATURES
+    assert len(pack.creatures) == 334
     assert pack.creatures["giant_spider"].actions[1].recharge_minimum == 5
     assert pack.creatures["skeleton"].damage_immunities == ("poison",)
+    assert pack.creatures["skeleton"].condition_immunities == ("poisoned", "exhaustion")
+    assert pack.creatures["adult_red_dragon"].legendary_actions[0].name == "Detect"
+    assert pack.creatures["swarm_of_bats"].type == "swarm of Tiny beasts"
+    assert pack.creatures["tarrasque"].source_url == "/api/2014/monsters/tarrasque"
 
 
 def test_creature_pack_loads_from_decoded_data() -> None:
@@ -316,7 +322,7 @@ def test_creature_catalog_includes_feature_and_immunity_metadata() -> None:
     assert [trait.name for trait in wolf.traits] == ["Keen Hearing and Smell", "Pack Tactics"]
     assert skeleton.damage_vulnerabilities == ("bludgeoning",)
     assert skeleton.damage_immunities == ("poison",)
-    assert skeleton.condition_immunities == ("poisoned",)
+    assert skeleton.condition_immunities == ("poisoned", "exhaustion")
     assert [trait.name for trait in zombie.traits] == ["Undead Fortitude"]
     assert zombie.damage_immunities == ("poison",)
     assert zombie.condition_immunities == ("poisoned",)
@@ -338,7 +344,7 @@ def test_creature_catalog_includes_more_srd_style_combatants() -> None:
     assert bandit.xp == 25
     assert bandit.actions[1].name == "Light Crossbow"
     assert bandit.actions[1].normal_range == 80
-    assert kobold.traits[0].name == "Pack Tactics"
+    assert "Pack Tactics" in [trait.name for trait in kobold.traits]
     assert kobold.actions[1].long_range == 120
     assert orc.challenge_rating == "1/2"
     assert orc.bonus_actions[0].name == "Aggressive"
@@ -346,13 +352,13 @@ def test_creature_catalog_includes_more_srd_style_combatants() -> None:
     assert axe_beak.speed["walk"] == 50
     assert black_bear.challenge_rating == "1/2"
     assert black_bear.speed["climb"] == 30
-    assert black_bear.actions[1].name == "Claws"
+    assert "Claws" in [action.name for action in black_bear.actions]
     assert bugbear.challenge_rating == "1"
     assert bugbear.skills["stealth"] == 6
     assert [trait.name for trait in bugbear.traits] == ["Brute", "Surprise Attack"]
     assert ghoul.type == "undead"
     assert ghoul.damage_immunities == ("poison",)
-    assert ghoul.condition_immunities == ("charmed", "poisoned")
+    assert ghoul.condition_immunities == ("poisoned", "charmed", "exhaustion")
     assert giant_spider.challenge_rating == "1"
     assert giant_spider.skills["stealth"] == 7
     assert [trait.name for trait in giant_spider.traits] == ["Spider Climb", "Web Sense", "Web Walker"]
@@ -361,7 +367,14 @@ def test_creature_catalog_includes_more_srd_style_combatants() -> None:
     assert giant_spider.actions[1].damage_dice is None
     assert gray_ooze.type == "ooze"
     assert gray_ooze.damage_resistances == ("acid", "cold", "fire")
-    assert gray_ooze.condition_immunities == ("blinded", "charmed", "deafened", "frightened", "prone")
+    assert gray_ooze.condition_immunities == (
+        "blinded",
+        "charmed",
+        "deafened",
+        "exhaustion",
+        "frightened",
+        "prone",
+    )
     assert ogre.challenge_rating == "2"
     assert ogre.xp == 450
     assert ogre.size == "large"

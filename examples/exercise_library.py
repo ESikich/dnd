@@ -6,12 +6,24 @@ from typing import NamedTuple, cast
 
 from dnd5e import (
     ARMOR,
+    ABILITY_SCORES,
+    BACKGROUNDS,
+    CLASS_LEVELS,
     CONDITIONS,
     CREATURES,
+    EQUIPMENT_CATEGORIES,
     FEATURES,
+    LANGUAGES,
     SKILL_ABILITIES,
     SPELLS,
+    PROFICIENCIES,
+    RACES,
+    RULES,
     SRD_CLASSES,
+    SKILLS,
+    SUBCLASSES,
+    SUBCLASS_LEVELS,
+    SUBRACES,
     SHIELDS,
     ArmorClassModifier,
     CharacterClassLevel,
@@ -23,6 +35,8 @@ from dnd5e import (
     DamageType,
     DiceRoll,
     HitPointState,
+    ITEMS,
+    MAGIC_ITEMS,
     ProficiencyLevel,
     Skill,
     TurnEffect,
@@ -40,6 +54,7 @@ from dnd5e import (
     armor_class,
     attack_roll,
     average_dice,
+    breath_weapon_profile,
     character_sheet_armor_class,
     character_sheet_combatant,
     character_sheet_hit_points,
@@ -56,6 +71,7 @@ from dnd5e import (
     create_creature_instance,
     create_hit_dice_pool,
     create_feature_state,
+    create_magic_item_charge_state,
     create_pact_magic,
     create_spell_slots,
     creature_action_recharge_state,
@@ -63,25 +79,38 @@ from dnd5e import (
     d20_check,
     damage_roll,
     encounter_monster,
+    feature_armor_class_bonus,
+    feature_attack_modifier,
+    feature_damage_resistances,
+    feature_has_darkvision,
+    feature_rage_damage_bonus,
     initiative_bonus,
     load_builtin_class_pack,
+    load_builtin_ancestry_pack,
     load_builtin_condition_pack,
     load_builtin_content_pack,
     load_builtin_creature_pack,
     load_builtin_encounter_rules_pack,
     load_builtin_equipment_pack,
     load_builtin_feature_pack,
+    load_builtin_reference_pack,
     load_builtin_spell_pack,
     load_content_pack_data,
     long_rest,
+    magic_item_armor_class_bonus,
+    magic_item_saving_throw_bonus,
+    magic_item_weapon_bonus,
     modified_armor_class,
     recharge_feature,
+    recharge_magic_item,
     next_turn,
     parse_dice_notation,
     passive_score,
     passive_skill,
     proficiency_bonus,
     proficiency_value,
+    race_ability_bonuses,
+    race_languages,
     resolve_attack_action,
     resolve_spell_attack,
     resolve_spell_save_damage,
@@ -97,6 +126,7 @@ from dnd5e import (
     spell_save_dc,
     spell_slots_remaining,
     spend_feature_resource,
+    spend_magic_item_charges,
     spend_pact_slot,
     spend_spell_slot,
     summarize_encounter,
@@ -117,6 +147,8 @@ def main() -> None:
     show_sheet_validation()
     show_equipment(hero)
     show_class_and_condition_data()
+    show_ancestry_data()
+    show_reference_data()
     show_content_packs()
     show_effects_and_conditions()
     show_resource_features()
@@ -309,7 +341,8 @@ def show_equipment(hero: CharacterRules) -> None:
     ac = armor_class(hero, armor=armor, shield=shield)
     print(
         f"Built-in equipment pack: {len(equipment_pack.armor)} armor, "
-        f"{len(equipment_pack.shields)} shields, {len(equipment_pack.weapons)} weapons"
+        f"{len(equipment_pack.shields)} shields, {len(equipment_pack.weapons)} weapons, "
+        f"{len(equipment_pack.items)} items, {len(equipment_pack.magic_items)} magic items"
     )
     print(
         f"{armor.name} and {shield.name}: AC {ac.total} "
@@ -327,6 +360,36 @@ def show_equipment(hero: CharacterRules) -> None:
     print(
         f"Longsword two-handed: {longsword.ability.upper()} attack {longsword.attack_bonus:+d}, "
         f"damage {longsword.damage_dice}{longsword.damage_bonus:+d} {longsword.damage_type}"
+    )
+    print(
+        f"Glaive metadata: {WEAPONS['glaive'].category_range}, "
+        f"reach {WEAPONS['glaive'].reach_ft} ft"
+    )
+    print(f"Net rules: {', '.join(WEAPONS['net'].special_rules)}")
+    burglar_pack = ITEMS["burglars_pack"]
+    flame_tongue = MAGIC_ITEMS["flame_tongue"]
+    mace_of_terror = MAGIC_ITEMS["mace_of_terror"]
+    terror = mace_of_terror.effects[0]
+    active_items = ("ring_of_protection", "armor_1", "weapon_1")
+    terror_charges = create_magic_item_charge_state("mace_of_terror")
+    spent_terror = spend_magic_item_charges(terror_charges)
+    recharged_terror = recharge_magic_item(spent_terror, rng=lambda: 0.0)
+    assert terror.save_ability is not None
+    print(f"Gear sample: {burglar_pack.name}, {len(burglar_pack.contents)} contents")
+    print(
+        "Magic bonuses: "
+        f"AC +{magic_item_armor_class_bonus(active_items)}, "
+        f"saves +{magic_item_saving_throw_bonus(active_items)}, "
+        f"longsword +{magic_item_weapon_bonus(active_items, 'longsword')}"
+    )
+    print(
+        f"Magic item sample: {flame_tongue.name}, rarity {flame_tongue.rarity}, "
+        f"attunement={flame_tongue.requires_attunement}"
+    )
+    print(
+        f"{mace_of_terror.name}: base {mace_of_terror.base_item_id}, "
+        f"DC {terror.save_dc} {terror.save_ability.upper()} save vs {terror.condition}, "
+        f"{terror.charges} charges, recharge restores {recharged_terror.restored}"
     )
     print(
         f"Shortbow: {shortbow.ability.upper()} attack {shortbow.attack_bonus:+d}, "
@@ -356,6 +419,79 @@ def show_class_and_condition_data() -> None:
     for name in condition_names:
         condition = CONDITIONS[name]
         print(f"Condition {name}: {', '.join(condition.tags)}")
+
+
+def show_ancestry_data() -> None:
+    print_section("Ancestry Data")
+
+    ancestry_pack = load_builtin_ancestry_pack()
+    elf = RACES["elf"]
+    high_elf = SUBRACES["high-elf"]
+    half_elf = RACES["half-elf"]
+    human = RACES["human"]
+    print(
+        f"Built-in ancestry pack: {len(ancestry_pack.races)} races, "
+        f"{len(ancestry_pack.subraces)} subraces, "
+        f"{len(ancestry_pack.languages)} languages, "
+        f"{len(ancestry_pack.proficiencies)} proficiencies"
+    )
+    print(
+        f"{elf.name}: speed {elf.speed}, traits {', '.join(elf.traits)}, "
+        f"{high_elf.name} bonuses {race_ability_bonuses('elf', subrace='high-elf')}"
+    )
+    print(
+        f"{half_elf.name}: choices {half_elf.ability_bonus_choice_count} ability bonuses, "
+        f"example {race_ability_bonuses('half-elf', ability_choices=('str', 'int'))}"
+    )
+    print(
+        f"{human.name}: languages {race_languages('human', language_choices=('elvish',))}, "
+        f"{LANGUAGES['elvish'].script} script"
+    )
+    print(
+        f"Proficiency sample: {PROFICIENCIES['longswords'].name} -> "
+        f"{PROFICIENCIES['longswords'].reference_id}"
+    )
+
+
+def show_reference_data() -> None:
+    print_section("Reference Data")
+
+    reference_pack = load_builtin_reference_pack()
+    acolyte = BACKGROUNDS["acolyte"]
+    print(
+        f"Built-in reference pack: {len(reference_pack.ability_scores)} abilities, "
+        f"{len(reference_pack.alignments)} alignments, "
+        f"{len(reference_pack.backgrounds)} backgrounds, "
+        f"{len(reference_pack.equipment_categories)} equipment categories, "
+        f"{len(reference_pack.class_levels)} class levels"
+    )
+    print(
+        f"Ability {ABILITY_SCORES['str'].full_name}: skills "
+        f"{', '.join(ABILITY_SCORES['str'].skill_ids)}"
+    )
+    print(
+        f"{acolyte.name}: proficiencies {', '.join(acolyte.starting_proficiencies)}, "
+        f"language choices {acolyte.language_choice_count}"
+    )
+    print(
+        f"Equipment category {EQUIPMENT_CATEGORIES['weapon'].name}: "
+        f"{len(EQUIPMENT_CATEGORIES['weapon'].equipment_ids)} entries"
+    )
+    print(
+        f"Rule {RULES['combat'].name}: {len(RULES['combat'].subsection_ids)} sections; "
+        f"skill {SKILLS['athletics'].name} uses {SKILLS['athletics'].ability.upper()}"
+    )
+    print(
+        f"Subclass sample: {SUBCLASSES['champion'].name} "
+        f"({SUBCLASSES['champion'].class_id})"
+    )
+    print(
+        f"Fighter 3: features {', '.join(CLASS_LEVELS['fighter-3'].feature_ids)}, "
+        f"table {CLASS_LEVELS['fighter-3'].class_specific}"
+    )
+    print(
+        f"Evocation 2: features {', '.join(SUBCLASS_LEVELS['evocation-2'].feature_ids)}"
+    )
 
 
 def show_content_packs() -> None:
@@ -396,11 +532,17 @@ def show_content_packs() -> None:
 
     assert built_in.equipment is not None
     assert built_in.creatures is not None
+    assert built_in.ancestries is not None
+    assert built_in.references is not None
     assert homebrew.features is not None
     assert homebrew.spells is not None
     print(
         f"Built-in bundle: {len(built_in.equipment.weapons)} weapons, "
-        f"{len(built_in.creatures.creatures)} creatures"
+        f"{len(built_in.equipment.items)} items, "
+        f"{len(built_in.equipment.magic_items)} magic items, "
+        f"{len(built_in.creatures.creatures)} creatures, "
+        f"{len(built_in.ancestries.races)} races, "
+        f"{len(built_in.references.rules)} rule groups"
     )
     print(
         f"Homebrew bundle: {len(homebrew.features.features)} feature, "
@@ -483,6 +625,7 @@ def show_resource_features() -> None:
     assert proficiency_uses.resource is not None
 
     print(f"Built-in feature pack: {len(feature_pack.features)} features")
+    breath = breath_weapon_profile(level=11, constitution_modifier=2, proficiency=4)
     print(
         f"{second_wind.definition.name}: "
         f"{spent_second_wind.resource.remaining}/{spent_second_wind.resource.maximum} after use, "
@@ -491,6 +634,16 @@ def show_resource_features() -> None:
     print(
         f"Second Wind healing: roll {second_wind_healing.roll} + fighter level 5 "
         f"-> {second_wind_healing.healing.applied} HP restored"
+    )
+    print(
+        f"Feature effects: Defense AC +{feature_armor_class_bonus(('fighting_style_defense',))}, "
+        f"Rage damage +{feature_rage_damage_bonus(('rage',), barbarian_level=9)}, "
+        f"resists {', '.join(feature_damage_resistances(('rage',)))}"
+    )
+    print(
+        f"Trait/feat effects: darkvision={feature_has_darkvision(('darkvision',))}, "
+        f"Grappler attack {feature_attack_modifier(('grappler',), target_grappled_by_you=True).advantage}, "
+        f"Breath Weapon {breath.damage_dice} DC {breath.save_dc}"
     )
     print(
         f"Sneak Attack level 5: {sneak_attack_damage_dice(5)} bonus damage "
@@ -631,6 +784,8 @@ def show_creature_catalog() -> None:
     giant_spider = CREATURES["giant_spider"]
     gray_ooze = CREATURES["gray_ooze"]
     ogre = CREATURES["ogre"]
+    adult_red_dragon = CREATURES["adult_red_dragon"]
+    swarm_of_bats = CREATURES["swarm_of_bats"]
 
     print(f"Built-in creature pack: {len(creature_pack.creatures)} creatures")
     print(
@@ -669,6 +824,14 @@ def show_creature_catalog() -> None:
     print(
         f"{ogre.name}: CR {ogre.challenge_rating}, HP {ogre.hit_points}, "
         f"attacks {', '.join(action.name for action in ogre.actions)}"
+    )
+    print(
+        f"{adult_red_dragon.name}: legendary actions {join_names(adult_red_dragon.legendary_actions)}, "
+        f"source {adult_red_dragon.source_url}"
+    )
+    print(
+        f"{swarm_of_bats.name}: type {swarm_of_bats.type}, "
+        f"condition immune {', '.join(swarm_of_bats.condition_immunities)}"
     )
 
 

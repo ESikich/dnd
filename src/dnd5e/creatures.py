@@ -108,6 +108,15 @@ class CreatureDefinition:
     damage_vulnerabilities: tuple[DamageType, ...] = ()
     damage_immunities: tuple[DamageType, ...] = ()
     condition_immunities: tuple[ConditionName, ...] = ()
+    subtype: str | None = None
+    armor_desc: str | None = None
+    proficiency_bonus: int | None = None
+    legendary_actions: tuple[CreatureFeature, ...] = ()
+    damage_resistance_notes: tuple[str, ...] = ()
+    damage_vulnerability_notes: tuple[str, ...] = ()
+    damage_immunity_notes: tuple[str, ...] = ()
+    image_url: str | None = None
+    source_url: str | None = None
 
     def __post_init__(self) -> None:
         if self.armor_class < 1:
@@ -126,6 +135,7 @@ class CreatureDefinition:
         _validate_damage_types("damage_vulnerabilities", self.damage_vulnerabilities)
         _validate_damage_types("damage_immunities", self.damage_immunities)
         _validate_condition_names("condition_immunities", self.condition_immunities)
+        _validate_positive_optional("proficiency_bonus", self.proficiency_bonus)
 
 
 @dataclass(frozen=True)
@@ -210,6 +220,17 @@ def _load_creature_entries(entries: Any) -> dict[str, CreatureDefinition]:
                 damage_vulnerabilities=_string_tuple_field(entry, "damage_vulnerabilities", "creature"),  # type: ignore[arg-type]
                 damage_immunities=_string_tuple_field(entry, "damage_immunities", "creature"),  # type: ignore[arg-type]
                 condition_immunities=_string_tuple_field(entry, "condition_immunities", "creature"),  # type: ignore[arg-type]
+                subtype=_optional_default_field(entry, "subtype", str, "creature"),
+                armor_desc=_optional_default_field(entry, "armor_desc", str, "creature"),
+                proficiency_bonus=_optional_default_field(entry, "proficiency_bonus", int, "creature"),
+                legendary_actions=tuple(
+                    _feature_entries(entry, "legendary_actions", "creature", required=False)
+                ),
+                damage_resistance_notes=_string_tuple_default_field(entry, "damage_resistance_notes", "creature"),
+                damage_vulnerability_notes=_string_tuple_default_field(entry, "damage_vulnerability_notes", "creature"),
+                damage_immunity_notes=_string_tuple_default_field(entry, "damage_immunity_notes", "creature"),
+                image_url=_optional_default_field(entry, "image_url", str, "creature"),
+                source_url=_optional_default_field(entry, "source_url", str, "creature"),
             )
             for entry in _validated_entries(
                 entries,
@@ -239,6 +260,15 @@ def _load_creature_entries(entries: Any) -> dict[str, CreatureDefinition]:
                     "damage_vulnerabilities",
                     "damage_immunities",
                     "condition_immunities",
+                    "subtype",
+                    "armor_desc",
+                    "proficiency_bonus",
+                    "legendary_actions",
+                    "damage_resistance_notes",
+                    "damage_vulnerability_notes",
+                    "damage_immunity_notes",
+                    "image_url",
+                    "source_url",
                 },
             )
         ]
@@ -287,7 +317,11 @@ def _feature_entries(
     entry: Mapping[str, Any],
     name: str,
     section: str,
+    *,
+    required: bool = True,
 ) -> tuple[CreatureFeature, ...]:
+    if not required and name not in entry:
+        return ()
     return tuple(
         CreatureFeature(
             name=_field(feature, "name", str, "creature feature"),
@@ -365,6 +399,22 @@ def _optional_field(
     return value
 
 
+def _optional_default_field(
+    entry: Mapping[str, Any],
+    name: str,
+    expected_type: type[T],
+    section: str,
+) -> T | None:
+    if name not in entry:
+        return None
+    value = entry[name]
+    if value is None:
+        return None
+    if not isinstance(value, expected_type):
+        raise ValueError(f"{section}.{name} must be {expected_type.__name__} or null")
+    return value
+
+
 def _string_tuple_field(entry: Mapping[str, Any], name: str, section: str) -> tuple[str, ...]:
     if name not in entry:
         raise ValueError(f"{section} entry missing field: {name}")
@@ -375,6 +425,12 @@ def _string_tuple_field(entry: Mapping[str, Any], name: str, section: str) -> tu
         if not isinstance(item, str):
             raise ValueError(f"{section}.{name} entries must be strings")
     return tuple(value)
+
+
+def _string_tuple_default_field(entry: Mapping[str, Any], name: str, section: str) -> tuple[str, ...]:
+    if name not in entry:
+        return ()
+    return _string_tuple_field(entry, name, section)
 
 
 def _int_mapping_field(entry: Mapping[str, Any], name: str, section: str) -> dict[str, int]:

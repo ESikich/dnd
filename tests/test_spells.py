@@ -63,20 +63,23 @@ def test_spell_catalog_includes_basic_srd_style_metadata() -> None:
     detect_magic = SPELLS["detect_magic"]
     mage_armor = SPELLS["mage_armor"]
 
+    assert len(SPELLS) == 319
     assert fire_bolt.level == 0
     assert fire_bolt.school == "evocation"
     assert fire_bolt.range == "120 feet"
     assert fire_bolt.components == ("verbal", "somatic")
     assert detect_magic.concentration is True
     assert detect_magic.ritual is True
-    assert mage_armor.material == "cured leather"
+    assert mage_armor.material is not None
+    assert "cured leather" in mage_armor.material
 
 
 def test_builtin_spell_pack_loads_current_catalog() -> None:
     pack = load_builtin_spell_pack()
 
     assert pack.spells == SPELLS
-    assert pack.spells["light"].material == "phosphorescent moss or firefly"
+    assert pack.spells["light"].material is not None
+    assert "phosphorescent moss" in pack.spells["light"].material
 
 
 def test_spell_pack_loads_from_decoded_data() -> None:

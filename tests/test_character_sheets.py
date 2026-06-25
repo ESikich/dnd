@@ -43,6 +43,31 @@ def test_character_sheet_derives_core_stats_from_rules_and_loadout() -> None:
     assert hp.maximum == 44
 
 
+def test_character_sheet_applies_active_magic_item_bonuses() -> None:
+    sheet = CharacterSheet(
+        id="kara",
+        name="Kara",
+        classes=(CharacterClassLevel("fighter", 5),),
+        abilities=abilities(strength=16, dexterity=14, constitution=14, wisdom=12, charisma=8),
+        saving_throw_proficiencies={"con": "proficient"},
+        loadout=CharacterLoadout(
+            armor="chain_mail",
+            shield="shield",
+            weapons=("longsword",),
+            magic_items=("ring_of_protection", "weapon_1", "armor_1", "staff_of_power"),
+            attuned_magic_items=("ring_of_protection", "staff_of_power"),
+        ),
+    )
+
+    profile = character_sheet_weapon_profile(sheet, "longsword")
+
+    assert character_sheet_armor_class(sheet).total == 22
+    assert character_sheet_saving_throw_bonus(sheet, "con") == 8
+    assert character_sheet_spell_attack_bonus(sheet, "int") == 5
+    assert profile.attack_bonus == 7
+    assert profile.damage_bonus == 4
+
+
 def test_character_sheet_weapon_profiles_use_loadout_and_training() -> None:
     sheet = fighter_sheet()
 
@@ -181,6 +206,24 @@ def test_character_sheet_validates_loadout_ids() -> None:
             classes=(CharacterClassLevel("fighter", 1),),
             abilities=abilities(),
             loadout=CharacterLoadout(weapons=("shortbow",), two_handed_weapons=("longsword",)),
+        )
+
+    with pytest.raises(ValueError, match="unknown magic item: imaginary_ring"):
+        CharacterSheet(
+            id="bad-magic-item",
+            name="Bad Magic Item",
+            classes=(CharacterClassLevel("fighter", 1),),
+            abilities=abilities(),
+            loadout=CharacterLoadout(magic_items=("imaginary_ring",)),
+        )
+
+    with pytest.raises(ValueError, match="attuned magic item is not equipped: ring_of_protection"):
+        CharacterSheet(
+            id="bad-attunement",
+            name="Bad Attunement",
+            classes=(CharacterClassLevel("fighter", 1),),
+            abilities=abilities(),
+            loadout=CharacterLoadout(attuned_magic_items=("ring_of_protection",)),
         )
 
 

@@ -15,6 +15,7 @@ CONDITION_NAMES: tuple[ConditionName, ...] = (
     "blinded",
     "charmed",
     "deafened",
+    "exhaustion",
     "frightened",
     "grappled",
     "incapacitated",

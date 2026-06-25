@@ -5,6 +5,8 @@ import pytest
 from dnd5e import (
     CONTENT_PACK_SECTIONS,
     ARMOR,
+    RULES,
+    RACES,
     SPELLS,
     ContentPack,
     load_builtin_content_pack,
@@ -15,6 +17,8 @@ from dnd5e import (
 
 def test_public_content_imports_and_docstrings() -> None:
     assert "equipment" in CONTENT_PACK_SECTIONS
+    assert "ancestries" in CONTENT_PACK_SECTIONS
+    assert "references" in CONTENT_PACK_SECTIONS
     assert "encounter_rules" in CONTENT_PACK_SECTIONS
     assert ContentPack.__doc__
 
@@ -31,6 +35,10 @@ def test_builtin_content_pack_loads_all_packaged_domains() -> None:
     assert pack.features is not None
     assert pack.conditions is not None
     assert pack.encounter_rules is not None
+    assert pack.ancestries is not None
+    assert pack.ancestries.races["elf"] == RACES["elf"]
+    assert pack.references is not None
+    assert pack.references.rules["combat"] == RULES["combat"]
 
 
 def test_content_pack_data_loads_supported_section_subset() -> None:
@@ -79,6 +87,8 @@ def test_content_pack_data_loads_supported_section_subset() -> None:
     assert pack.spells.spells["spark"].components == ("somatic",)
     assert pack.classes is None
     assert pack.creatures is None
+    assert pack.ancestries is None
+    assert pack.references is None
 
 
 def test_content_pack_loads_json_file(tmp_path: Path) -> None:

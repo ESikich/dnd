@@ -132,8 +132,9 @@ Progress:
   entries to broaden low- and mid-CR encounter coverage.
 - Done: add black bear, giant spider, and gray ooze SRD-style creature entries
   to broaden beast, ooze, trait, resistance, and condition-immunity coverage.
-- Done: the representative SRD-style creature catalog is broad enough for this
-  phase; further catalog growth is ongoing content work rather than a blocker.
+- Done: expand the packaged creature catalog to all 334 SRD API monsters with
+  compact mechanics, source URLs, legendary action names, and source-backed
+  immunity metadata.
 
 Done when:
 
@@ -151,6 +152,7 @@ Progress:
 - Done: add spell definitions for level, school, casting time, range, duration,
   components, concentration, and ritual metadata.
 - Done: add a small SRD-style spell catalog.
+- Done: expand the built-in spell catalog to the SRD API spell list.
 - Done: add spell attack bonus and spell save DC helpers for character rules
   and character sheets.
 - Done: add spell slot and pact magic runtime state with spend and restore
@@ -207,6 +209,10 @@ Todo:
   creature source metadata.
 - Done: add AC, turn start, and turn end effect hooks.
 - Done: add concentration save DC and check hooks for damage-triggered concentration saves.
+- Done: add magic-item runtime helpers for passive bonuses, charge spend/recharge,
+  and condition-save activation, and wire active magic items into character sheets.
+- Done: add feature runtime helpers for SRD-derived AC bonuses, Rage bonuses and
+  resistances, Grappler advantage, Darkvision, Breath Weapon scaling, and prerequisites.
 
 Done when:
 
@@ -227,6 +233,12 @@ Progress:
   and user-provided armor, shield, and weapon data.
 - Done: load built-in armor, shield, and weapon catalogs through the same
   equipment content-pack path exposed to users.
+- Done: expand packaged SRD API content with full spell metadata plus mundane
+  item and magic-item catalogs.
+- Done: enrich packaged armor, shield, and weapon catalogs with structured SRD
+  API metadata such as source paths, reach, category ranges, and special-rule tags.
+- Done: enrich packaged magic-item catalogs with base item applicability and
+  compact effect metadata for bonuses, saves, conditions, charges, spells, and damage.
 - Done: add JSON class content-pack schema checks and loaders for packaged and
   user-provided class metadata.
 - Done: load built-in SRD class metadata through the same class content-pack
@@ -239,10 +251,22 @@ Progress:
   and user-provided feature/resource metadata.
 - Done: load built-in feature metadata through the same feature content-pack
   path exposed to users.
+- Done: expand packaged feature metadata from the SRD API with class features,
+  race traits, and SRD feats while preserving compact mechanics tags.
+- Done: add packaged ancestry metadata from the SRD API with races, subraces,
+  languages, proficiencies, source paths, and race choice helpers.
+- Done: add packaged SRD reference metadata for ability scores, alignments,
+  backgrounds, damage types, equipment categories, magic schools, rules, rule
+  sections, skills, subclasses, and weapon properties without long-form prose.
+- Done: add packaged SRD class and subclass level progression tables with
+  feature IDs, proficiency bonuses, ASI counts, spell slots, and class-specific
+  compact table values.
 - Done: add JSON creature content-pack schema checks and loaders for packaged
   and user-provided creature/stat block metadata.
 - Done: load built-in SRD-style creature metadata through the same creature
   content-pack path exposed to users.
+- Done: expand built-in creature metadata from the SRD API to the full 334
+  monster catalog while preserving compact mechanics instead of long-form prose.
 - Done: add JSON condition content-pack schema checks and loaders for packaged
   and user-provided condition metadata.
 - Done: load built-in condition metadata through the same condition content-pack

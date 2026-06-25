@@ -5,6 +5,8 @@ import pytest
 
 from dnd5e import (
     ARMOR,
+    ITEMS,
+    MAGIC_ITEMS,
     SHIELDS,
     WEAPONS,
     ArmorCategory,
@@ -12,6 +14,12 @@ from dnd5e import (
     ArmorDefinition,
     CharacterRules,
     DamageType,
+    ItemContent,
+    ItemDefinition,
+    ItemSpeed,
+    MagicItemDefinition,
+    MagicItemEffect,
+    MagicItemVariant,
     ShieldDefinition,
     WeaponAttackProfile,
     WeaponCategory,
@@ -33,8 +41,14 @@ def test_public_equipment_imports() -> None:
     assert isinstance(ARMOR["leather"], ArmorDefinition)
     assert isinstance(SHIELDS["shield"], ShieldDefinition)
     assert isinstance(WEAPONS["rapier"], WeaponDefinition)
+    assert isinstance(ITEMS["rope_hempen_50_feet"], ItemDefinition)
+    assert isinstance(MAGIC_ITEMS["bag_of_holding"], MagicItemDefinition)
     assert ArmorClassResult is not None
     assert WeaponAttackProfile is not None
+    assert ItemContent.__doc__
+    assert ItemSpeed.__doc__
+    assert MagicItemEffect.__doc__
+    assert MagicItemVariant.__doc__
 
 
 def test_unarmored_ac_uses_dexterity_modifier() -> None:
@@ -238,6 +252,60 @@ def test_builtin_equipment_loads_from_packaged_content() -> None:
     assert pack.armor["chain_mail"] == ARMOR["chain_mail"]
     assert pack.shields["shield"] == SHIELDS["shield"]
     assert pack.weapons["longsword"] == WEAPONS["longsword"]
+    assert pack.armor["chain_mail"].source_url == "/api/2014/equipment/chain-mail"
+    assert pack.shields["shield"].source_url == "/api/2014/equipment/shield"
+    assert pack.weapons["longbow"].source_url == "/api/2014/equipment/longbow"
+    assert pack.weapons["longbow"].category_range == "Martial Ranged"
+    assert pack.weapons["glaive"].reach_ft == 10
+    assert pack.weapons["lance"].special_rules == (
+        "disadvantage_within_5_ft",
+        "two_handed_when_not_mounted",
+    )
+    assert pack.weapons["net"].special_rules == (
+        "restrains_large_or_smaller",
+        "no_effect_on_formless_or_huge_or_larger",
+        "escape_dc_10_strength_check",
+        "destroyed_by_5_slashing_damage_ac_10",
+        "one_attack_per_action_bonus_action_or_reaction",
+    )
+    assert len(pack.items) == 187
+    assert len(pack.magic_items) == 362
+    assert pack.items["rope_hempen_50_feet"] == ITEMS["rope_hempen_50_feet"]
+    assert pack.magic_items["bag_of_holding"] == MAGIC_ITEMS["bag_of_holding"]
+    assert pack.items["burglars_pack"].contents[-1].item_id == "rope_hempen_50_feet"
+    assert pack.items["warhorse"].speed == ItemSpeed(quantity=60, unit="ft/round")
+    assert pack.items["warhorse"].capacity == "540 lb."
+    assert pack.magic_items["flame_tongue"].requires_attunement is True
+    assert pack.magic_items["mace_of_terror"].base_item_id == "mace"
+    assert pack.magic_items["mace_of_terror"].effects == (
+        MagicItemEffect(
+            kind="condition_save",
+            target="creatures",
+            save_dc=15,
+            save_ability="wis",
+            condition="frightened",
+            radius_ft=30,
+            charges=3,
+            recharge="1d3 daily at dawn",
+        ),
+    )
+    assert pack.magic_items["weapon_1"].effects == (
+        MagicItemEffect(kind="attack_damage_bonus", target="weapon", bonus=1),
+    )
+    assert pack.magic_items["armor_1"].applicable_items == ("light", "medium", "heavy")
+    assert pack.magic_items["armor_1"].effects == (
+        MagicItemEffect(kind="armor_class_bonus", target="armor_class", bonus=1),
+    )
+    assert MagicItemEffect(kind="extra_damage", target="hit", damage_dice="2d6", damage_type="fire") in (
+        pack.magic_items["flame_tongue"].effects
+    )
+    assert pack.magic_items["ring_of_protection"].effects == (
+        MagicItemEffect(kind="armor_class_bonus", target="armor_class", bonus=1),
+        MagicItemEffect(kind="saving_throw_bonus", target="saving_throws", bonus=1),
+    )
+    assert pack.magic_items["staff_of_power"].attunement == (
+        "requires attunement by a sorcerer, warlock, or wizard"
+    )
 
 
 def test_equipment_pack_data_loads_user_content() -> None:
@@ -287,6 +355,96 @@ def test_equipment_pack_data_loads_user_content() -> None:
     assert pack.armor["training_leather"].base_ac == 11
     assert pack.shields["practice_shield"].ac_bonus == 1
     assert pack.weapons["practice_sword"].damage_type == "bludgeoning"
+    assert pack.items == {}
+    assert pack.magic_items == {}
+
+
+def test_equipment_pack_data_loads_item_sections() -> None:
+    pack = load_equipment_pack_data(
+        {
+            "armor": [],
+            "shields": [],
+            "weapons": [],
+            "items": [
+                {
+                    "id": "chalk",
+                    "name": "Chalk",
+                    "category": "Adventuring Gear",
+                    "cost_cp": 1,
+                    "weight_lb": None,
+                    "subcategory": "Standard Gear",
+                    "properties": [],
+                    "contents": [],
+                    "special": [],
+                    "speed": None,
+                    "capacity": None,
+                    "source_url": "/api/2014/equipment/chalk",
+                }
+            ],
+            "magic_items": [
+                {
+                    "id": "sample_wand",
+                    "name": "Sample Wand",
+                    "category": "Wands",
+                    "rarity": "Uncommon",
+                    "variant": False,
+                    "item_type": "Wand",
+                    "applicable_items": [],
+                    "base_item_id": None,
+                    "requires_attunement": True,
+                    "attunement": "requires attunement",
+                    "variants": [{"item_id": "sample_wand_plus", "name": "Sample Wand +1"}],
+                    "effects": [
+                        {
+                            "kind": "spellcasting",
+                            "target": "spell",
+                            "spell_id": "magic_missile",
+                            "charges": 7,
+                            "recharge": "1d6 + 1 daily at dawn",
+                        }
+                    ],
+                    "image_url": "/api/images/magic-items/wand.png",
+                    "source_url": "/api/2014/magic-items/sample-wand",
+                }
+            ],
+        }
+    )
+
+    assert pack.items["chalk"].cost_cp == 1
+    assert pack.items["chalk"].source_url == "/api/2014/equipment/chalk"
+    assert pack.magic_items["sample_wand"].rarity == "Uncommon"
+    assert pack.magic_items["sample_wand"].variants == (
+        MagicItemVariant(item_id="sample_wand_plus", name="Sample Wand +1"),
+    )
+    assert pack.magic_items["sample_wand"].effects == (
+        MagicItemEffect(
+            kind="spellcasting",
+            target="spell",
+            spell_id="magic_missile",
+            charges=7,
+            recharge="1d6 + 1 daily at dawn",
+        ),
+    )
+
+
+def test_item_definitions_validate_impossible_values() -> None:
+    with pytest.raises(ValueError, match="item id is required"):
+        ItemDefinition("", "Chalk", "Adventuring Gear")
+
+    with pytest.raises(ValueError, match="item cost cannot be negative"):
+        ItemDefinition("chalk", "Chalk", "Adventuring Gear", cost_cp=-1)
+
+    with pytest.raises(ValueError, match="magic item rarity is required"):
+        MagicItemDefinition("wand", "Wand", "Wands", "")
+
+    with pytest.raises(ValueError, match="item content quantity must be positive"):
+        ItemContent("rope", "Rope", 0)
+
+    with pytest.raises(ValueError, match="item speed unit is required"):
+        ItemSpeed(30, "")
+
+    with pytest.raises(ValueError, match="magic item effect save DC must be positive"):
+        MagicItemEffect("saving_throw", save_dc=0)
 
 
 def test_equipment_pack_loads_json_file(tmp_path: Path) -> None:

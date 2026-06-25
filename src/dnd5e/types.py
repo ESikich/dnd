@@ -54,6 +54,7 @@ WeaponProperty = Literal[
     "heavy",
     "light",
     "loading",
+    "monk",
     "range",
     "reach",
     "special",
@@ -93,6 +94,7 @@ CreatureType = Literal[
     "monstrosity",
     "ooze",
     "plant",
+    "swarm of Tiny beasts",
     "undead",
 ]
 
@@ -102,6 +104,7 @@ ConditionName = Literal[
     "blinded",
     "charmed",
     "deafened",
+    "exhaustion",
     "frightened",
     "grappled",
     "incapacitated",

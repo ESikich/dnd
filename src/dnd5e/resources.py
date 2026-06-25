@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import json
 from collections.abc import Mapping
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from importlib.resources import files
 from pathlib import Path
 from random import random
@@ -10,6 +10,7 @@ from typing import Any, Literal, TypeVar
 
 from dnd5e.abilities import RandomSource, proficiency_bonus, random_die
 from dnd5e.combat import DamageResult, damage_roll
+from dnd5e.effects import RollModifier
 from dnd5e.hit_points import HealingResult, HitPointState, apply_healing
 from dnd5e.types import DamageType
 
@@ -82,12 +83,48 @@ class FeatureDefinition:
     name: str
     tags: tuple[str, ...] = ()
     resource: ResourceDefinition | None = None
+    source_type: str = "feature"
+    level: int | None = None
+    class_id: str | None = None
+    subclass_id: str | None = None
+    parent_id: str | None = None
+    race_ids: tuple[str, ...] = ()
+    prerequisite_ids: tuple[str, ...] = ()
+    prerequisite_abilities: dict[str, int] = field(default_factory=dict)
+    effects: tuple[str, ...] = ()
+    source_url: str | None = None
 
     def __post_init__(self) -> None:
         _validate_id_and_name(self.id, self.name)
         for tag in self.tags:
             if not tag:
                 raise ValueError("feature tags cannot be empty")
+        if not self.source_type:
+            raise ValueError("feature source type is required")
+        if self.level is not None and self.level < 1:
+            raise ValueError("feature level must be positive")
+        if self.class_id == "":
+            raise ValueError("feature class id cannot be empty")
+        if self.subclass_id == "":
+            raise ValueError("feature subclass id cannot be empty")
+        if self.parent_id == "":
+            raise ValueError("feature parent id cannot be empty")
+        for race_id in self.race_ids:
+            if not race_id:
+                raise ValueError("feature race id cannot be empty")
+        for prerequisite_id in self.prerequisite_ids:
+            if not prerequisite_id:
+                raise ValueError("feature prerequisite id cannot be empty")
+        for ability, score in self.prerequisite_abilities.items():
+            if not ability:
+                raise ValueError("feature prerequisite ability cannot be empty")
+            if score < 1:
+                raise ValueError("feature prerequisite ability score must be positive")
+        for effect in self.effects:
+            if not effect:
+                raise ValueError("feature effect cannot be empty")
+        if self.source_url == "":
+            raise ValueError("feature source URL cannot be empty")
 
 
 @dataclass(frozen=True)
@@ -128,6 +165,18 @@ class SecondWindResult:
             raise ValueError("Second Wind result requires the Second Wind feature")
         if not 1 <= self.roll <= 10:
             raise ValueError("Second Wind roll must be from 1 to 10")
+
+
+@dataclass(frozen=True)
+class BreathWeaponProfile:
+    """Level-scaled breath weapon damage and save DC metadata."""
+
+    damage_dice: str
+    save_dc: int
+
+    def __post_init__(self) -> None:
+        if self.save_dc < 1:
+            raise ValueError("breath weapon save DC must be positive")
 
 
 RESOURCE_REFRESHES: tuple[ResourceRefresh, ...] = (
@@ -183,23 +232,52 @@ def _load_feature_entries(entries: Any) -> dict[str, FeatureDefinition]:
             FeatureDefinition(
                 id=_field(entry, "id", str, "feature"),
                 name=_field(entry, "name", str, "feature"),
-                tags=tuple(_string_list_field(entry, "tags", "feature")),
-                resource=_resource_definition_field(entry, "resource", "feature"),
+                tags=tuple(_optional_string_list_field(entry, "tags", "feature")),
+                resource=_optional_resource_definition_field(entry, "resource", "feature"),
+                source_type=_optional_missing_field(entry, "source_type", str, "feature") or "feature",
+                level=_optional_missing_field(entry, "level", int, "feature"),
+                class_id=_optional_missing_field(entry, "class_id", str, "feature"),
+                subclass_id=_optional_missing_field(entry, "subclass_id", str, "feature"),
+                parent_id=_optional_missing_field(entry, "parent_id", str, "feature"),
+                race_ids=_optional_string_list_field(entry, "race_ids", "feature"),
+                prerequisite_ids=_optional_string_list_field(
+                    entry, "prerequisite_ids", "feature"
+                ),
+                prerequisite_abilities=dict(
+                    _optional_int_mapping_field(entry, "prerequisite_abilities", "feature")
+                ),
+                effects=_optional_string_list_field(entry, "effects", "feature"),
+                source_url=_optional_missing_field(entry, "source_url", str, "feature"),
             )
             for entry in _validated_entries(
                 entries,
                 "features",
-                {"id", "name", "tags", "resource"},
+                {
+                    "id",
+                    "name",
+                    "tags",
+                    "resource",
+                    "source_type",
+                    "level",
+                    "class_id",
+                    "subclass_id",
+                    "parent_id",
+                    "race_ids",
+                    "prerequisite_ids",
+                    "prerequisite_abilities",
+                    "effects",
+                    "source_url",
+                },
             )
         ],
     )
 
 
-def _resource_definition_field(
+def _optional_resource_definition_field(
     entry: Mapping[str, Any], name: str, section: str
 ) -> ResourceDefinition | None:
     if name not in entry:
-        raise ValueError(f"{section} entry missing field: {name}")
+        return None
     value = entry[name]
     if value is None:
         return None
@@ -260,6 +338,43 @@ def _optional_field(
     if not isinstance(value, expected_type):
         raise ValueError(f"{section}.{name} must be {expected_type.__name__} or null")
     return value
+
+
+def _optional_missing_field(
+    entry: Mapping[str, Any],
+    name: str,
+    expected_type: type[T],
+    section: str,
+) -> T | None:
+    if name not in entry:
+        return None
+    return _optional_field(entry, name, expected_type, section)
+
+
+def _optional_string_list_field(
+    entry: Mapping[str, Any], name: str, section: str
+) -> tuple[str, ...]:
+    if name not in entry:
+        return ()
+    return _string_list_field(entry, name, section)
+
+
+def _optional_int_mapping_field(
+    entry: Mapping[str, Any], name: str, section: str
+) -> dict[str, int]:
+    if name not in entry:
+        return {}
+    value = entry[name]
+    if not isinstance(value, Mapping):
+        raise ValueError(f"{section}.{name} must be an object")
+    result: dict[str, int] = {}
+    for key, item in value.items():
+        if not isinstance(key, str):
+            raise ValueError(f"{section}.{name} keys must be strings")
+        if not isinstance(item, int):
+            raise ValueError(f"{section}.{name}.{key} must be int")
+        result[key] = item
+    return result
 
 
 def _string_list_field(entry: Mapping[str, Any], name: str, section: str) -> tuple[str, ...]:
@@ -423,6 +538,124 @@ def recharge_feature(
     return FeatureState(definition=state.definition, resource=result.state), result
 
 
+def feature_armor_class_bonus(
+    features: tuple[FeatureDefinition | str, ...],
+    *,
+    wearing_armor: bool = True,
+) -> int:
+    """Return flat AC bonus from active feature metadata."""
+
+    if not wearing_armor:
+        return 0
+    return sum(1 for feature in _resolve_features(features) if "armor_class_bonus" in feature.effects)
+
+
+def feature_rage_damage_bonus(
+    features: tuple[FeatureDefinition | str, ...],
+    *,
+    barbarian_level: int,
+    melee_weapon_attack: bool = True,
+    using_strength: bool = True,
+) -> int:
+    """Return the Rage melee Strength damage bonus for a barbarian level."""
+
+    if barbarian_level < 1:
+        raise ValueError("barbarian level must be positive")
+    if not melee_weapon_attack or not using_strength:
+        return 0
+    if not any("rage_damage_bonus" in feature.effects for feature in _resolve_features(features)):
+        return 0
+    if barbarian_level >= 16:
+        return 4
+    if barbarian_level >= 9:
+        return 3
+    return 2
+
+
+def feature_damage_resistances(features: tuple[FeatureDefinition | str, ...]) -> tuple[DamageType, ...]:
+    """Return damage resistances contributed by active feature metadata."""
+
+    resistances: set[DamageType] = set()
+    for feature in _resolve_features(features):
+        if "rage_resistance" in feature.effects:
+            resistances.update(("bludgeoning", "piercing", "slashing"))
+    return tuple(sorted(resistances))
+
+
+def feature_ability_check_modifier(
+    features: tuple[FeatureDefinition | str, ...],
+    ability: str,
+) -> RollModifier:
+    """Return advantage metadata from active features for an ability check."""
+
+    if ability == "str" and any("strength_advantage" in feature.effects for feature in _resolve_features(features)):
+        return RollModifier(advantage="advantage", reasons=("feature",))
+    return RollModifier()
+
+
+def feature_saving_throw_modifier(
+    features: tuple[FeatureDefinition | str, ...],
+    ability: str,
+) -> RollModifier:
+    """Return advantage metadata from active features for a saving throw."""
+
+    if ability == "str" and any("strength_advantage" in feature.effects for feature in _resolve_features(features)):
+        return RollModifier(advantage="advantage", reasons=("feature",))
+    return RollModifier()
+
+
+def feature_attack_modifier(
+    features: tuple[FeatureDefinition | str, ...],
+    *,
+    target_grappled_by_you: bool = False,
+) -> RollModifier:
+    """Return attack advantage metadata from active feature effects."""
+
+    if target_grappled_by_you and any(
+        "grapple_attack_advantage" in feature.effects for feature in _resolve_features(features)
+    ):
+        return RollModifier(advantage="advantage", reasons=("feature",))
+    return RollModifier()
+
+
+def feature_has_darkvision(features: tuple[FeatureDefinition | str, ...]) -> bool:
+    """Return whether active feature metadata grants darkvision."""
+
+    return any("darkvision" in feature.effects for feature in _resolve_features(features))
+
+
+def breath_weapon_profile(level: int, constitution_modifier: int, proficiency: int) -> BreathWeaponProfile:
+    """Return dragonborn breath weapon damage dice and save DC for a character level."""
+
+    if level < 1:
+        raise ValueError("level must be positive")
+    dice = "2d6"
+    if level >= 16:
+        dice = "5d6"
+    elif level >= 11:
+        dice = "4d6"
+    elif level >= 6:
+        dice = "3d6"
+    return BreathWeaponProfile(
+        damage_dice=dice,
+        save_dc=8 + constitution_modifier + proficiency,
+    )
+
+
+def feature_prerequisites_met(
+    feature: FeatureDefinition | str,
+    *,
+    abilities: Mapping[str, int],
+) -> bool:
+    """Return whether ability-score prerequisites for a feature are met."""
+
+    definition = _resolve_feature(feature)
+    return all(
+        abilities.get(ability, 0) >= score
+        for ability, score in definition.prerequisite_abilities.items()
+    )
+
+
 def apply_second_wind(
     state: FeatureState,
     hit_points: HitPointState,
@@ -493,6 +726,16 @@ def _roll_feature_die(
             raise ValueError(f"{context} must be from 1 to {sides}")
         return roll
     return random_die(sides, rng)
+
+
+def _resolve_features(features: tuple[FeatureDefinition | str, ...]) -> tuple[FeatureDefinition, ...]:
+    return tuple(_resolve_feature(feature) for feature in features)
+
+
+def _resolve_feature(feature: FeatureDefinition | str) -> FeatureDefinition:
+    if isinstance(feature, FeatureDefinition):
+        return feature
+    return FEATURES[feature]
 
 
 _BUILTIN_FEATURES = load_builtin_feature_pack()

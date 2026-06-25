@@ -13,6 +13,10 @@
       "tags": ["cannot_hear"]
     },
     {
+      "name": "exhaustion",
+      "tags": ["ability_checks_affected"]
+    },
+    {
       "name": "frightened",
       "tags": ["attack_rolls_affected", "ability_checks_affected"]
     },
